@@ -1,0 +1,14 @@
+{
+  "name": "math-is-magic",
+  "version": "1.0.0",
+  "private": true,
+  "description": "A chalkboard adventure game where every spell is a math puzzle.",
+  "scripts": {
+    "build": "node build.js",
+    "test": "node test/puzzles.test.js",
+    "test:play": "node test/play.js test-output/play"
+  },
+  "devDependencies": {
+    "playwright": "1.56.0"
+  }
+}

@@ -1,0 +1,2963 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="A chalkboard adventure where every spell is a math puzzle. Dress your mage, collect power-ups and beat ten monsters.">
+<meta name="theme-color" content="#4a2c17">
+<meta property="og:title" content="Math Is Magic">
+<meta property="og:description" content="A chalkboard adventure where every spell is a math puzzle.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2064%2064%22%3E%3Crect%20width%3D%2264%22%20height%3D%2264%22%20rx%3D%2212%22%20fill%3D%22%231e3a30%22%2F%3E%3Cpath%20d%3D%22M32%208l6.5%2015.6%2016.9%201.4-12.9%2011%204%2016.5L32%2043.6%2017.5%2052.5l4-16.5-12.9-11%2016.9-1.4z%22%20fill%3D%22%23f5d561%22%20stroke%3D%22%23f3efe4%22%20stroke-width%3D%222%22%20stroke-linejoin%3D%22round%22%2F%3E%3C%2Fsvg%3E">
+<style>:root{padding-top:env(safe-area-inset-top);padding-bottom:env(safe-area-inset-bottom)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Math Is Magic</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Andika:wght@400;700&family=Fredericka+the+Great&family=Kalam:wght@400;700&display=swap">
+<style>
+:root {
+  /* Layout: a wood-framed chalkboard fills the screen. Everything on it is drawn in chalk; one screen shows at a time and scrolls inside the board. */
+  --slate: #1e3a30;
+  --slate-hi: #28493d;
+  --slate-lo: #15291f;
+  --chalk: #f3efe4;
+  --chalk-dim: #a9bcb1;
+  --yellow: #f5d561;
+  --pink: #f39ac0;
+  --blue: #8fd0f0;
+  --mint: #9fe0b4;
+  --lilac: #c3a6f0;
+  --coral: #ff9a7f;
+  --sand: #e8c98a;
+  --wood: #7a4b2a;
+  --wood-dark: #4a2c17;
+  --wood-light: #b07a4a;
+  --ink: #2a2320;
+  --font-display: "Fredericka the Great", "Rockwell", Georgia, serif;
+  --font-body: "Andika", "Trebuchet MS", "Segoe UI", system-ui, sans-serif;
+  --font-hand: "Kalam", "Chalkboard SE", "Comic Sans MS", cursive;
+  --wobble: 16px 20px 14px 22px / 20px 14px 22px 16px;
+  color-scheme: dark;
+}
+*, *::before, *::after { box-sizing: border-box; }
+html { height: 100%; background: var(--wood-dark); }
+body {
+  height: 100%; margin: 0;
+  background: var(--wood-dark); color: var(--chalk);
+  font-family: var(--font-body); font-size: 17px; line-height: 1.45;
+  -webkit-tap-highlight-color: transparent;
+  overflow: hidden;
+}
+.sprites { position: absolute; width: 0; height: 0; overflow: hidden; }
+
+/* ---------- Frame and board ---------- */
+.app {
+  height: 100%;
+  display: flex; flex-direction: column;
+  padding-block: 12px 0;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  background:
+    repeating-linear-gradient(92deg, rgba(0, 0, 0, .07) 0 2px, transparent 2px 11px),
+    linear-gradient(180deg, var(--wood-light), var(--wood) 40%, var(--wood-dark));
+}
+.board {
+  position: relative; flex: 1; min-height: 0;
+  background: var(--slate);
+  border-radius: 6px;
+  box-shadow: inset 0 0 0 3px rgba(0, 0, 0, .28), inset 0 0 70px rgba(0, 0, 0, .5), 0 1px 0 rgba(255, 255, 255, .18);
+  overflow: hidden;
+}
+.board::before {
+  content: ""; position: absolute; inset: 0; pointer-events: none;
+  background:
+    radial-gradient(ellipse 40% 25% at 18% 28%, rgba(243, 239, 228, .07), transparent 70%),
+    radial-gradient(ellipse 35% 22% at 78% 72%, rgba(243, 239, 228, .06), transparent 70%),
+    radial-gradient(ellipse 50% 12% at 55% 12%, rgba(243, 239, 228, .045), transparent 70%);
+}
+.ledge {
+  position: relative; flex: none; height: 18px; margin-inline: -6px;
+  background: linear-gradient(180deg, var(--wood-light), var(--wood) 60%, var(--wood-dark));
+  border-radius: 3px 3px 0 0;
+  box-shadow: 0 -4px 8px rgba(0, 0, 0, .35);
+  margin-bottom: env(safe-area-inset-bottom, 0px);
+}
+.ledge::before, .ledge::after {
+  content: ""; position: absolute; top: -5px; height: 8px; border-radius: 4px;
+}
+.ledge::before { left: 18%; width: 46px; background: var(--chalk); transform: rotate(-3deg); }
+.ledge::after { left: 26%; width: 30px; background: var(--pink); transform: rotate(4deg); }
+
+.screen {
+  position: absolute; inset: 0;
+  overflow-y: auto; overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  padding: 16px 16px 24px;
+}
+.wrap { width: 100%; max-width: 980px; margin: 0 auto; display: flex; flex-direction: column; gap: 18px; min-height: 100%; }
+.wrap-narrow { max-width: 640px; }
+
+/* ---------- Type ---------- */
+h1, h2, h3 { margin: 0; font-weight: 400; text-wrap: balance; }
+.display { font-family: var(--font-display); letter-spacing: .01em; text-shadow: 0 0 1px rgba(243, 239, 228, .5), 0 0 22px rgba(243, 239, 228, .1); }
+.h2 { font-family: var(--font-display); font-size: clamp(28px, 6vw, 38px); line-height: 1.1; }
+.h3 { font-family: var(--font-display); font-size: 24px; line-height: 1.15; }
+.hand { font-family: var(--font-hand); color: var(--yellow); font-size: 19px; line-height: 1.35; }
+.dim { color: var(--chalk-dim); }
+.eyebrow { font-size: 13px; letter-spacing: .12em; text-transform: uppercase; color: var(--chalk-dim); font-weight: 700; }
+p { margin: 0; }
+
+/* ---------- Buttons ---------- */
+button { font: inherit; color: inherit; }
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+  min-height: 50px; padding: 10px 22px;
+  border: 2.5px solid var(--chalk); border-radius: var(--wobble);
+  background: rgba(243, 239, 228, .04);
+  color: var(--chalk); font-family: var(--font-body); font-weight: 700; font-size: 18px;
+  cursor: pointer; text-decoration: none;
+  transition: background .15s, transform .08s;
+  touch-action: manipulation;
+}
+.btn:hover { background: rgba(243, 239, 228, .1); }
+.btn:active { transform: translateY(2px); }
+.btn-primary { background: var(--yellow); border-color: var(--yellow); color: var(--ink); }
+.btn-primary:hover { background: #f8df80; }
+.btn-small { min-height: 40px; padding: 6px 14px; font-size: 15px; }
+.btn-ghost { border-color: transparent; background: none; color: var(--chalk-dim); text-decoration: underline; text-underline-offset: 4px; }
+.btn-ghost:hover { background: rgba(243, 239, 228, .06); color: var(--chalk); }
+.btn[disabled] { opacity: .4; cursor: not-allowed; transform: none; }
+.icon-btn {
+  width: 44px; height: 44px; flex: none;
+  display: inline-grid; place-items: center;
+  border: 2px solid rgba(243, 239, 228, .5); border-radius: 50%;
+  background: none; cursor: pointer; padding: 0;
+}
+.icon-btn:hover { background: rgba(243, 239, 228, .1); }
+.icon-btn .ico { width: 24px; height: 24px; }
+:focus-visible { outline: 3px dashed var(--yellow); outline-offset: 3px; }
+.ico { width: 28px; height: 28px; display: inline-block; vertical-align: middle; flex: none; }
+.row { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+
+/* ---------- Title ---------- */
+.title-screen .wrap { justify-content: center; align-items: center; text-align: center; gap: 14px; position: relative; }
+.scribbles { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
+.scribbles span { position: absolute; font-family: var(--font-hand); color: var(--chalk); opacity: .16; font-size: 20px; white-space: nowrap; }
+.title-top { position: absolute; top: 0; right: 0; }
+.title-word { font-size: clamp(46px, 13vw, 96px); line-height: .95; }
+.title-word em { font-style: normal; color: var(--yellow); }
+.title-art { display: flex; align-items: flex-end; justify-content: center; gap: 4px; margin-top: 4px; }
+.title-art .mage { width: min(46vw, 210px); height: auto; }
+.title-art .monster { width: min(30vw, 150px); height: auto; opacity: .55; transform: scaleX(1); }
+.title-actions { display: flex; flex-direction: column; gap: 10px; width: min(100%, 320px); }
+.confirm { display: grid; gap: 10px; padding: 14px; border: 2px dashed var(--coral); border-radius: var(--wobble); }
+
+/* ---------- Wardrobe ---------- */
+.ward { display: grid; gap: 18px; }
+.ward-preview { display: grid; place-items: center; }
+.ward-preview .mage { width: min(52vw, 230px); height: auto; }
+.ward-opts { display: grid; gap: 16px; min-width: 0; }
+.opt { display: grid; gap: 8px; }
+.opt-label { font-size: 14px; letter-spacing: .1em; text-transform: uppercase; color: var(--chalk-dim); font-weight: 700; }
+.name-input {
+  width: 100%; max-width: 360px;
+  font: 700 24px var(--font-body); color: var(--chalk);
+  background: transparent; border: 0; border-bottom: 3px solid var(--chalk);
+  padding: 6px 2px; border-radius: 0;
+}
+.name-input:focus { outline: none; border-bottom-color: var(--yellow); }
+.name-input::placeholder { color: var(--chalk-dim); font-weight: 400; }
+.swatches { display: flex; flex-wrap: wrap; gap: 10px; }
+.swatch {
+  width: 42px; height: 42px; border-radius: 50%;
+  border: 3px solid rgba(243, 239, 228, .35); cursor: pointer; padding: 0;
+}
+.swatch[aria-pressed="true"] { border-color: var(--chalk); box-shadow: 0 0 0 3px var(--slate), 0 0 0 6px var(--yellow); }
+.pills { display: flex; flex-wrap: wrap; gap: 8px; }
+.pill {
+  min-height: 42px; padding: 6px 16px;
+  border: 2px solid rgba(243, 239, 228, .45); border-radius: var(--wobble);
+  background: none; cursor: pointer; font-weight: 700;
+}
+.pill[aria-pressed="true"] { border-color: var(--yellow); background: rgba(245, 213, 97, .16); color: var(--yellow); }
+@media (min-width: 760px) {
+  .ward { grid-template-columns: minmax(0, 2fr) minmax(0, 3fr); align-items: center; }
+  .ward-preview .mage { width: min(32vw, 300px); }
+}
+
+/* ---------- Map ---------- */
+.topbar { display: flex; align-items: center; gap: 12px; min-height: 48px; }
+.topbar .grow { flex: 1; min-width: 0; }
+.star-count { display: inline-flex; align-items: center; gap: 4px; font-weight: 700; font-size: 18px; font-variant-numeric: tabular-nums; }
+.stops { list-style: none; margin: 0; padding: 0; display: grid; gap: 14px; position: relative; }
+.stops::before {
+  content: ""; position: absolute; left: 27px; top: 28px; bottom: 28px;
+  border-left: 3px dashed rgba(243, 239, 228, .3);
+}
+.stop {
+  position: relative;
+  display: grid; grid-template-columns: 56px 70px minmax(0, 1fr); gap: 12px; align-items: center;
+}
+.stop-num {
+  width: 56px; height: 56px; border-radius: 50%;
+  display: grid; place-items: center;
+  font: 400 28px var(--font-display);
+  background: var(--slate); border: 3px solid var(--chalk);
+  z-index: 1;
+}
+.stop.done .stop-num { background: var(--mint); color: var(--ink); border-color: var(--mint); }
+.stop.locked .stop-num { border-style: dashed; color: var(--chalk-dim); border-color: var(--chalk-dim); }
+.stop .monster { width: 70px; height: 70px; }
+.stop.locked .monster { opacity: .3; filter: grayscale(1); }
+.stop-info { display: grid; gap: 4px; min-width: 0; }
+.stop-info .h3 { font-size: 22px; }
+.stop-meta { color: var(--chalk-dim); font-size: 15px; }
+.stop-row { display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; margin-top: 4px; }
+.rate { display: inline-flex; gap: 2px; }
+.rate .ico { width: 22px; height: 22px; }
+.locked-note { display: inline-flex; align-items: center; gap: 6px; color: var(--chalk-dim); font-size: 15px; }
+.locked-note .ico { width: 20px; height: 20px; }
+.story { padding: 12px 14px; border-left: 3px solid var(--yellow); background: rgba(0, 0, 0, .12); border-radius: 0 10px 10px 0; }
+.map-foot { margin-top: auto; padding-top: 6px; }
+
+/* ---------- Intro card ---------- */
+.intro { display: grid; gap: 14px; justify-items: center; text-align: center; margin: auto 0; }
+.intro .monster { width: min(56vw, 240px); height: auto; }
+.rules { display: grid; gap: 8px; text-align: left; max-width: 34em; margin: 0; padding: 0; list-style: none; }
+.rules li { display: flex; gap: 10px; align-items: flex-start; }
+.rules .ico { width: 26px; height: 26px; margin-top: 1px; }
+
+/* ---------- Battle ---------- */
+.battle .wrap { gap: 12px; }
+.hearts { display: inline-flex; gap: 2px; min-height: 26px; align-items: center; }
+.hearts .ico { width: 26px; height: 26px; }
+.realm-name { font-family: var(--font-display); font-size: 22px; line-height: 1.15; }
+.battle-body { display: grid; gap: 14px; }
+.arena {
+  position: relative;
+  display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr); align-items: end; gap: 8px;
+  padding: 4px 0 0;
+}
+.fighter { display: grid; justify-items: center; gap: 4px; min-width: 0; position: relative; }
+.arena .mage { width: min(30vw, 150px); height: auto; }
+.arena .monster { width: min(38vw, 190px); height: auto; }
+.fighter-name { font-weight: 700; font-size: 15px; color: var(--chalk-dim); text-align: center; }
+.tally { width: 100%; max-width: 190px; height: 26px; display: block; }
+.tally line { stroke-width: 3; stroke-linecap: round; }
+.tally .on { stroke: var(--chalk); }
+.tally .off { stroke: var(--chalk-dim); opacity: .22; }
+.combo {
+  position: absolute; left: 50%; top: 4px; transform: translateX(-50%) rotate(-4deg);
+  font: 700 18px var(--font-hand); color: var(--yellow); white-space: nowrap;
+}
+.bolt { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; overflow: visible; }
+.bolt path { fill: none; stroke-linecap: round; }
+.dmg-pop {
+  position: absolute; pointer-events: none;
+  font: 400 44px var(--font-display); color: var(--yellow);
+  text-shadow: 0 0 12px rgba(245, 213, 97, .5);
+  animation: pop-up 1s ease-out forwards;
+}
+.dmg-pop.hurt { color: var(--coral); text-shadow: 0 0 12px rgba(255, 154, 127, .5); }
+.dmg-pop.heal { color: var(--mint); text-shadow: 0 0 12px rgba(159, 224, 180, .5); }
+.dmg-pop.buff { color: var(--blue); font-size: 32px; text-shadow: 0 0 12px rgba(143, 208, 240, .5); white-space: nowrap; }
+
+/* Power-ups */
+.side { display: grid; gap: 12px; min-width: 0; align-content: start; }
+.kit { display: grid; gap: 8px; }
+.items { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; padding-top: 6px; }
+.item {
+  position: relative; display: grid; justify-items: center; align-content: start; gap: 2px;
+  min-height: 62px; padding: 8px 4px 6px;
+  border: 2px dashed rgba(243, 239, 228, .42); border-radius: var(--wobble);
+  background: rgba(0, 0, 0, .12); cursor: pointer;
+  touch-action: manipulation;
+}
+.item:hover { background: rgba(243, 239, 228, .08); }
+.item .ico { width: 30px; height: 30px; }
+.item-name { font-size: 12.5px; font-weight: 700; color: var(--chalk-dim); line-height: 1.2; }
+.item-count {
+  position: absolute; top: -9px; right: -5px;
+  min-width: 22px; height: 22px; padding: 0 6px; border-radius: 11px;
+  display: grid; place-items: center;
+  background: var(--chalk); color: var(--ink);
+  font-size: 13px; font-weight: 700; font-variant-numeric: tabular-nums;
+}
+.item.is-empty .ico, .item.is-empty .item-name { opacity: .4; }
+.item.is-empty .item-count { background: var(--chalk-dim); }
+.item.is-open { border-style: solid; border-color: var(--chalk); }
+.item.is-active { border-style: solid; border-color: var(--yellow); background: rgba(245, 213, 97, .14); }
+.item.is-active .item-name { color: var(--yellow); }
+.item-info {
+  display: flex; flex-wrap: wrap; gap: 10px 12px; align-items: center;
+  padding: 10px 12px; border: 2px solid rgba(243, 239, 228, .5); border-radius: var(--wobble);
+  background: rgba(0, 0, 0, .18);
+}
+.item-info > .ico { width: 34px; height: 34px; }
+.item-text { display: grid; gap: 2px; flex: 1 1 170px; min-width: 0; font-size: 15px; line-height: 1.4; }
+.item-text b { font-size: 17px; }
+.item-why { color: var(--coral); }
+.item-btns { display: flex; flex-wrap: wrap; gap: 6px; }
+.loot {
+  display: flex; gap: 10px; align-items: center; text-align: left;
+  padding: 8px 12px; border: 2px dashed var(--yellow); border-radius: var(--wobble);
+  color: var(--yellow); font-weight: 700;
+}
+.loot .ico { width: 32px; height: 32px; }
+.fighter.shielded::after {
+  content: ""; position: absolute; left: 50%; top: 0; width: 96%; height: 78%;
+  transform: translateX(-50%);
+  border: 3px dashed var(--blue); border-radius: 50%;
+  box-shadow: 0 0 18px rgba(143, 208, 240, .45), inset 0 0 22px rgba(143, 208, 240, .22);
+  animation: shield-pulse 2.4s ease-in-out infinite; pointer-events: none;
+}
+.fighter.doubled::before {
+  content: "×2"; position: absolute; left: 4%; top: 2%; z-index: 1;
+  font: 700 24px var(--font-hand); color: var(--yellow); transform: rotate(-8deg);
+  text-shadow: 0 0 10px rgba(245, 213, 97, .5);
+}
+@keyframes shield-pulse { 50% { opacity: .6; transform: translateX(-50%) scale(1.03); } }
+.inv { display: flex; flex-wrap: wrap; gap: 6px 16px; align-items: center; }
+.inv > span:not(.eyebrow) { display: inline-flex; align-items: center; gap: 3px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.inv .ico { width: 26px; height: 26px; }
+
+.panel { display: grid; gap: 12px; min-width: 0; align-content: start; }
+.spells { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.spell {
+  display: grid; justify-items: center; align-content: start; gap: 4px; text-align: center;
+  padding: 12px 6px 10px;
+  border: 2.5px solid var(--chalk); border-radius: var(--wobble);
+  background: rgba(243, 239, 228, .04); cursor: pointer;
+  transition: background .15s, transform .1s;
+}
+.spell:hover { background: rgba(243, 239, 228, .1); transform: translateY(-2px); }
+.spell .ico { width: 42px; height: 42px; }
+.spell-name { font: 400 22px var(--font-display); line-height: 1.1; }
+.spell-power { font-weight: 700; font-size: 15px; color: var(--yellow); }
+.spell-level { font-size: 13px; color: var(--chalk-dim); }
+
+.puzzle { display: grid; gap: 12px; min-width: 0; }
+.pz-head { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.tag {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 3px 10px; border: 1.5px solid rgba(243, 239, 228, .4); border-radius: 999px;
+  font-size: 13px; font-weight: 700; letter-spacing: .04em; color: var(--chalk-dim);
+}
+.tag .ico { width: 18px; height: 18px; }
+.prompt { font-size: 19px; line-height: 1.45; max-width: 40em; }
+.visual { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: center; min-width: 0; padding: 4px 0; }
+.visual:empty { display: none; }
+.pz-note { width: 100%; text-align: center; color: var(--chalk-dim); font-size: 16px; }
+.pz-note b { color: var(--yellow); font-size: 20px; }
+
+.seq { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
+.chip {
+  min-width: 46px; padding: 6px 10px; text-align: center;
+  border: 2px solid rgba(243, 239, 228, .55); border-radius: 10px 13px 9px 12px;
+  font-size: 22px; font-weight: 700; font-variant-numeric: tabular-nums;
+}
+.chip-q { border-color: var(--yellow); border-style: dashed; color: var(--yellow); }
+.chip-op { border-color: var(--blue); color: var(--blue); }
+.chain { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; justify-content: center; }
+.arrow { color: var(--chalk-dim); font-size: 20px; }
+.magic { display: grid; grid-template-columns: repeat(3, 58px); gap: 6px; }
+.cell {
+  height: 58px; display: grid; place-items: center;
+  border: 2.5px solid var(--chalk); border-radius: 8px 10px 7px 11px;
+  font-size: 24px; font-weight: 700; font-variant-numeric: tabular-nums;
+}
+.cell-empty { border-style: dashed; border-color: rgba(243, 239, 228, .4); }
+.cell-q { border-style: dashed; border-color: var(--yellow); color: var(--yellow); background: rgba(245, 213, 97, .1); }
+.eqs { display: grid; gap: 8px; justify-items: start; }
+.eq { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.eq .ico { width: 38px; height: 38px; }
+.op { font-size: 24px; font-weight: 700; min-width: 16px; text-align: center; }
+.num { font-size: 26px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.num-q { color: var(--yellow); }
+.eq-ask { padding-top: 6px; border-top: 2px dashed rgba(243, 239, 228, .3); }
+.facts { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
+.fact { display: grid; justify-items: center; padding: 8px 16px; border: 2px solid rgba(243, 239, 228, .45); border-radius: var(--wobble); }
+.fact b { font-size: 28px; line-height: 1.1; font-variant-numeric: tabular-nums; }
+.fact span { font-size: 13px; letter-spacing: .1em; text-transform: uppercase; color: var(--chalk-dim); font-weight: 700; }
+.week { display: flex; gap: 5px; justify-content: center; flex-wrap: wrap; }
+.wday { width: 36px; height: 36px; display: grid; place-items: center; border: 2px solid rgba(243, 239, 228, .4); border-radius: 50%; font-size: 14px; font-weight: 700; }
+.wday-on { background: var(--yellow); border-color: var(--yellow); color: var(--ink); }
+.clock { width: 128px; height: 128px; }
+.clock-face { fill: none; stroke: var(--chalk); stroke-width: 3; }
+.clock-ticks line { stroke: var(--chalk); stroke-width: 2.6; stroke-linecap: round; }
+.clock-min { stroke: var(--chalk); stroke-width: 3.5; stroke-linecap: round; }
+.clock-hour { stroke: var(--yellow); stroke-width: 5.5; stroke-linecap: round; }
+.clock-pin { fill: var(--chalk); }
+.expr { font-size: clamp(21px, 5vw, 27px); font-weight: 700; line-height: 1.45; text-align: center; text-wrap: balance; font-variant-numeric: tabular-nums; max-width: 100%; overflow-wrap: anywhere; }
+.gridsvg { max-width: 100%; height: auto; }
+.g-lines line { stroke: var(--chalk); stroke-width: 2.5; stroke-linecap: round; }
+.g-dot { fill: var(--yellow); }
+.g-lbl { fill: var(--ink); font: 700 11px var(--font-body); text-anchor: middle; dominant-baseline: central; }
+.tiles { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; }
+.tile { width: 44px; height: 44px; display: inline-grid; place-items: center; }
+.tile-q { border: 2.5px dashed var(--yellow); border-radius: 10px; color: var(--yellow); font-size: 24px; font-weight: 700; }
+.tile g { stroke: var(--chalk); stroke-width: 1.5; stroke-linejoin: round; }
+.t-yellow { fill: var(--yellow); } .t-pink { fill: var(--pink); } .t-blue { fill: var(--blue); } .t-mint { fill: var(--mint); } .t-chalk { fill: var(--chalk); }
+
+/* Answer area */
+.answer { display: grid; gap: 10px; }
+.answer-box {
+  min-height: 56px; display: flex; align-items: center; justify-content: center; gap: 2px;
+  border-bottom: 3px solid var(--chalk);
+  font-size: 34px; font-weight: 700; font-variant-numeric: tabular-nums; letter-spacing: .04em;
+}
+.answer-box .placeholder { font: 400 18px var(--font-hand); color: var(--chalk-dim); letter-spacing: 0; }
+.caret { width: 3px; height: 34px; background: var(--yellow); animation: blink 1s steps(1) infinite; }
+.keypad { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.key {
+  min-height: 52px; border: 2px solid rgba(243, 239, 228, .55); border-radius: 12px 15px 11px 14px;
+  background: rgba(243, 239, 228, .04); cursor: pointer;
+  font-size: 24px; font-weight: 700; font-variant-numeric: tabular-nums;
+  touch-action: manipulation;
+}
+.key:hover { background: rgba(243, 239, 228, .1); }
+.key:active { transform: translateY(1px); background: rgba(243, 239, 228, .16); }
+.key-cast { background: var(--yellow); border-color: var(--yellow); color: var(--ink); font-size: 19px; }
+.key-cast:hover { background: #f8df80; }
+.key-cast[disabled] { opacity: .45; cursor: not-allowed; }
+.choices { display: grid; gap: 10px; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.choices.days { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.choices.tiles-choice { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.choice {
+  min-height: 58px; display: grid; place-items: center;
+  border: 2.5px solid rgba(243, 239, 228, .55); border-radius: var(--wobble);
+  background: rgba(243, 239, 228, .04); cursor: pointer;
+  font-size: 26px; font-weight: 700; font-variant-numeric: tabular-nums;
+}
+.days .choice { font-size: 17px; min-height: 50px; }
+.choice .tile { width: 48px; height: 48px; }
+.choice:hover { background: rgba(243, 239, 228, .1); }
+.choice[aria-pressed="true"] { border-color: var(--yellow); background: rgba(245, 213, 97, .18); color: var(--yellow); }
+.pz-actions { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: space-between; }
+.hint-note {
+  display: flex; gap: 10px; align-items: flex-start;
+  padding: 10px 12px; border: 2px dashed rgba(245, 213, 97, .6); border-radius: var(--wobble);
+}
+.hint-note .ico { width: 24px; height: 24px; margin-top: 2px; }
+
+/* Feedback */
+.feedback { display: grid; gap: 12px; padding: 16px; border: 2.5px solid var(--chalk); border-radius: var(--wobble); background: rgba(0, 0, 0, .14); }
+.feedback.good { border-color: var(--mint); }
+.feedback.bad { border-color: var(--coral); }
+.fb-title { font: 400 clamp(28px, 7vw, 36px) var(--font-display); line-height: 1.1; }
+.good .fb-title { color: var(--mint); }
+.bad .fb-title { color: var(--coral); }
+.fb-line { font-size: 18px; }
+.fb-explain { font-size: 17px; line-height: 1.55; max-width: 40em; padding-top: 10px; border-top: 2px dashed rgba(243, 239, 228, .25); }
+.fb-explain .eyebrow { display: block; margin-bottom: 4px; }
+.feedback .btn { justify-self: start; }
+
+/* Results and certificate */
+.result { display: grid; gap: 16px; justify-items: center; text-align: center; margin: auto 0; }
+.result .monster, .result .mage { width: min(46vw, 200px); height: auto; }
+.result .rate .ico { width: 46px; height: 46px; }
+.result.lost .monster { transform: none; }
+.result .row { justify-content: center; }
+.cert {
+  position: relative; display: grid; gap: 12px; justify-items: center; text-align: center;
+  padding: 26px 20px; margin: auto 0;
+  border: 3px solid var(--chalk); border-radius: 12px;
+  outline: 2px dashed rgba(243, 239, 228, .45); outline-offset: -12px;
+}
+.cert .mage { width: min(40vw, 170px); height: auto; }
+.cert-name { font: 400 clamp(36px, 10vw, 58px) var(--font-display); color: var(--yellow); line-height: 1; }
+.cert-sign { font-family: var(--font-hand); font-size: 22px; color: var(--chalk); }
+.cert-meta { display: flex; flex-wrap: wrap; gap: 8px 22px; justify-content: center; color: var(--chalk-dim); font-size: 15px; }
+
+@media (min-width: 860px) {
+  .battle-body { grid-template-columns: minmax(0, 5fr) minmax(0, 6fr); align-items: start; gap: 28px; }
+  .side { position: sticky; top: 0; padding-top: 24px; }
+  .arena .mage { width: min(17vw, 190px); }
+  .arena .monster { width: min(22vw, 240px); }
+  .choices.days { grid-template-columns: repeat(7, minmax(0, 1fr)); }
+}
+@media (max-width: 380px) {
+  .magic { grid-template-columns: repeat(3, 52px); }
+  .cell { height: 52px; font-size: 22px; }
+  .spell-name { font-size: 19px; }
+  .key { min-height: 48px; }
+}
+
+
+/* Chapters and monster tricks */
+.chapter { display: grid; gap: 12px; }
+.chapter + .chapter { margin-top: 6px; padding-top: 16px; border-top: 2px dashed rgba(243, 239, 228, .25); }
+.chapter-head { display: grid; gap: 2px; }
+.chapter-locked .chapter-head .h3 { color: var(--chalk-dim); }
+.traits { display: grid; gap: 8px; width: 100%; max-width: 34em; text-align: left; padding: 12px 14px; border: 2px dashed var(--coral); border-radius: var(--wobble); }
+.trait { display: flex; gap: 10px; align-items: flex-start; }
+.trait .ico { width: 24px; height: 24px; margin-top: 1px; }
+.trait b { color: var(--coral); }
+.trait-tags { display: flex; flex-wrap: wrap; gap: 4px; justify-content: center; }
+.trait-tag { padding: 1px 8px; border: 1.5px solid currentColor; border-radius: 999px; color: var(--coral); font-size: 11.5px; font-weight: 700; letter-spacing: .04em; }
+.spell[disabled] { opacity: .45; cursor: not-allowed; transform: none; }
+.spell[disabled] .spell-power { color: var(--coral); }
+.clues { display: grid; gap: 6px; margin: 0; padding: 0; list-style: none; width: 100%; max-width: 30em; }
+.clues li { position: relative; padding: 8px 12px 8px 34px; border: 2px solid rgba(243, 239, 228, .4); border-radius: var(--wobble); font-size: 17px; }
+.clues li::before { content: "?"; position: absolute; left: 11px; top: 7px; font: 700 18px var(--font-hand); color: var(--yellow); }
+.shape { max-width: 100%; height: auto; }
+.sh-grid line { stroke: rgba(243, 239, 228, .22); stroke-width: 1; }
+.sh-fill rect { fill: var(--yellow); opacity: .28; }
+.sh-edge line { stroke: var(--chalk); stroke-width: 3; stroke-linecap: round; }
+.sh-out { fill: rgba(245, 213, 97, .2); stroke: var(--chalk); stroke-width: 3; stroke-linejoin: round; }
+.sh-lbl { fill: var(--yellow); font: 700 13px var(--font-body); }
+
+/* ---------- Motion ---------- */
+@keyframes bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+@keyframes hit { 0% { transform: translateX(0); filter: brightness(1); } 15% { transform: translateX(12px) rotate(5deg); filter: brightness(1.8); } 40% { transform: translateX(-9px) rotate(-3deg); } 65% { transform: translateX(5px); } 100% { transform: translateX(0); filter: brightness(1); } }
+@keyframes lunge { 0% { transform: translateX(0); } 35% { transform: translateX(-34px) scale(1.08); } 100% { transform: translateX(0); } }
+@keyframes hurt { 0%, 100% { transform: translateX(0); } 20% { transform: translateX(-8px); } 40% { transform: translateX(7px); } 60% { transform: translateX(-5px); } 80% { transform: translateX(3px); } }
+@keyframes cast { 0% { transform: rotate(0); } 40% { transform: rotate(-6deg) translateY(-4px); } 100% { transform: rotate(0); } }
+@keyframes pop-up { 0% { opacity: 0; transform: translateY(10px) scale(.6); } 20% { opacity: 1; transform: translateY(0) scale(1.15); } 100% { opacity: 0; transform: translateY(-46px) scale(1); } }
+@keyframes blink { 50% { opacity: 0; } }
+@keyframes rise-in { from { transform: translateY(8px); opacity: .001; } to { transform: none; opacity: 1; } }
+@keyframes beaten { to { transform: translateY(14px) rotate(-12deg); opacity: .35; } }
+.idle { animation: bob 3.2s ease-in-out infinite; transform-origin: 50% 90%; }
+.is-hit { animation: hit .55s ease-out; }
+.is-lunge { animation: lunge .5s ease-in-out; }
+.is-hurt { animation: hurt .45s ease-out; }
+.is-cast { animation: cast .5s ease-out; transform-origin: 50% 90%; }
+.is-beaten { animation: beaten .8s ease-in forwards; }
+.enter { animation: rise-in .28s ease-out; }
+@media (prefers-reduced-motion: reduce) {
+  .idle, .is-hit, .is-lunge, .is-hurt, .is-cast, .enter, .caret, .fighter.shielded::after { animation: none !important; }
+  .is-beaten { animation: none; opacity: .35; }
+  .dmg-pop { animation-duration: .01s; }
+  .spell:hover { transform: none; }
+}
+
+.sr-only { position: absolute !important; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
+</style>
+</head>
+<body>
+<div class="app">
+  <main class="board" id="board">
+    <section class="screen title-screen"><div class="wrap"><h1 class="display title-word">Math Is <em>Magic</em></h1><p class="hand">Every spell is a puzzle. Solve it to cast it.</p></div></section>
+  </main>
+  <div class="ledge" aria-hidden="true"></div>
+</div>
+<div id="sr" class="sr-only" aria-live="polite"></div>
+<script>
+/* Math Is Magic: puzzle engine, part 1 (helpers, number patterns, magic squares) */
+(function (root) {
+  'use strict';
+  const P = root.Puzzles = root.Puzzles || {};
+
+  const rnd = {
+    int(a, b) { return a + Math.floor(Math.random() * (b - a + 1)); },
+    pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; },
+    shuffle(arr) {
+      const a = arr.slice();
+      for (let i = a.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        const t = a[i]; a[i] = a[j]; a[j] = t;
+      }
+      return a;
+    },
+    chance(p) { return Math.random() < p; }
+  };
+  P.rnd = rnd;
+
+  const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  P.esc = esc;
+
+  // Friendly cast for story puzzles (Indonesian names: star, moon, rainbow, dew)
+  P.NPCS = [
+    { name: 'Wizard Bintang', he: 'He', his: 'his' },
+    { name: 'Bulan the owl', he: 'She', his: 'her' },
+    { name: 'Professor Pelangi', he: 'She', his: 'her' },
+    { name: 'Embun the fox', he: 'He', his: 'his' }
+  ];
+
+  // HTML helpers. They return strings so the engine also runs in Node tests.
+  const h = {
+    seq(items) {
+      return '<div class="seq">' + items.map(v =>
+        v === '?' ? '<span class="chip chip-q">?</span>' : '<span class="chip">' + esc(v) + '</span>'
+      ).join('') + '</div>';
+    },
+    expr(text) { return '<div class="expr">' + text + '</div>'; },
+    facts(pairs) {
+      return '<div class="facts">' + pairs.map(([n, label]) =>
+        '<div class="fact"><b>' + esc(n) + '</b><span>' + esc(label) + '</span></div>'
+      ).join('') + '</div>';
+    },
+    note(text) { return '<p class="pz-note">' + text + '</p>'; }
+  };
+  P.h = h;
+
+  /* ---------- 1. Number patterns ---------- */
+  const PATTERN_KINDS = {
+    1: ['add'],
+    2: ['sub', 'double'],
+    3: ['growing', 'interleave'],
+    4: ['fib', 'squares', 'triangle', 'triple'],
+    5: ['squarePlus', 'doublePlus', 'doublingGaps', 'cubes']
+  };
+
+  function genPattern(t) {
+    const { int, pick } = rnd;
+    const kind = pick(PATTERN_KINDS[t]);
+    let seq, ans, rule, hint = 'Look at how each number changes from the one before.';
+    const last = () => seq[seq.length - 1];
+    switch (kind) {
+      case 'add': {
+        const a = int(1, 20), d = int(2, 9);
+        seq = [0, 1, 2, 3].map(i => a + i * d); ans = a + 4 * d;
+        rule = `Each number is ${d} more than the one before, so the next is ${last()} + ${d} = ${ans}.`;
+        break;
+      }
+      case 'sub': {
+        const d = int(3, 9), a = int(5 * d, 99);
+        seq = [0, 1, 2, 3].map(i => a - i * d); ans = a - 4 * d;
+        rule = `Each number is ${d} less than the one before, so the next is ${last()} − ${d} = ${ans}.`;
+        break;
+      }
+      case 'double': {
+        const a = int(1, 6);
+        seq = [0, 1, 2, 3].map(i => a * 2 ** i); ans = a * 16;
+        rule = `Each number is double the one before, so the next is ${last()} × 2 = ${ans}.`;
+        hint = 'Try multiplying instead of adding.';
+        break;
+      }
+      case 'growing': {
+        const a = int(1, 12), s = int(1, 3);
+        seq = [a]; let gap = s;
+        for (let i = 0; i < 4; i++) { seq.push(last() + gap); gap++; }
+        ans = last() + gap;
+        rule = `The gaps grow by 1 each time: +${s}, +${s + 1}, +${s + 2}, +${s + 3}. The next gap is +${s + 4}, so ${last()} + ${s + 4} = ${ans}.`;
+        hint = 'Write down the gaps between neighbours. What do you notice about the gaps?';
+        break;
+      }
+      case 'interleave': {
+        const a = int(1, 9), d = int(2, 5), b = int(30, 50), e = int(2, 5);
+        seq = [a, b, a + d, b - e, a + 2 * d, b - 2 * e]; ans = a + 3 * d;
+        rule = `Two patterns take turns. The 1st, 3rd and 5th numbers go ${a}, ${a + d}, ${a + 2 * d}, adding ${d} each time. The others go down by ${e}. The 7th number belongs to the first pattern: ${a + 2 * d} + ${d} = ${ans}.`;
+        hint = 'Read every other number. Two patterns are mixed together.';
+        break;
+      }
+      case 'fib': {
+        const a = int(1, 5), b = int(a, a + 4);
+        seq = [a, b];
+        while (seq.length < 6) seq.push(seq[seq.length - 1] + seq[seq.length - 2]);
+        ans = seq[4] + seq[5];
+        rule = `Each number is the sum of the two before it, so the next is ${seq[4]} + ${seq[5]} = ${ans}.`;
+        hint = 'Try adding two neighbours together.';
+        break;
+      }
+      case 'squares': {
+        const k = int(1, 6);
+        seq = [0, 1, 2, 3, 4].map(i => (k + i) ** 2); ans = (k + 5) ** 2;
+        rule = `These are square numbers: ${k} × ${k}, ${k + 1} × ${k + 1}, and so on. The next is ${k + 5} × ${k + 5} = ${ans}.`;
+        hint = 'Is something special about 4, 9, 16 and 25?';
+        break;
+      }
+      case 'triangle': {
+        const k = int(1, 5), T = n => n * (n + 1) / 2;
+        seq = [0, 1, 2, 3, 4].map(i => T(k + i)); ans = T(k + 5);
+        rule = `The gaps are +${k + 1}, +${k + 2}, +${k + 3}, +${k + 4}, so the next gap is +${k + 5}: ${last()} + ${k + 5} = ${ans}. These are triangle numbers.`;
+        hint = 'Look at the gaps between neighbours.';
+        break;
+      }
+      case 'triple': {
+        const a = int(1, 3);
+        seq = [0, 1, 2, 3].map(i => a * 3 ** i); ans = a * 81;
+        rule = `Each number is 3 times the one before, so the next is ${last()} × 3 = ${ans}.`;
+        hint = 'Try multiplying instead of adding.';
+        break;
+      }
+      case 'squarePlus': {
+        const c = int(1, 6), k = int(1, 3);
+        seq = [0, 1, 2, 3, 4].map(i => (k + i) ** 2 + c); ans = (k + 5) ** 2 + c;
+        rule = `Each number is a square number plus ${c}: ${k} × ${k} + ${c}, ${k + 1} × ${k + 1} + ${c}, and so on. The next is ${k + 5} × ${k + 5} + ${c} = ${ans}.`;
+        hint = 'Take the same amount away from every number. Do you see square numbers?';
+        break;
+      }
+      case 'doublePlus': {
+        const c = pick([1, -1]), a = int(2, 5);
+        seq = [a];
+        while (seq.length < 5) seq.push(last() * 2 + c);
+        ans = last() * 2 + c;
+        rule = `Double the number, then ${c > 0 ? 'add' : 'take away'} 1. So the next is ${last()} × 2 ${c > 0 ? '+' : '−'} 1 = ${ans}.`;
+        hint = 'Compare each number with double the one before it.';
+        break;
+      }
+      case 'doublingGaps': {
+        const a = int(1, 20);
+        seq = [a, a + 1, a + 3, a + 7, a + 15]; ans = a + 31;
+        rule = `The gaps double each time: +1, +2, +4, +8. The next gap is +16, so ${last()} + 16 = ${ans}.`;
+        hint = 'Write the gaps between neighbours. How do the gaps change?';
+        break;
+      }
+      case 'cubes': {
+        const k = int(1, 3);
+        seq = [0, 1, 2, 3].map(i => (k + i) ** 3); ans = (k + 4) ** 3;
+        rule = `These are cube numbers (a number times itself, times itself again). The next is ${k + 4} × ${k + 4} × ${k + 4} = ${ans}.`;
+        hint = 'Think about 2 × 2 × 2 and 3 × 3 × 3.';
+        break;
+      }
+    }
+    return {
+      type: 'pattern', label: 'Number pattern',
+      prompt: 'What number comes next?',
+      html: h.seq(seq.concat('?')),
+      input: 'number', answer: ans, hint, explain: rule,
+      data: { kind, seq, ans }
+    };
+  }
+
+  /* ---------- 2. Magic squares ---------- */
+  const LO_SHU = [2, 7, 6, 9, 5, 1, 4, 3, 8];
+  const LINES = [
+    { name: 'top row', cells: [0, 1, 2] }, { name: 'middle row', cells: [3, 4, 5] }, { name: 'bottom row', cells: [6, 7, 8] },
+    { name: 'left column', cells: [0, 3, 6] }, { name: 'middle column', cells: [1, 4, 7] }, { name: 'right column', cells: [2, 5, 8] },
+    { name: 'diagonal from the top left', cells: [0, 4, 8] }, { name: 'diagonal from the top right', cells: [2, 4, 6] }
+  ];
+  P.MAGIC_LINES = LINES;
+
+  function symmetries(g) {
+    const rot = a => [a[6], a[3], a[0], a[7], a[4], a[1], a[8], a[5], a[2]];
+    const flip = a => [a[2], a[1], a[0], a[5], a[4], a[3], a[8], a[7], a[6]];
+    const out = []; let cur = g;
+    for (let i = 0; i < 4; i++) { out.push(cur, flip(cur)); cur = rot(cur); }
+    return out;
+  }
+
+  // Fill the grid using only "a line with one gap" steps. Records the round in which each cell is found.
+  function magicRounds(vals, hidden, showSum) {
+    const known = vals.map((v, i) => hidden.includes(i) ? null : v);
+    let sumLine = null;
+    if (!showSum) {
+      sumLine = LINES.find(L => L.cells.every(c => known[c] !== null));
+      if (!sumLine) return null;
+    }
+    const S = vals[0] + vals[1] + vals[2];
+    const round = {}, via = {};
+    for (let r = 1; r < 10; r++) {
+      const found = [];
+      for (const L of LINES) {
+        const unk = L.cells.filter(c => known[c] === null);
+        if (unk.length === 1 && !found.some(f => f.cell === unk[0])) found.push({ cell: unk[0], line: L });
+      }
+      if (!found.length) break;
+      for (const f of found) { known[f.cell] = vals[f.cell]; round[f.cell] = r; via[f.cell] = f.line; }
+    }
+    return { S, sumLine, round, via };
+  }
+
+  const MAGIC_CFG = {
+    1: { m: [1, 1], k: [0, 0], hide: 1, showSum: true, chain: 0 },
+    2: { m: [1, 1], k: [1, 9], hide: 2, showSum: true, chain: 0 },
+    3: { m: [1, 2], k: [0, 10], hide: 3, showSum: false, chain: 0 },
+    4: { m: [2, 3], k: [0, 12], hide: 4, showSum: false, chain: 2 },
+    5: { m: [2, 5], k: [0, 20], hide: 5, showSum: false, chain: 3 }
+  };
+
+  function genMagic(t) {
+    const { int, pick, shuffle } = rnd;
+    const cfg = MAGIC_CFG[t];
+    for (let attempt = 0; attempt < 2000; attempt++) {
+      const chain = attempt > 1500 ? 0 : cfg.chain;
+      const m = int(cfg.m[0], cfg.m[1]), k = int(cfg.k[0], cfg.k[1]);
+      const vals = pick(symmetries(LO_SHU)).map(v => v * m + k);
+      const hidden = shuffle([0, 1, 2, 3, 4, 5, 6, 7, 8]).slice(0, cfg.hide);
+      const res = magicRounds(vals, hidden, cfg.showSum);
+      if (!res || hidden.some(c => !(c in res.round))) continue;
+      const maxR = Math.max(...hidden.map(c => res.round[c]));
+      if (maxR < chain) continue;
+      const target = pick(hidden.filter(c => res.round[c] === maxR));
+
+      // Steps needed to reach the target, in a sensible order
+      const order = [];
+      const need = c => {
+        if (order.includes(c)) return;
+        res.via[c].cells.forEach(o => { if (o !== c && hidden.includes(o)) need(o); });
+        order.push(c);
+      };
+      need(target);
+      const lines = [];
+      if (cfg.showSum) lines.push(`The magic total is ${res.S}.`);
+      else {
+        const L = res.sumLine;
+        lines.push(`The ${L.name} is complete: ${L.cells.map(c => vals[c]).join(' + ')} = ${res.S}. So every line adds up to ${res.S}.`);
+      }
+      order.forEach(c => {
+        const others = res.via[c].cells.filter(o => o !== c).map(o => vals[o]);
+        lines.push(`In the ${res.via[c].name}: ${res.S} − ${others[0]} − ${others[1]} = ${vals[c]}.`);
+      });
+      lines.push(`So the ? box is ${vals[target]}.`);
+
+      const grid = '<div class="magic">' + vals.map((v, i) =>
+        i === target ? '<span class="cell cell-q">?</span>'
+          : hidden.includes(i) ? '<span class="cell cell-empty"></span>'
+            : '<span class="cell">' + v + '</span>'
+      ).join('') + '</div>';
+
+      return {
+        type: 'magic', label: 'Magic square',
+        prompt: 'Every row, column and diagonal adds up to the same magic total. What number goes in the ? box?',
+        html: grid + (cfg.showSum ? h.note('Magic total: <b>' + res.S + '</b>') : ''),
+        input: 'number', answer: vals[target],
+        hint: cfg.showSum
+          ? 'Find a line through the ? box where the other two numbers are already filled in.'
+          : (t >= 4 ? 'Add up a full line to find the magic total. Then fill the empty boxes one at a time.' : 'Add up a full line first to find the magic total.'),
+        explain: lines.join(' '),
+        data: { vals, hidden, target, showSum: cfg.showSum }
+      };
+    }
+    throw new Error('magic square generation failed');
+  }
+
+  P.gen = P.gen || {};
+  P.gen.pattern = genPattern;
+  P.gen.magic = genMagic;
+})(typeof window !== 'undefined' ? window : globalThis);
+
+;
+/* Math Is Magic: puzzle engine, part 2 (potion algebra, heads and legs, calendar and clock, working backwards) */
+(function (root) {
+  'use strict';
+  const P = root.Puzzles;
+  const { rnd, h, esc } = P;
+
+  /* ---------- 3. Potion algebra ---------- */
+  const ING = {
+    mushroom: { one: 'mushroom', many: 'mushrooms' },
+    crystal: { one: 'crystal', many: 'crystals' },
+    star: { one: 'star', many: 'stars' },
+    potion: { one: 'potion', many: 'potions' }
+  };
+  const icon = s => `<svg class="ico" viewBox="0 0 40 40" role="img" aria-label="${s}"><use href="#i-${s}"/></svg>`;
+  P.icon = icon;
+  const an = w => (/^[aeiou]/i.test(w) ? 'an ' : 'a ') + w;
+  const cap = w => w.charAt(0).toUpperCase() + w.slice(1);
+  const rep = (s, n) => { const out = []; for (let i = 0; i < n; i++) { if (i) out.push('+'); out.push(s); } return out; };
+  const OPS = { '+': '+', '-': '−', '*': '×' };
+
+  function eqHTML(eq) {
+    return '<div class="eq">' + eq.terms.map(x => OPS[x] ? `<span class="op">${OPS[x]}</span>` : icon(x)).join('') +
+      `<span class="op">=</span><span class="num">${eq.rhs}</span></div>`;
+  }
+
+  function genPotion(t) {
+    const { int, pick, shuffle } = rnd;
+    const [A, B, C] = shuffle(Object.keys(ING));
+    const one = s => ING[s].one, many = s => ING[s].many;
+    let eqs, ask, vals, explain, hint;
+    if (t === 1) {
+      const a = int(2, 9), n = pick([2, 3]);
+      eqs = [{ terms: rep(A, n), rhs: a * n }];
+      ask = A; vals = { [A]: a };
+      explain = `${n === 2 ? 'Two' : 'Three'} ${many(A)} make ${a * n}, so one ${one(A)} is ${a * n} ÷ ${n} = ${a}.`;
+      hint = `All the ${many(A)} are worth the same. Share ${a * n} equally between them.`;
+    } else if (t === 2) {
+      const a = int(2, 9), b = int(1, 12);
+      eqs = [{ terms: rep(A, 2), rhs: 2 * a }, { terms: [A, '+', B], rhs: a + b }];
+      ask = B; vals = { [A]: a, [B]: b };
+      explain = `Two ${many(A)} make ${2 * a}, so one ${one(A)} is ${a}. Then ${a} + ${one(B)} = ${a + b}, so one ${one(B)} is ${a + b} − ${a} = ${b}.`;
+      hint = 'Start with the line that has only one kind of ingredient.';
+    } else if (t === 3) {
+      if (rnd.chance(0.5)) {
+        const a = int(2, 12), b = int(1, 12);
+        eqs = [{ terms: [A, '+', A, '+', B], rhs: 2 * a + b }, { terms: [A, '+', B], rhs: a + b }];
+        ask = pick([A, B]); vals = { [A]: a, [B]: b };
+        explain = `The first line has one extra ${one(A)} and is ${2 * a + b} − ${a + b} = ${a} bigger, so one ${one(A)} is ${a}.` +
+          (ask === B ? ` Then one ${one(B)} is ${a + b} − ${a} = ${b}.` : '');
+        hint = 'Compare the two lines. What is the difference between them?';
+      } else {
+        const a = int(5, 15), b = int(1, a - 1);
+        eqs = [{ terms: [A, '+', B], rhs: a + b }, { terms: [A, '-', B], rhs: a - b }];
+        ask = pick([A, B]); vals = { [A]: a, [B]: b };
+        explain = `Add the two lines together. The ${many(B)} cancel out, so two ${many(A)} make ${a + b} + ${a - b} = ${2 * a}, and one ${one(A)} is ${a}.` +
+          (ask === B ? ` Then one ${one(B)} is ${a + b} − ${a} = ${b}.` : '');
+        hint = 'What happens if you add the two lines together?';
+      }
+    } else if (t === 4) {
+      const a = int(1, 15), b = int(1, 15), c = int(1, 15);
+      eqs = [{ terms: [A, '+', B], rhs: a + b }, { terms: [B, '+', C], rhs: b + c }, { terms: [A, '+', C], rhs: a + c }];
+      ask = pick([A, B, C]); vals = { [A]: a, [B]: b, [C]: c };
+      const T = a + b + c, total = 2 * T;
+      const other = { [A]: [B, C, b + c], [B]: [A, C, a + c], [C]: [A, B, a + b] }[ask];
+      explain = `Add all three lines. Each ingredient appears twice, so double the full set is ${a + b} + ${b + c} + ${a + c} = ${total}. ` +
+        `One of each makes ${total} ÷ 2 = ${T}. Take away ${one(other[0])} + ${one(other[1])} = ${other[2]}: ${T} − ${other[2]} = ${vals[ask]}.`;
+      hint = 'Try adding all three lines together. How many of each ingredient do you get?';
+    } else {
+      if (rnd.chance(0.5)) {
+        const a = int(2, 9), b = int(2, 9), c = int(2, 9);
+        eqs = [{ terms: [A, '*', A], rhs: a * a }, { terms: [A, '+', B], rhs: a + b }, { terms: [B, '*', C], rhs: b * c }];
+        ask = C; vals = { [A]: a, [B]: b, [C]: c };
+        explain = `${a} × ${a} = ${a * a}, so one ${one(A)} is ${a}. Then one ${one(B)} is ${a + b} − ${a} = ${b}. Finally, ${b} times ${an(one(C))} makes ${b * c}, so one ${one(C)} is ${b * c} ÷ ${b} = ${c}.`;
+        hint = 'Which number times itself makes the first answer?';
+      } else {
+        const a = int(2, 9), b = int(2, 9), c = b + int(1, 9);
+        eqs = [{ terms: rep(A, 3), rhs: 3 * a }, { terms: [A, '*', B], rhs: a * b }, { terms: [C, '-', B], rhs: c - b }];
+        ask = C; vals = { [A]: a, [B]: b, [C]: c };
+        explain = `Three ${many(A)} make ${3 * a}, so one ${one(A)} is ${a}. Then ${a} times ${an(one(B))} makes ${a * b}, so one ${one(B)} is ${b}. Finally, ${an(one(C))} minus ${b} leaves ${c - b}, so one ${one(C)} is ${c - b} + ${b} = ${c}.`;
+        hint = 'Solve the lines from top to bottom. Each one gives you a new ingredient.';
+      }
+    }
+    return {
+      type: 'potion', label: 'Potion puzzle',
+      prompt: `Each ingredient has a secret number. What is one ${one(ask)} worth?`,
+      html: '<div class="eqs">' + eqs.map(eqHTML).join('') + `<div class="eq eq-ask">${icon(ask)}<span class="op">=</span><span class="num num-q">?</span></div></div>`,
+      input: 'number', answer: vals[ask], hint, explain,
+      data: { eqs, ask, vals }
+    };
+  }
+
+  /* ---------- 4. Heads and legs ---------- */
+  const HERDS = {
+    owls: { small: ['owl', 'owls', 2], big: ['unicorn', 'unicorns', 4], unit: 'legs', place: 'In the magic stable', animals: true },
+    pixies: { small: ['pixie', 'pixies', 2], big: ['griffin', 'griffins', 4], unit: 'legs', place: 'At the Moon Festival', animals: true },
+    stools: { small: ['stool', 'stools', 3], big: ['chair', 'chairs', 4], unit: 'legs', place: "In the wizard's kitchen", animals: false },
+    bikes: { small: ['broom-bike', 'broom-bikes', 2], big: ['tricycle', 'tricycles', 3], unit: 'wheels', place: 'At the sky race', animals: false },
+    bugs: { small: ['beetle', 'beetles', 6], big: ['spider', 'spiders', 8], unit: 'legs', place: 'In the crystal cave', animals: true }
+  };
+  const LEGS_CFG = {
+    1: { herds: ['owls'], H: [3, 6], askBig: true },
+    2: { herds: ['owls', 'pixies'], H: [6, 12] },
+    3: { herds: ['owls', 'stools', 'bikes'], H: [10, 20] },
+    4: { herds: ['bugs', 'stools', 'bikes'], H: [12, 30] },
+    5: { herds: ['owls', 'pixies', 'bugs'], H: [20, 40] }
+  };
+
+  function genLegs(t) {
+    const { int, pick } = rnd;
+    const cfg = LEGS_CFG[t];
+    const herd = HERDS[pick(cfg.herds)];
+    const [s1, sMany, L1] = herd.small, [b1, bMany, L2] = herd.big;
+    const unit = herd.unit;
+    const H = int(cfg.H[0], cfg.H[1]);
+    const nBig = int(1, H - 1), nSmall = H - nBig;
+    // Level 5 sometimes adds a known group of spiders to the scene
+    const spiders = (t === 5 && herd.animals && herd !== HERDS.bugs && rnd.chance(0.5)) ? int(2, 5) : 0;
+    const legs = nSmall * L1 + nBig * L2 + spiders * 8;
+    const heads = H + spiders;
+    const askBig = cfg.askBig || rnd.chance(0.5);
+    const askMany = askBig ? bMany : sMany;
+
+    let text;
+    if (herd.animals) {
+      text = `${herd.place} there are ${sMany} (${L1} legs each) and ${bMany} (${L2} legs each)` +
+        (spiders ? `, plus ${spiders} spiders (8 legs each)` : '') +
+        `. Altogether there are ${heads} heads and ${legs} legs. How many ${askMany} are there?`;
+    } else {
+      text = `${herd.place} there are ${H} ${sMany} and ${bMany} altogether, with ${legs} ${unit} in total. ` +
+        `${cap(an(s1))} has ${L1} ${unit} and ${an(b1)} has ${L2}. How many ${askMany} are there?`;
+    }
+    const extra = (legs - spiders * 8) - H * L1, diff = L2 - L1;
+    let explain = '';
+    if (spiders) explain += `First take away the spiders: ${heads} − ${spiders} = ${H} heads and ${legs} − ${spiders * 8} = ${legs - spiders * 8} legs are left. `;
+    explain += `If all ${H} were ${sMany}, there would be ${H} × ${L1} = ${H * L1} ${unit}. There are ${legs - spiders * 8}, so ${extra} ${unit} are extra. ` +
+      `Each ${b1} has ${diff} more than ${an(s1)}, so there are ${extra} ÷ ${diff} = ${nBig} ${bMany}` +
+      (askBig ? '.' : ` and ${H} − ${nBig} = ${nSmall} ${sMany}.`);
+
+    return {
+      type: 'legs', label: 'Heads and legs',
+      prompt: text,
+      html: h.facts(herd.animals ? [[heads, 'heads'], [legs, 'legs']] : [[H, 'things'], [legs, unit]]),
+      input: 'number', answer: askBig ? nBig : nSmall,
+      hint: `Pretend they are all ${sMany} first. How many ${unit} would that be?`,
+      explain,
+      data: { H, L1, L2, legs, spiders, nBig, nSmall, askBig }
+    };
+  }
+
+  /* ---------- 5. Calendar and clock ---------- */
+  const DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+  P.DAYS = DAYS;
+  const ord = n => n + (n % 100 >= 11 && n % 100 <= 13 ? 'th' : ({ 1: 'st', 2: 'nd', 3: 'rd' }[n % 10] || 'th'));
+  const mod = (a, m) => ((a % m) + m) % m;
+
+  function weekHTML(start, label) {
+    return '<div class="week">' + DAYS.map((d, i) =>
+      `<span class="wday${i === start ? ' wday-on' : ''}">${d.slice(0, 2)}</span>`).join('') + '</div>' +
+      h.note(label);
+  }
+
+  function clockSVG(hour) {
+    let ticks = '';
+    for (let i = 0; i < 12; i++) {
+      const a = i * Math.PI / 6;
+      const x1 = 50 + Math.sin(a) * 38, y1 = 50 - Math.cos(a) * 38, x2 = 50 + Math.sin(a) * 44, y2 = 50 - Math.cos(a) * 44;
+      ticks += `<line x1="${x1.toFixed(1)}" y1="${y1.toFixed(1)}" x2="${x2.toFixed(1)}" y2="${y2.toFixed(1)}"/>`;
+    }
+    const a = (hour % 12) * Math.PI / 6;
+    const hx = 50 + Math.sin(a) * 24, hy = 50 - Math.cos(a) * 24;
+    return `<svg class="clock" viewBox="0 0 100 100" role="img" aria-label="${hour} o'clock">` +
+      `<circle cx="50" cy="50" r="46" class="clock-face"/><g class="clock-ticks">${ticks}</g>` +
+      `<line x1="50" y1="50" x2="50" y2="14" class="clock-min"/>` +
+      `<line x1="50" y1="50" x2="${hx.toFixed(1)}" y2="${hy.toFixed(1)}" class="clock-hour"/>` +
+      `<circle cx="50" cy="50" r="3.5" class="clock-pin"/></svg>`;
+  }
+
+  function genClock(t) {
+    const { int } = rnd;
+    const s = int(1, 12);
+    const n = { 2: int(3, 11), 3: int(13, 30), 4: int(25, 60), 5: int(61, 200) }[t];
+    const back = t >= 4 && rnd.chance(0.4);
+    let ans = mod(back ? s - n : s + n, 12); if (ans === 0) ans = 12;
+    const q = Math.floor(n / 12), r = n % 12;
+    const explain = (n >= 12 ? `Every 12 hours the hands come back to the same place. ${n} = ${q} × 12 + ${r}, so ` : 'Count ') +
+      `${n >= 12 ? 'move ' : ''}${r} hour${r === 1 ? '' : 's'} ${back ? 'back' : 'on'} from ${s} o'clock: the clock shows ${ans} o'clock.`;
+    return {
+      type: 'calendar', label: 'Clock',
+      prompt: `The clock shows ${s} o'clock. ${back ? `What did it show ${n} hours ago?` : `What will it show ${n} hours from now?`} Type the hour.`,
+      html: clockSVG(s),
+      input: 'number', answer: ans,
+      hint: n >= 12 ? 'After 12 hours the clock looks exactly the same. Take away 12s first.' : 'Count the hours around the clock face.',
+      explain,
+      data: { kind: 'clock', s, n, back, ans }
+    };
+  }
+
+  function genCalendar(t) {
+    const { int, pick } = rnd;
+    if (t >= 2 && rnd.chance(0.35)) return genClock(t);
+    const start = int(0, 6);
+    let mode = 'forward', n, ans, prompt, explain, label = `Today is ${DAYS[start]}.`;
+    if (t === 3 && rnd.chance(0.4)) mode = 'ago';
+    if (t === 4) mode = pick(['month', 'forward']);
+    if (t === 5) mode = pick(['forward', 'ago', 'year']);
+    n = { 1: int(2, 6), 2: int(8, 20), 3: mode === 'ago' ? int(8, 30) : int(25, 100), 4: int(100, 365), 5: mode === 'ago' ? int(50, 400) : int(400, 1000) }[t];
+
+    if (mode === 'month') {
+      const d = int(10, 31);
+      ans = mod(start + d - 1, 7);
+      const base = [1, 8, 15, 22, 29].filter(x => x <= d).pop(), r = d - base;
+      prompt = `The 1st of the month is a ${DAYS[start]}. What day of the week is the ${ord(d)}?`;
+      label = `The 1st is a ${DAYS[start]}.`;
+      explain = `Every 7 days it is ${DAYS[start]} again, so the 1st, 8th, 15th, 22nd and 29th are all ${DAYS[start]}s. ` +
+        (r ? `The ${ord(d)} is ${r} day${r === 1 ? '' : 's'} after the ${ord(base)}, so it is a ${DAYS[ans]}.` : `So the ${ord(d)} is a ${DAYS[ans]}.`);
+      return dayPuzzle(prompt, weekHTML(start, label), ans, 'Which dates fall on the same day as the 1st?', explain, { mode, start, d, ans });
+    }
+    if (mode === 'year') {
+      n = 365;
+      ans = mod(start + 1, 7);
+      prompt = `Today is ${DAYS[start]}. In a year that is not a leap year, what day will it be exactly 365 days from now?`;
+      explain = `365 = 52 × 7 + 1. The 52 full weeks bring you back to ${DAYS[start]}, and 1 more day makes it ${DAYS[ans]}.`;
+      return dayPuzzle(prompt, weekHTML(start, label), ans, 'How many full weeks fit into 365 days? What is left over?', explain, { mode: 'forward', start, n, ans });
+    }
+    const q = Math.floor(n / 7), r = n % 7;
+    if (mode === 'ago') {
+      ans = mod(start - n, 7);
+      prompt = `Today is ${DAYS[start]}. What day was it ${n} days ago?`;
+      explain = (n >= 7 ? `Every 7 days it is ${DAYS[start]} again. ${n} = ${q} × 7 + ${r}, so count ` : 'Count ') +
+        (r ? `${r} day${r === 1 ? '' : 's'} back from ${DAYS[start]}: ${DAYS[ans]}.` : `0 days back: it was a ${DAYS[ans]}.`);
+    } else {
+      ans = mod(start + n, 7);
+      prompt = `Today is ${DAYS[start]}. What day will it be in ${n} days?`;
+      explain = (n >= 7 ? `Every 7 days it is ${DAYS[start]} again. ${n} = ${q} × 7 + ${r}, so count ` : 'Count ') +
+        (r ? `${r} day${r === 1 ? '' : 's'} on from ${DAYS[start]}: ${DAYS[ans]}.` : `0 days on: it will be ${DAYS[ans]} again.`);
+    }
+    return dayPuzzle(prompt, weekHTML(start, label), ans,
+      n >= 7 ? 'Every 7 days the week starts over. Take away full weeks first.' : 'Count the days one at a time.',
+      explain, { mode, start, n, ans });
+  }
+
+  function dayPuzzle(prompt, html, ans, hint, explain, data) {
+    return {
+      type: 'calendar', label: 'Calendar', prompt, html,
+      input: 'choice', answer: ans,
+      choices: DAYS.map((d, i) => ({ id: i, label: d.slice(0, 3), aria: d })),
+      choiceStyle: 'days',
+      hint, explain, data
+    };
+  }
+
+  /* ---------- 6. Working backwards ---------- */
+  const OP_TEXT = {
+    add: k => `adds ${k}`, sub: k => `takes away ${k}`, double: () => 'doubles it', triple: () => 'multiplies it by 3', halve: () => 'halves it'
+  };
+  const OP_CHIP = { add: k => '+' + k, sub: k => '−' + k, double: () => '×2', triple: () => '×3', halve: () => '÷2' };
+
+  function genDragonGold() {
+    const { int } = rnd;
+    const nights = int(2, 3), k = int(1, 3), end = int(1, 5);
+    const trail = [end];
+    for (let i = 0; i < nights; i++) trail.push((trail[trail.length - 1] + k) * 2);
+    const start = trail[trail.length - 1];
+    let explain = `Work backwards. Before the last night the dragon had (${end} + ${k}) × 2 = ${trail[1]} coins.`;
+    for (let i = 1; i < nights; i++) explain += ` The night before: (${trail[i]} + ${k}) × 2 = ${trail[i + 1]}.`;
+    explain += ` So it started with ${start} coins.`;
+    return {
+      type: 'backwards', label: 'Work backwards',
+      prompt: `Each night a greedy dragon spends half of its gold coins, and then ${k} more coin${k > 1 ? 's' : ''}. After ${nights} nights it has ${end} coin${end > 1 ? 's' : ''} left. How many coins did it start with?`,
+      html: h.facts([[nights, 'nights'], [end, 'coins left']]),
+      input: 'number', answer: start,
+      hint: `Start from the end. Before spending ${k} more, how many did it have? And before spending half?`,
+      explain,
+      data: { kind: 'dragon', nights, k, end, start }
+    };
+  }
+
+  function genBackwards(t, ctx) {
+    const { int, pick } = rnd;
+    if (t === 5 && rnd.chance(0.5)) return genDragonGold();
+    const steps = { 1: 1, 2: 2, 3: 3, 4: 4, 5: 4 }[t];
+    const pool = t === 1 ? ['add', 'sub'] : t === 2 ? ['add', 'sub', 'double', 'triple'] : ['add', 'sub', 'double', 'triple', 'halve'];
+    for (let attempt = 0; attempt < 500; attempt++) {
+      const ops = [];
+      for (let i = 0; i < steps; i++) {
+        const op = pick(pool);
+        ops.push({ op, k: op === 'add' || op === 'sub' ? int(2, t <= 2 ? 9 : 15) : 0 });
+      }
+      if (t >= 2 && !ops.some(o => o.op === 'double' || o.op === 'triple' || o.op === 'halve')) continue;
+      const x = int(2, t <= 2 ? 15 : 30);
+      let cur = x, ok = true;
+      const trail = [x];
+      for (const o of ops) {
+        if (o.op === 'add') cur += o.k;
+        else if (o.op === 'sub') { cur -= o.k; if (cur <= 0) ok = false; }
+        else if (o.op === 'double') cur *= 2;
+        else if (o.op === 'triple') cur *= 3;
+        else if (o.op === 'halve') { if (cur % 2) ok = false; cur /= 2; }
+        trail.push(cur);
+        if (!ok) break;
+      }
+      if (!ok || cur > 999 || cur === x) continue;
+
+      const who = rnd.chance(0.3) && ctx && ctx.name ? { name: ctx.name, he: ctx.he || 'She', his: ctx.he === 'He' ? 'his' : 'her' } : pick(P.NPCS);
+      const said = ops.map((o, i) => (i === 0 ? '' : i === ops.length - 1 ? 'and then ' : 'then ') + OP_TEXT[o.op](o.k));
+      const sentence = `${who.he} ${said.join(', ')}.`;
+      const undo = [];
+      for (let i = ops.length - 1; i >= 0; i--) {
+        const o = ops[i], after = trail[i + 1], before = trail[i];
+        const step = { add: `${after} − ${o.k}`, sub: `${after} + ${o.k}`, double: `${after} ÷ 2`, triple: `${after} ÷ 3`, halve: `${after} × 2` }[o.op];
+        undo.push(`${step} = ${before}`);
+      }
+      const chain = '<div class="chain"><span class="chip chip-q">?</span>' +
+        ops.map(o => `<span class="arrow" aria-hidden="true">→</span><span class="chip chip-op">${OP_CHIP[o.op](o.k)}</span>`).join('') +
+        `<span class="arrow" aria-hidden="true">→</span><span class="chip">${cur}</span></div>`;
+      return {
+        type: 'backwards', label: 'Work backwards',
+        prompt: `${who.name} thinks of a number. ${sentence} The answer is ${cur}. What number did ${who.he.toLowerCase()} start with?`,
+        html: chain,
+        input: 'number', answer: x,
+        hint: 'Start at the end and undo the last step first. The opposite of doubling is halving.',
+        explain: `Start at ${cur} and undo each step, last one first: ${undo.join(', ')}. The starting number was ${x}.`,
+        data: { kind: 'ops', ops, x, end: cur }
+      };
+    }
+    throw new Error('backwards generation failed');
+  }
+
+  P.gen.potion = genPotion;
+  P.gen.legs = genLegs;
+  P.gen.calendar = genCalendar;
+  P.gen.backwards = genBackwards;
+  P.clockSVG = clockSVG;
+})(typeof window !== 'undefined' ? window : globalThis);
+
+;
+/* Math Is Magic: puzzle engine, part 3 (clever sums, counting, odd one out, picture patterns, registry) */
+(function (root) {
+  'use strict';
+  const P = root.Puzzles;
+  const { rnd, h } = P;
+  const range = (a, b) => { const r = []; for (let i = a; i <= b; i++) r.push(i); return r; };
+  const gauss = n => n * (n + 1) / 2;
+
+  /* ---------- 7. Clever sums ---------- */
+  const SUM_KINDS = { 1: ['tens'], 2: ['gaussSmall', 'times25'], 3: ['gauss', 'consecutive'], 4: ['odds', 'times99', 'evens'], 5: ['gaussBig', 'alternating', 'mountain'] };
+
+  function genSums(t) {
+    const { int, pick, shuffle } = rnd;
+    const kind = pick(SUM_KINDS[t]);
+    let terms = null, factors = null, display, ans, explain, hint;
+    switch (kind) {
+      case 'tens': {
+        const a = int(1, 9), b = int(1, 9), c = int(1, 9);
+        terms = shuffle([a, 10 - a, b, 10 - b, c]); ans = 20 + c;
+        display = terms.join(' + ');
+        explain = `Pair up numbers that make 10: ${a} + ${10 - a} = 10 and ${b} + ${10 - b} = 10. That makes 20, and 20 + ${c} = ${ans}.`;
+        hint = 'Look for two numbers that add up to 10.';
+        break;
+      }
+      case 'gaussSmall': case 'gauss': case 'gaussBig': {
+        const n = kind === 'gaussSmall' ? int(5, 10) : kind === 'gauss' ? int(11, 30) : pick([40, 50, 60, 80, 100]);
+        terms = range(1, n); ans = gauss(n);
+        display = n <= 6 ? terms.join(' + ') : `1 + 2 + 3 + … + ${n}`;
+        explain = n % 2 === 0
+          ? `Pair the ends: 1 + ${n}, 2 + ${n - 1}, and so on. Each pair makes ${n + 1} and there are ${n / 2} pairs, so the total is ${n / 2} × ${n + 1} = ${ans}.`
+          : `Write the sum forwards and backwards, then add the two rows. Every column makes ${n + 1} and there are ${n} columns, so double the sum is ${n} × ${n + 1} = ${n * (n + 1)}. Half of that is ${ans}.`;
+        hint = `Pair the first and last numbers: 1 + ${n} = ${n + 1}. What about 2 + ${n - 1}?`;
+        break;
+      }
+      case 'times25': {
+        const k = int(2, 9);
+        factors = [25, k, 4]; ans = 100 * k; display = `25 × ${k} × 4`;
+        explain = `Multiply 25 × 4 first: that makes 100. Then 100 × ${k} = ${ans}.`;
+        hint = 'You can multiply in any order. Which two numbers make a round number?';
+        break;
+      }
+      case 'consecutive': {
+        const a = int(11, 40), len = int(5, 11), b = a + len - 1;
+        terms = range(a, b); ans = terms.reduce((s, x) => s + x, 0);
+        display = `${a} + ${a + 1} + ${a + 2} + … + ${b}`;
+        explain = `There are ${len} numbers. The first and last make ${a} + ${b} = ${a + b}, and so does every pair from the outside in. So the total is ${len} × ${a + b} ÷ 2 = ${ans}.`;
+        hint = 'Pair the first and last numbers. How many numbers are there altogether?';
+        break;
+      }
+      case 'odds': {
+        const n = int(5, 15);
+        terms = range(1, n).map(i => 2 * i - 1); ans = n * n;
+        display = `1 + 3 + 5 + … + ${2 * n - 1}`;
+        explain = `Adding odd numbers in order always makes a square number: 1 + 3 = 2 × 2 and 1 + 3 + 5 = 3 × 3. Here there are ${n} odd numbers, so the total is ${n} × ${n} = ${ans}.`;
+        hint = 'Try small cases first: 1 + 3, then 1 + 3 + 5. What kind of numbers do you get?';
+        break;
+      }
+      case 'evens': {
+        const n = int(5, 15);
+        terms = range(1, n).map(i => 2 * i); ans = n * (n + 1);
+        display = `2 + 4 + 6 + … + ${2 * n}`;
+        explain = `This is double 1 + 2 + … + ${n}. That sum is ${n} × ${n + 1} ÷ 2 = ${gauss(n)}, so the answer is 2 × ${gauss(n)} = ${ans}.`;
+        hint = `Every number here is double something. What is 1 + 2 + … + ${n}?`;
+        break;
+      }
+      case 'times99': {
+        const k = int(3, 12);
+        factors = [99, k]; ans = 99 * k; display = `99 × ${k}`;
+        explain = `99 is 100 − 1. So 99 × ${k} = 100 × ${k} − ${k} = ${100 * k} − ${k} = ${ans}.`;
+        hint = '99 is very close to 100.';
+        break;
+      }
+      case 'alternating': {
+        const n = int(10, 50) * 2;
+        terms = []; for (let i = n; i >= 1; i--) terms.push((n - i) % 2 === 0 ? i : -i);
+        ans = n / 2;
+        display = `${n} − ${n - 1} + ${n - 2} − ${n - 3} + … + 2 − 1`;
+        explain = `Group the numbers in pairs: (${n} − ${n - 1}) + (${n - 2} − ${n - 3}) + … + (2 − 1). Each pair makes 1 and there are ${n / 2} pairs, so the answer is ${ans}.`;
+        hint = 'Look at the numbers two at a time.';
+        break;
+      }
+      case 'mountain': {
+        const n = int(8, 25);
+        terms = range(1, n).concat(range(1, n - 1).reverse()); ans = n * n;
+        display = `1 + 2 + … + ${n - 1} + ${n} + ${n - 1} + … + 2 + 1`;
+        explain = `Each side of the mountain is 1 + 2 + … + ${n - 1} = ${gauss(n - 1)}. The two sides make ${2 * gauss(n - 1)}, and adding the top number ${n} gives ${ans}. That is ${n} × ${n}!`;
+        hint = 'Try a small mountain first: 1 + 2 + 1, then 1 + 2 + 3 + 2 + 1.';
+        break;
+      }
+    }
+    return {
+      type: 'sums', label: 'Clever sums',
+      prompt: kind === 'tens' ? 'Add them up. Can you do it in your head?' : 'Work it out. There is a shortcut!',
+      html: h.expr(display),
+      input: 'number', answer: ans, hint, explain,
+      data: { kind, terms, factors, ans }
+    };
+  }
+
+  /* ---------- 8. Counting ---------- */
+  function gridSVG(cols, rows, ab) {
+    const cell = 30, pad = 14, W = cols * cell + pad * 2, H = rows * cell + pad * 2;
+    let lines = '';
+    for (let i = 0; i <= cols; i++) lines += `<line x1="${pad + i * cell}" y1="${pad}" x2="${pad + i * cell}" y2="${pad + rows * cell}"/>`;
+    for (let j = 0; j <= rows; j++) lines += `<line x1="${pad}" y1="${pad + j * cell}" x2="${pad + cols * cell}" y2="${pad + j * cell}"/>`;
+    let marks = '';
+    if (ab) {
+      const pt = (x, y, l) => `<circle cx="${x}" cy="${y}" r="9" class="g-dot"/><text x="${x}" y="${y + 0.5}" class="g-lbl">${l}</text>`;
+      marks = pt(pad, pad, 'A') + pt(pad + cols * cell, pad + rows * cell, 'B');
+    }
+    return `<svg class="gridsvg" viewBox="0 0 ${W} ${H}" style="width:${Math.round(W * 1.5)}px" role="img" aria-label="${cols} by ${rows} grid"><g class="g-lines">${lines}</g>${marks}</svg>`;
+  }
+  P.gridSVG = gridSVG;
+
+  const COUNT_KINDS = { 1: ['outfits'], 2: ['outfits3', 'handshakes'], 3: ['handshakes', 'squares', 'digits'], 4: ['squares', 'paths', 'handshakes', 'strip'], 5: ['squares', 'paths', 'handshakes', 'rects'] };
+
+  function genCounting(t, ctx) {
+    const { int, pick, shuffle } = rnd;
+    const kind = pick(COUNT_KINDS[t]);
+    const name = (ctx && ctx.name) || 'The mage', pron = ((ctx && ctx.he) || 'She').toLowerCase();
+    let prompt, html = '', ans, explain, hint, data;
+    switch (kind) {
+      case 'outfits': {
+        const a = int(2, 3), b = int(2, 4);
+        ans = a * b;
+        prompt = `${name} has ${a} magic hats and ${b} cloaks. How many different hat-and-cloak outfits can ${pron} make?`;
+        html = h.facts([[a, 'hats'], [b, 'cloaks']]);
+        explain = `Each of the ${a} hats can go with each of the ${b} cloaks: ${a} × ${b} = ${ans} outfits.`;
+        hint = 'Pick one hat. How many cloaks could go with it?';
+        data = { kind, sizes: [a, b] };
+        break;
+      }
+      case 'outfits3': {
+        const a = int(2, 3), b = int(2, 3), c = int(2, 4);
+        ans = a * b * c;
+        prompt = `${name} has ${a} hats, ${b} cloaks and ${c} wands. An outfit is one of each. How many different outfits can ${pron} make?`;
+        html = h.facts([[a, 'hats'], [b, 'cloaks'], [c, 'wands']]);
+        explain = `${a} hats × ${b} cloaks = ${a * b} hat-and-cloak pairs. Each pair can take any of the ${c} wands: ${a * b} × ${c} = ${ans}.`;
+        hint = 'First count the hat-and-cloak pairs. Then add a wand to each.';
+        data = { kind, sizes: [a, b, c] };
+        break;
+      }
+      case 'handshakes': {
+        const n = { 2: int(4, 5), 3: int(6, 10), 4: int(10, 15), 5: int(15, 25) }[t];
+        ans = n * (n - 1) / 2;
+        prompt = `${n} wizards meet at the Moon Festival. Every wizard shakes hands with every other wizard exactly once. How many handshakes are there?`;
+        html = h.facts([[n, 'wizards']]);
+        explain = `Each wizard shakes ${n - 1} hands, which gives ${n} × ${n - 1} = ${n * (n - 1)}. But that counts every handshake twice, once for each wizard, so there are ${n * (n - 1)} ÷ 2 = ${ans} handshakes.`;
+        hint = n <= 5 ? 'Try drawing the wizards as dots and joining every pair with a line.' : 'How many hands does one wizard shake? Careful not to count a handshake twice.';
+        data = { kind, n };
+        break;
+      }
+      case 'squares': {
+        const n = { 3: 2, 4: 3, 5: pick([4, 4, 5]) }[t];
+        ans = 0; const parts = [];
+        for (let s = 1; s <= n; s++) { const c = (n - s + 1) ** 2; ans += c; parts.push(`${c} of size ${s}×${s}`); }
+        prompt = `How many squares of any size can you find in this ${n} × ${n} grid?`;
+        html = gridSVG(n, n, false);
+        explain = `Count the squares by size: ${parts.join(', ')}. ${range(1, n).reverse().map(k => k * k).join(' + ')} = ${ans}.`;
+        hint = 'Do not forget the bigger squares made from several small ones, and the whole grid itself.';
+        data = { kind, n };
+        break;
+      }
+      case 'digits': {
+        const m = pick([3, 4]), repeat = m === 3 ? rnd.chance(0.5) : false;
+        const digits = shuffle(range(1, 9)).slice(0, m).sort((x, y) => x - y);
+        ans = repeat ? m * m : m * (m - 1);
+        const list = digits.slice(0, -1).join(', ') + ' and ' + digits[digits.length - 1];
+        prompt = `Using only the digits ${list}, how many different 2-digit numbers can you make? You ${repeat ? 'may' : 'may not'} use the same digit twice.`;
+        html = '<div class="seq">' + digits.map(d => `<span class="chip">${d}</span>`).join('') + '</div>';
+        explain = repeat
+          ? `There are ${m} choices for the first digit and ${m} choices for the second: ${m} × ${m} = ${ans}.`
+          : `There are ${m} choices for the first digit, then ${m - 1} digits left for the second: ${m} × ${m - 1} = ${ans}.`;
+        hint = 'How many choices are there for the tens digit? And then for the ones digit?';
+        data = { kind, digits, repeat };
+        break;
+      }
+      case 'paths': {
+        const [w, hh] = t === 4 ? pick([[2, 2], [3, 2]]) : pick([[3, 3], [4, 3]]);
+        const C = (n, k) => { let r = 1; for (let i = 1; i <= k; i++) r = r * (n - k + i) / i; return r; };
+        ans = C(w + hh, hh);
+        prompt = 'Bulan the owl flies along the lines from A to B. She only ever moves right or down. How many different paths can she take?';
+        html = gridSVG(w, hh, true);
+        explain = `Write at each corner how many ways there are to reach it. Every corner on the top edge and the left edge has just 1 way. Every other corner is the sum of the corner above it and the corner to its left. At B you get ${ans}.`;
+        hint = 'Start at A and write a number at each corner: how many ways can you get there?';
+        data = { kind, w, h: hh };
+        break;
+      }
+      case 'strip': {
+        const n = int(4, 6);
+        ans = gauss(n);
+        prompt = 'How many rectangles can you find in this strip? Squares count as rectangles too.';
+        html = gridSVG(n, 1, false);
+        explain = `Count by length: ${n} rectangles of length 1, ${n - 1} of length 2, and so on, down to 1 of length ${n}. ${range(1, n).reverse().join(' + ')} = ${ans}.`;
+        hint = 'Count the rectangles that are 1 square long, then 2 squares long, and so on.';
+        data = { kind, cols: n, rows: 1 };
+        break;
+      }
+      case 'rects': {
+        const n = pick([2, 3, 4]);
+        const cv = gauss(n);
+        ans = 3 * cv;
+        prompt = 'How many rectangles of any size are in this grid? Squares count too.';
+        html = gridSVG(n, 2, false);
+        explain = `Every rectangle uses 2 of the 3 horizontal lines and 2 of the ${n + 1} vertical lines. There are 3 ways to pick the horizontal pair and ${cv} ways to pick the vertical pair, so there are 3 × ${cv} = ${ans} rectangles.`;
+        hint = 'A rectangle is fixed by its top and bottom lines and its left and right lines.';
+        data = { kind, cols: n, rows: 2 };
+        break;
+      }
+    }
+    return { type: 'counting', label: 'Counting', prompt, html, input: 'number', answer: ans, hint, explain, data };
+  }
+
+  /* ---------- 9. Odd one out ---------- */
+  const isPrime = n => { if (n < 2) return false; for (let i = 2; i * i <= n; i++) if (n % i === 0) return false; return true; };
+  const isSquare = n => Number.isInteger(Math.sqrt(n));
+  const isTri = n => { const k = Math.round((Math.sqrt(8 * n + 1) - 1) / 2); return k * (k + 1) / 2 === n; };
+  const isCube = n => { const k = Math.round(Math.cbrt(n)); return k * k * k === n; };
+  const mult = k => ({ test: n => n % k === 0, pl: [`in the ${k} times table`, `not in the ${k} times table`], one: [`in the ${k} times table`, `not in the ${k} times table`], why: n => `${n} = ${k} × ${n / k}`, hint: 'Think about times tables.' });
+  const PROPS = {
+    even: { test: n => n % 2 === 0, pl: ['even', 'odd'], one: ['even', 'odd'], hint: 'Try splitting each number into two equal halves.' },
+    m3: mult(3), m4: mult(4), m5: mult(5), m7: mult(7), m9: mult(9), m10: mult(10),
+    square: { test: isSquare, pl: ['square numbers', 'not square numbers'], one: ['a square number', 'not a square number'], why: n => `${Math.sqrt(n)} × ${Math.sqrt(n)} = ${n}`, hint: 'Can you make any of these by multiplying a number by itself?' },
+    prime: { test: isPrime, pl: ['prime', 'not prime'], one: ['prime', 'not prime'], hint: 'Which numbers can only be divided evenly by 1 and themselves?' },
+    tri: { test: isTri, pl: ['triangle numbers', 'not triangle numbers'], one: ['a triangle number', 'not a triangle number'], why: n => { const k = Math.round((Math.sqrt(8 * n + 1) - 1) / 2); return `${n} = 1 + 2 + … + ${k}`; }, hint: 'Think of numbers of balls you can stack into a triangle: 1, 3, 6, 10…' },
+    cube: { test: isCube, pl: ['cube numbers', 'not cube numbers'], one: ['a cube number', 'not a cube number'], why: n => { const k = Math.round(Math.cbrt(n)); return `${k} × ${k} × ${k} = ${n}`; }, hint: 'Think of 2 × 2 × 2.' }
+  };
+  P.ODD_PROPS = PROPS;
+  const ODD_CFG = {
+    1: [{ p: 'even', r: [2, 40], both: true }],
+    2: [{ p: 'm5', r: [5, 60] }, { p: 'm10', r: [10, 99] }, { p: 'm3', r: [3, 60] }],
+    3: [{ p: 'square', r: [4, 100] }, { p: 'm4', r: [8, 60] }],
+    4: [{ p: 'prime', r: [11, 60] }, { p: 'm7', r: [14, 99] }],
+    5: [{ p: 'tri', r: [6, 78] }, { p: 'm9', r: [18, 99] }, { p: 'cube', r: [1, 216] }]
+  };
+
+  function genOdd(t) {
+    const { pick, shuffle } = rnd;
+    for (let attempt = 0; attempt < 3000; attempt++) {
+      const cfg = pick(ODD_CFG[t]), prop = PROPS[cfg.p];
+      const pool = range(cfg.r[0], cfg.r[1]);
+      const has = rnd.chance(cfg.both ? 0.5 : 1);
+      const major = pool.filter(n => prop.test(n) === has);
+      let minor = pool.filter(n => prop.test(n) !== has);
+      if (cfg.p === 'prime') minor = minor.filter(n => n % 2 === 1 && n % 5 !== 0);
+      if (major.length < 3 || !minor.length) continue;
+      const three = shuffle(major).slice(0, 3), odd = pick(minor);
+      const nums = shuffle(three.concat(odd));
+      const clash = Object.keys(PROPS).some(key => {
+        if (key === cfg.p) return false;
+        const flags = nums.map(PROPS[key].test), cnt = flags.filter(Boolean).length;
+        if (cnt !== 1 && cnt !== 3) return false;
+        return nums[cnt === 1 ? flags.indexOf(true) : flags.indexOf(false)] !== odd;
+      });
+      if (clash) continue;
+      const others = nums.filter(n => n !== odd);
+      const ix = has ? 0 : 1;
+      let explain = `${others.join(', ')} are all ${prop.pl[ix]}, but ${odd} is ${prop.one[1 - ix]}.`;
+      const facts = [];
+      if (prop.why) nums.forEach(n => { if (prop.test(n)) facts.push(prop.why(n)); });
+      if (cfg.p === 'prime') { let f = 2; while (odd % f) f++; facts.push(`${odd} = ${f} × ${odd / f}`); }
+      if (facts.length) explain += ' ' + facts.join(', ') + '.';
+      return {
+        type: 'odd', label: 'Odd one out',
+        prompt: 'Three of these numbers belong together. Which one is the odd one out?',
+        html: '',
+        input: 'choice', choiceStyle: 'numbers',
+        choices: nums.map((n, i) => ({ id: i, label: String(n), aria: String(n) })),
+        answer: nums.indexOf(odd),
+        hint: prop.hint, explain,
+        data: { prop: cfg.p, nums, odd, has }
+      };
+    }
+    throw new Error('odd-one-out generation failed');
+  }
+
+  /* ---------- 10. Picture patterns ---------- */
+  const SHAPES = ['circle', 'triangle', 'square', 'star', 'diamond'];
+  const TCOLORS = ['yellow', 'pink', 'blue', 'mint', 'chalk'];
+  const COLOR_NAME = { yellow: 'yellow', pink: 'pink', blue: 'blue', mint: 'green', chalk: 'white' };
+  const SHAPE_SVG = {
+    circle: '<circle cx="20" cy="20" r="13"/>',
+    triangle: '<polygon points="20,6 34,32 6,32"/>',
+    square: '<rect x="8" y="8" width="24" height="24" rx="2"/>',
+    star: '<polygon points="20,4 23.8,14.7 35.2,15.1 26.2,22 29.4,32.9 20,26.5 10.6,32.9 13.8,22 4.8,15.1 16.2,14.7"/>',
+    diamond: '<polygon points="20,4 34,20 20,36 6,20"/>',
+    arrow: '<polygon points="20,4 33,19 24.5,19 24.5,36 15.5,36 15.5,19 7,19"/>'
+  };
+  const DIRS = ['up', 'up-right', 'right', 'down-right', 'down', 'down-left', 'left', 'up-left'];
+  const norm = r => ((r % 360) + 360) % 360;
+  const tileKey = tl => tl.s + '|' + tl.c + '|' + (tl.s === 'arrow' ? norm(tl.r) : 0);
+  const tileName = tl => `${COLOR_NAME[tl.c]} ${tl.s}` + (tl.s === 'arrow' ? ` pointing ${DIRS[norm(tl.r) / 45]}` : '');
+  function tileSVG(tl) {
+    return `<svg class="tile" viewBox="0 0 40 40" role="img" aria-label="${tileName(tl)}"><g class="t-${tl.c}" transform="rotate(${norm(tl.r)} 20 20)">${SHAPE_SVG[tl.s]}</g></svg>`;
+  }
+  P.tileKey = tileKey;
+
+  const PIC_KINDS = {
+    1: ['shapeAB', 'colorAB'],
+    2: ['shapeABC', 'shapeAAB', 'colorABC'],
+    3: ['rot90', 'shapeABC_colorAB'],
+    4: ['rot90_color3', 'shapeABC_colorAB', 'rotBack90_colorAB'],
+    5: ['rot45_color3', 'rot135_colorAB', 'rotBack45_colorAB']
+  };
+
+  function genPicture(t) {
+    const { pick, shuffle } = rnd;
+    const kind = pick(PIC_KINDS[t]);
+    const [A, B, C] = shuffle(SHAPES), [X, Y, Z] = shuffle(TCOLORS);
+    const r0 = pick([0, 90, 180, 270]);
+    const rules = {
+      shapeAB: i => ({ s: [A, B][i % 2], c: X, r: 0 }),
+      colorAB: i => ({ s: A, c: [X, Y][i % 2], r: 0 }),
+      shapeABC: i => ({ s: [A, B, C][i % 3], c: X, r: 0 }),
+      shapeAAB: i => ({ s: [A, A, B][i % 3], c: X, r: 0 }),
+      colorABC: i => ({ s: A, c: [X, Y, Z][i % 3], r: 0 }),
+      rot90: i => ({ s: 'arrow', c: X, r: r0 + 90 * i }),
+      shapeABC_colorAB: i => ({ s: [A, B, C][i % 3], c: [X, Y][i % 2], r: 0 }),
+      rot90_color3: i => ({ s: 'arrow', c: [X, Y, Z][i % 3], r: r0 + 90 * i }),
+      rotBack90_colorAB: i => ({ s: 'arrow', c: [X, Y][i % 2], r: r0 - 90 * i }),
+      rot45_color3: i => ({ s: 'arrow', c: [X, Y, Z][i % 3], r: r0 + 45 * i }),
+      rot135_colorAB: i => ({ s: 'arrow', c: [X, Y][i % 2], r: r0 + 135 * i }),
+      rotBack45_colorAB: i => ({ s: 'arrow', c: [X, Y][i % 2], r: r0 - 45 * i })
+    };
+    const rule = rules[kind];
+    const seq = [0, 1, 2, 3, 4].map(rule);
+    const correct = rule(5);
+    const used = new Set([tileKey(correct)]);
+    const distract = [];
+    const offer = tl => { const k = tileKey(tl); if (!used.has(k) && distract.length < 3) { used.add(k); distract.push(tl); } };
+    shuffle([rule(4), rule(6), rule(3)]).forEach(offer);
+    const extras = [];
+    TCOLORS.forEach(c => extras.push(Object.assign({}, correct, { c })));
+    if (correct.s === 'arrow') [45, 90, 180, 270].forEach(d => extras.push(Object.assign({}, correct, { r: correct.r + d })));
+    else SHAPES.forEach(s => extras.push(Object.assign({}, correct, { s })));
+    shuffle(extras).forEach(offer);
+    const options = shuffle([correct].concat(distract));
+
+    const turning = correct.s === 'arrow';
+    const step = turning ? norm(rule(1).r - rule(0).r) : 0;
+    const turnText = turning ? (step === 90 ? 'a quarter turn clockwise' : step === 270 ? 'a quarter turn anticlockwise' : step === 45 ? 'an eighth of a turn clockwise' : step === 315 ? 'an eighth of a turn anticlockwise' : 'three eighths of a turn clockwise') : '';
+    const cycleC = new Set(seq.map(x => x.c)).size, cycleS = new Set(seq.map(x => x.s)).size;
+    const parts = [];
+    if (turning) parts.push(`the arrow turns ${turnText} each time`);
+    if (cycleS > 1) parts.push(`the shapes repeat in a cycle of ${kind === 'shapeAAB' ? 3 : cycleS}`);
+    if (cycleC > 1) parts.push(`the colours repeat in a cycle of ${cycleC}`);
+    const sentence = parts.join(', and ');
+
+    return {
+      type: 'picture', label: 'Picture pattern',
+      prompt: 'Which picture comes next?',
+      html: '<div class="tiles">' + seq.map(tileSVG).join('') + '<span class="tile tile-q">?</span></div>',
+      input: 'choice', choiceStyle: 'tiles',
+      choices: options.map((o, i) => ({ id: i, svg: tileSVG(o), aria: tileName(o) })),
+      answer: options.indexOf(correct),
+      hint: turning ? 'Watch which way the arrow points each time. Then check the colours.' : 'Look for the part of the pattern that repeats.',
+      explain: sentence.charAt(0).toUpperCase() + sentence.slice(1) + `. So next comes the ${tileName(correct)}.`,
+      data: { kind, seq, correct, options }
+    };
+  }
+
+  /* ---------- Registry ---------- */
+  P.gen.sums = genSums;
+  P.gen.counting = genCounting;
+  P.gen.odd = genOdd;
+  P.gen.picture = genPicture;
+  P.TYPES = Object.keys(P.gen);
+
+  P.make = function (type, tier, ctx) {
+    const t = Math.max(1, Math.min(5, tier | 0));
+    const p = P.gen[type](t, ctx || {});
+    p.tier = t;
+    return p;
+  };
+  P.check = function (p, value) {
+    if (p.input === 'number') return value !== '' && value !== null && value !== undefined && Number(value) === p.answer;
+    return value === p.answer;
+  };
+  P.answerText = function (p) {
+    if (p.input === 'number') return String(p.answer);
+    const c = p.choices.find(x => x.id === p.answer);
+    return c ? (p.choiceStyle === 'tiles' ? 'the ' + c.aria : c.aria) : '';
+  };
+})(typeof window !== 'undefined' ? window : globalThis);
+
+;
+/* Math Is Magic: puzzle engine, part 4 (mystery numbers, shapes, ages) */
+(function (root) {
+  'use strict';
+  const P = root.Puzzles;
+  const { rnd, h } = P;
+  const range = (a, b) => { const r = []; for (let i = a; i <= b; i++) r.push(i); return r; };
+  const aN = n => (/^(8|11|18)/.test(String(n)) ? 'an ' : 'a ') + n;
+  const digitSum = n => String(n).split('').reduce((a, c) => a + Number(c), 0);
+
+  /* ---------- 11. Mystery numbers ---------- */
+  const COND = {
+    parity: even => ({ kind: 'parity', even, test: n => (n % 2 === 0) === even, text: `I am an ${even ? 'even' : 'odd'} number.`, many: `are ${even ? 'even' : 'odd'}`, one: `is ${even ? 'even' : 'odd'}` }),
+    mult: k => ({ kind: 'mult', k, test: n => n % k === 0, text: `I am in the ${k} times table.`, many: `are in the ${k} times table`, one: `is in the ${k} times table` }),
+    rem: (k, r) => ({ kind: 'rem', k, r, test: n => n % k === r, text: `If you share me into groups of ${k}, ${r} ${r === 1 ? 'is' : 'are'} left over.`, many: `leave ${r} over in groups of ${k}`, one: `leaves ${r} over in groups of ${k}` }),
+    ends: d => ({ kind: 'ends', d, test: n => n % 10 === d, text: `My last digit is ${d}.`, many: `end in ${d}`, one: `ends in ${d}` }),
+    dsum: s => ({ kind: 'dsum', s, test: n => digitSum(n) === s, text: `My digits add up to ${s}.`, many: `have digits that add up to ${s}`, one: `has digits that add up to ${s}` })
+  };
+  P.MYSTERY_COND = COND;
+  const MYSTERY_CFG = {
+    1: { lo: 10, hi: 40, kinds: ['parity', 'mult', 'ends'], ks: [3, 4, 5], n: 2 },
+    2: { lo: 10, hi: 60, kinds: ['mult', 'ends', 'dsum', 'parity'], ks: [3, 4, 6, 7, 8, 9], n: 2 },
+    3: { lo: 1, hi: 30, kinds: ['rem', 'mult'], ks: [3, 4, 5, 6, 7], n: 2, needRem: true },
+    4: { lo: 1, hi: 60, kinds: ['rem'], ks: [4, 5, 6, 7, 8, 9], n: 2 },
+    5: { lo: 1, hi: 100, kinds: ['rem'], ks: [2, 3, 4, 5, 7], n: 3 }
+  };
+  function clueFor(kind, x, ks) {
+    if (kind === 'parity') return COND.parity(x % 2 === 0);
+    if (kind === 'ends') return COND.ends(x % 10);
+    if (kind === 'dsum') return x >= 10 ? COND.dsum(digitSum(x)) : null;
+    if (kind === 'mult') { const o = ks.filter(k => x % k === 0); return o.length ? COND.mult(rnd.pick(o)) : null; }
+    if (kind === 'rem') { const o = ks.filter(k => x % k !== 0); if (!o.length) return null; const k = rnd.pick(o); return COND.rem(k, x % k); }
+    return null;
+  }
+
+  function genMystery(t) {
+    const cfg = MYSTERY_CFG[t], pool = range(cfg.lo, cfg.hi);
+    const fits = cs => pool.filter(n => cs.every(c => c.test(n)));
+    for (let attempt = 0; attempt < 5000; attempt++) {
+      const x = rnd.int(cfg.lo, cfg.hi), clues = [], usedK = new Set();
+      for (let tries = 0; clues.length < cfg.n && tries < 25; tries++) {
+        const kind = rnd.pick(cfg.kinds);
+        if (kind !== 'mult' && kind !== 'rem' && clues.some(c => c.kind === kind)) continue;
+        const c = clueFor(kind, x, cfg.ks.filter(k => !usedK.has(k)));
+        if (!c) continue;
+        clues.push(c);
+        if (c.k) usedK.add(c.k);
+      }
+      if (clues.length < cfg.n) continue;
+      if (cfg.needRem && !clues.some(c => c.kind === 'rem')) continue;
+      if (fits(clues).length !== 1) continue;
+      // every clue must matter
+      if (clues.some((c, i) => fits(clues.filter((_, j) => j !== i)).length < 2)) continue;
+
+      const order = clues.slice().sort((a, b) => fits([a]).length - fits([b]).length);
+      const list = fits([order[0]]), idx = list.indexOf(x);
+      const cut = Math.max(idx + 2, 6);
+      const shown = list.slice(0, cut).join(', ') + (list.length > cut ? ', …' : '.');
+      const rest = order.slice(1);
+      return {
+        type: 'mystery', label: 'Mystery number',
+        prompt: `I am a mystery number from ${cfg.lo} to ${cfg.hi}. Read my clues. What number am I?`,
+        html: '<ul class="clues">' + clues.map(c => `<li>${c.text}</li>`).join('') + '</ul>',
+        input: 'number', answer: x,
+        hint: 'List the numbers that fit one clue. Then cross out the ones that break the other clues.',
+        explain: `Numbers from ${cfg.lo} to ${cfg.hi} that ${order[0].many}: ${shown} Of these, only ${x} ${rest.map(c => c.one).join(' and ')}.`,
+        data: { lo: cfg.lo, hi: cfg.hi, x, clues: clues.map(c => ({ kind: c.kind, even: c.even, k: c.k, r: c.r, d: c.d, s: c.s })) }
+      };
+    }
+    if (t > 1) return genMystery(t - 1);
+    throw new Error('mystery generation failed');
+  }
+
+  /* ---------- 12. Shapes: area and perimeter ---------- */
+  function hasHole(cells, W, H) {
+    const set = new Set(cells.map(c => c.join(',')));
+    const seen = new Set(), stack = [[-1, -1]];
+    while (stack.length) {
+      const [x, y] = stack.pop(), k = x + ',' + y;
+      if (x < -1 || y < -1 || x > W || y > H || seen.has(k) || set.has(k)) continue;
+      seen.add(k);
+      stack.push([x + 1, y], [x - 1, y], [x, y + 1], [x, y - 1]);
+    }
+    return seen.size !== (W + 2) * (H + 2) - cells.length;
+  }
+  function polyomino(n, maxW, maxH) {
+    for (let attempt = 0; attempt < 1000; attempt++) {
+      const list = [[0, 0]], set = new Set(['0,0']);
+      while (list.length < n) {
+        const [x, y] = rnd.pick(list), [dx, dy] = rnd.pick([[1, 0], [-1, 0], [0, 1], [0, -1]]);
+        const k = (x + dx) + ',' + (y + dy);
+        if (!set.has(k)) { set.add(k); list.push([x + dx, y + dy]); }
+      }
+      const minX = Math.min(...list.map(c => c[0])), minY = Math.min(...list.map(c => c[1]));
+      const cells = list.map(([x, y]) => [x - minX, y - minY]);
+      const W = Math.max(...cells.map(c => c[0])) + 1, H = Math.max(...cells.map(c => c[1])) + 1;
+      if (W > maxW || H > maxH || W < 2 || H < 2 || hasHole(cells, W, H)) continue;
+      return { cells, W, H };
+    }
+    throw new Error('polyomino failed');
+  }
+  const perimeterOf = cells => {
+    const set = new Set(cells.map(c => c.join(',')));
+    let p = 0;
+    cells.forEach(([x, y]) => [[1, 0], [-1, 0], [0, 1], [0, -1]].forEach(([dx, dy]) => { if (!set.has((x + dx) + ',' + (y + dy))) p++; }));
+    return p;
+  };
+  function polySVG(cells, W, H) {
+    const u = 30, pad = 8, set = new Set(cells.map(c => c.join(',')));
+    let grid = '', fills = '', edges = '';
+    for (let i = 0; i <= W; i++) grid += `<line x1="${pad + i * u}" y1="${pad}" x2="${pad + i * u}" y2="${pad + H * u}"/>`;
+    for (let j = 0; j <= H; j++) grid += `<line x1="${pad}" y1="${pad + j * u}" x2="${pad + W * u}" y2="${pad + j * u}"/>`;
+    cells.forEach(([x, y]) => {
+      const X = pad + x * u, Y = pad + y * u;
+      fills += `<rect x="${X}" y="${Y}" width="${u}" height="${u}"/>`;
+      if (!set.has(x + ',' + (y - 1))) edges += `<line x1="${X}" y1="${Y}" x2="${X + u}" y2="${Y}"/>`;
+      if (!set.has(x + ',' + (y + 1))) edges += `<line x1="${X}" y1="${Y + u}" x2="${X + u}" y2="${Y + u}"/>`;
+      if (!set.has((x - 1) + ',' + y)) edges += `<line x1="${X}" y1="${Y}" x2="${X}" y2="${Y + u}"/>`;
+      if (!set.has((x + 1) + ',' + y)) edges += `<line x1="${X + u}" y1="${Y}" x2="${X + u}" y2="${Y + u}"/>`;
+    });
+    const w = W * u + pad * 2, hh = H * u + pad * 2;
+    return `<svg class="shape" viewBox="0 0 ${w} ${hh}" style="width:${w}px" role="img" aria-label="a shape made of squares"><g class="sh-grid">${grid}</g><g class="sh-fill">${fills}</g><g class="sh-edge">${edges}</g></svg>`;
+  }
+  // Right-angled outline with side labels. pts in cm, labels: [x, y, text, anchor]
+  function outlineSVG(pts, labels, W, H) {
+    const s = Math.min(24, 230 / W, 170 / H), pad = 30, padL = 54;
+    const d = pts.map(([x, y], i) => (i ? 'L' : 'M') + (padL + x * s).toFixed(1) + ' ' + (pad + y * s).toFixed(1)).join(' ') + ' Z';
+    const txt = labels.map(([x, y, t, a]) => `<text x="${(padL + x * s).toFixed(1)}" y="${(pad + y * s).toFixed(1)}" text-anchor="${a || 'middle'}" class="sh-lbl">${t}</text>`).join('');
+    const w = W * s + padL + pad, hh = H * s + pad * 2;
+    return `<svg class="shape" viewBox="0 0 ${w.toFixed(0)} ${hh.toFixed(0)}" style="width:${w.toFixed(0)}px" role="img" aria-label="a shape with labelled sides"><path class="sh-out" d="${d}"/>${txt}</svg>`;
+  }
+  function lShape(W, H, w, hh) {
+    const pts = [[0, 0], [W - w, 0], [W - w, hh], [W, hh], [W, H], [0, H]];
+    const labels = [[W / 2, H + 0.9, `${W} cm`], [-0.4, H / 2 + 0.3, `${H} cm`, 'end'], [W - w / 2, hh + 0.9, `${w} cm`], [W - w - 0.3, hh / 2 + 0.3, `${hh} cm`, 'end']];
+    return outlineSVG(pts, labels, W, H);
+  }
+  function uShape(W, H, n, dd) {
+    const a = (W - n) / 2;
+    const pts = [[0, 0], [a, 0], [a, dd], [a + n, dd], [a + n, 0], [W, 0], [W, H], [0, H]];
+    const labels = [[W / 2, H + 0.9, `${W} cm`], [-0.4, H / 2 + 0.3, `${H} cm`, 'end'], [a + n / 2, dd - 0.4, `${n} cm`], [a + n + 0.3, dd / 2 + 0.3, `${dd} cm`, 'start']];
+    return outlineSVG(pts, labels, W, H);
+  }
+
+  function genArea(t) {
+    const { int, pick } = rnd;
+    if (t <= 3) {
+      const shape = t === 1 ? polyomino(int(4, 6), 4, 3) : t === 2 ? polyomino(int(7, 11), 5, 4) : polyomino(int(4, 8), 4, 3);
+      const n = shape.cells.length;
+      if (t <= 2) {
+        const rows = [];
+        for (let y = 0; y < shape.H; y++) rows.push(shape.cells.filter(c => c[1] === y).length);
+        return {
+          type: 'area', label: 'Shapes',
+          prompt: 'How many small squares make up this shape?',
+          html: polySVG(shape.cells, shape.W, shape.H),
+          input: 'number', answer: n,
+          hint: 'Count one row at a time, then add the rows together.',
+          explain: `Count row by row: ${rows.join(' + ')} = ${n} squares.`,
+          data: { kind: 'cells', cells: shape.cells, ask: 'area' }
+        };
+      }
+      const p = perimeterOf(shape.cells), touches = (4 * n - p) / 2;
+      return {
+        type: 'area', label: 'Shapes',
+        prompt: 'Each small square has sides of 1 cm. What is the perimeter of this shape, in cm?',
+        html: polySVG(shape.cells, shape.W, shape.H),
+        input: 'number', answer: p,
+        hint: 'The perimeter is the distance all the way around the outside. Trace it with your finger and count the sides.',
+        explain: `Every square has 4 sides, so ${n} squares have ${n} × 4 = ${4 * n} sides. Each place where two squares touch hides 2 of those sides. There are ${touches} touching places, so the perimeter is ${4 * n} − ${2 * touches} = ${p} cm.`,
+        data: { kind: 'cells', cells: shape.cells, ask: 'perimeter' }
+      };
+    }
+    const kind = t === 4 ? pick(['Larea', 'Uarea']) : pick(['Lper', 'Uper']);
+    if (kind[0] === 'L') {
+      const W = int(6, 12), H = int(5, 10), w = int(2, W - 3), hh = int(2, H - 3);
+      const area = W * H - w * hh, per = 2 * (W + H);
+      const isArea = kind === 'Larea';
+      return {
+        type: 'area', label: 'Shapes',
+        prompt: `Every corner of this shape is a right angle. What is its ${isArea ? 'area, in square cm' : 'perimeter, in cm'}?`,
+        html: lShape(W, H, w, hh),
+        input: 'number', answer: isArea ? area : per,
+        hint: isArea ? 'Imagine the full rectangle, then take away the missing corner.' : 'Can you slide the two inner edges so they fill the missing corner?',
+        explain: isArea
+          ? `Imagine the whole ${W} × ${H} rectangle: ${W} × ${H} = ${W * H} square cm. The missing corner is ${w} × ${hh} = ${w * hh} square cm. So the area is ${W * H} − ${w * hh} = ${area} square cm.`
+          : `Slide the two inner edges outwards and they fill the missing corner exactly. So the perimeter is the same as ${aN(W)} × ${H} rectangle: 2 × (${W} + ${H}) = ${per} cm.`,
+        data: { kind: 'L', W, H, w, h: hh, ask: isArea ? 'area' : 'perimeter' }
+      };
+    }
+    let W, n;
+    do { W = int(7, 12); n = int(2, W - 4); } while ((W - n) % 2);
+    const H = int(5, 10), dd = int(2, H - 3);
+    const area = W * H - n * dd, per = 2 * (W + H) + 2 * dd;
+    const isArea = kind === 'Uarea';
+    return {
+      type: 'area', label: 'Shapes',
+      prompt: `A notch is cut from the top of a rectangle. Every corner is a right angle. What is the shape's ${isArea ? 'area, in square cm' : 'perimeter, in cm'}?`,
+      html: uShape(W, H, n, dd),
+      input: 'number', answer: isArea ? area : per,
+      hint: isArea ? 'Work out the full rectangle, then take away the notch.' : 'The outside edges add up like a full rectangle. What does the notch add?',
+      explain: isArea
+        ? `The full rectangle is ${W} × ${H} = ${W * H} square cm. The notch is ${n} × ${dd} = ${n * dd} square cm. So the area is ${W * H} − ${n * dd} = ${area} square cm.`
+        : `The outside edges add up like ${aN(W)} × ${H} rectangle: 2 × (${W} + ${H}) = ${2 * (W + H)} cm. The notch adds its two inner sides: 2 × ${dd} = ${2 * dd} cm. Total: ${2 * (W + H)} + ${2 * dd} = ${per} cm.`,
+      data: { kind: 'U', W, H, n, d: dd, ask: isArea ? 'area' : 'perimeter' }
+    };
+  }
+
+  /* ---------- 13. Ages ---------- */
+  function genAges(t, ctx) {
+    const { int, pick, shuffle } = rnd;
+    const cast = shuffle(P.NPCS.slice());
+    if (ctx && ctx.name && rnd.chance(0.35)) cast[0] = { name: ctx.name, he: ctx.he || 'She' };
+    const A = cast[0], B = cast[1];
+    const yrs = n => (n === 1 ? 'year' : 'years');
+    const twice = k => (k === 2 ? 'twice' : k === 3 ? 'three times' : k + ' times');
+    if (t === 1) {
+      const a = int(5, 12), d = int(2, 9), past = rnd.chance(0.4), tt = past ? int(1, a + d - 2) : int(2, 9);
+      const now = a + d, ans = past ? now - tt : now + tt;
+      return agePuzzle(`${A.name} is ${a} years old. ${B.name} is ${d} years older than ${A.name}. How old ${past ? `was ${B.name} ${tt} ${yrs(tt)} ago` : `will ${B.name} be in ${tt} ${yrs(tt)}`}?`,
+        h.facts([[a, 'years old'], [d, 'years older'], [tt, past ? `${yrs(tt)} ago` : `${yrs(tt)} later`]]), ans,
+        'First work out how old they are now.',
+        `${B.name} is ${a} + ${d} = ${now} now. ${past ? `${tt} ${yrs(tt)} ago ${B.he.toLowerCase()} was ${now} − ${tt}` : `In ${tt} ${yrs(tt)} ${B.he.toLowerCase()} will be ${now} + ${tt}`} = ${ans}.`,
+        { kind: 'later', a, d, t: tt, past });
+    }
+    if (t === 2) {
+      const y = int(3, 15), d = int(1, 9), S = 2 * y + d, older = rnd.chance(0.5);
+      return agePuzzle(`${A.name} and ${B.name} are ${S} years old altogether. ${A.name} is ${d} years older than ${B.name}. How old is ${older ? A.name : B.name}?`,
+        h.facts([[S, 'altogether'], [d, 'years apart']]), older ? y + d : y,
+        'If you take away the difference, the two ages are the same.',
+        `Take away the difference first: ${S} − ${d} = ${S - d}. Now the two ages are equal, so ${B.name} is ${S - d} ÷ 2 = ${y}` + (older ? ` and ${A.name} is ${y} + ${d} = ${y + d}.` : '.'),
+        { kind: 'sumdiff', S, d, older });
+    }
+    if (t === 3) {
+      const y = int(3, 14), k = int(2, 5), S = y * (k + 1), askA = rnd.chance(0.4);
+      return agePuzzle(`${A.name} is ${twice(k)} as old as ${B.name}. Together they are ${S} years old. How old is ${askA ? A.name : B.name}?`,
+        h.facts([[k + '×', 'as old'], [S, 'altogether']]), askA ? k * y : y,
+        `Think of ${B.name}'s age as 1 part. How many parts make ${S}?`,
+        `Think of ${B.name}'s age as 1 part. ${A.name}'s age is ${k} parts, so together they make ${k + 1} parts, which is ${S}. One part is ${S} ÷ ${k + 1} = ${y}` + (askA ? `, so ${A.name} is ${k} × ${y} = ${k * y}.` : `, so ${B.name} is ${y}.`),
+        { kind: 'times', S, k, askA });
+    }
+    if (t === 4) {
+      const opts = [];
+      for (let y = 2; y <= 15; y++) for (const k1 of [3, 4, 5]) for (let tt = 1; tt <= 15; tt++) {
+        const top = k1 * y + tt, bot = y + tt;
+        if (top % bot === 0) { const k2 = top / bot; if (k2 >= 2 && k2 < k1) opts.push({ y, k1, tt, k2 }); }
+      }
+      const { y, k1, tt, k2 } = pick(opts);
+      return agePuzzle(`${A.name} is ${twice(k1)} as old as ${B.name}. In ${tt} years, ${A.name} will be ${twice(k2)} as old as ${B.name}. How old is ${B.name} now?`,
+        h.facts([[k1 + '×', 'now'], [k2 + '×', `in ${tt} years`]]), y,
+        'Both of them get older by the same number of years. Try a few ages for ' + B.name + ' and check.',
+        `Call ${B.name}'s age y, so ${A.name} is ${k1}y. In ${tt} years: ${k1}y + ${tt} = ${k2} × (y + ${tt}), which means ${k1 - k2 === 1 ? `y = ${(k2 - 1) * tt}` : `${k1 - k2}y = ${(k2 - 1) * tt}, so y = ${y}`}. Check: ${k1 * y} + ${tt} = ${k1 * y + tt}, and ${k2} × ${y + tt} = ${k2 * (y + tt)}.`,
+        { kind: 'ratio', k1, k2, t: tt });
+    }
+    const opts = [];
+    for (const k of [2, 3]) for (let b = 2; b <= 10; b++) for (let a = 2; a <= 20; a++) {
+      if ((a + k * b) % (k - 1) === 0) { const x = (a + k * b) / (k - 1); if (x > b + 1 && x <= 40) opts.push({ k, a, b, x }); }
+    }
+    const { k, a, b, x } = pick(opts);
+    return agePuzzle(`In ${a} years, ${A.name} will be ${twice(k)} as old as ${A.he.toLowerCase()} was ${b} years ago. How old is ${A.name} now?`,
+      h.facts([[a, 'years ahead'], [b, 'years ago']]), x,
+      'Call the age now x. Write down the age in the future and the age in the past.',
+      `Call the age now x. In ${a} years: x + ${a}. ${b} years ago: x − ${b}. So x + ${a} = ${k} × (x − ${b}) = ${k}x − ${k * b}, which gives ${k - 1 > 1 ? `${k - 1}x = ${a + k * b}, so x = ${x}` : `x = ${a} + ${k * b} = ${x}`}. Check: ${x} + ${a} = ${x + a}, and ${k} × ${x - b} = ${k * (x - b)}.`,
+      { kind: 'self', k, a, b });
+  }
+  function agePuzzle(prompt, html, answer, hint, explain, data) {
+    return { type: 'ages', label: 'Age puzzle', prompt, html, input: 'number', answer, hint, explain, data };
+  }
+
+  P.gen.mystery = genMystery;
+  P.gen.area = genArea;
+  P.gen.ages = genAges;
+  P.TYPES = Object.keys(P.gen);
+  P.CLASSIC_TYPES = ['pattern', 'magic', 'potion', 'legs', 'calendar', 'backwards', 'sums', 'counting', 'odd', 'picture'];
+})(typeof window !== 'undefined' ? window : globalThis);
+
+;
+/* Math Is Magic: chalk drawings (shared defs, the mage, monsters, small icons) */
+(function (root) {
+  'use strict';
+  const Art = root.Art = {};
+
+  Art.SKINS = ['#f6d5bf', '#e9b48f', '#cf9168', '#a86c46', '#734a33'];
+  Art.HAIR_COLORS = ['#2b2422', '#4a3024', '#7a4a2e', '#c46a3a', '#f39ac0', '#c3a6f0', '#8fd0f0', '#9fe0b4', '#f5d561', '#f3efe4'];
+  Art.ROBES = ['lilac', 'pink', 'blue', 'mint', 'yellow', 'coral'];
+  Art.GIRL_STYLES = [
+    { id: 'long', label: 'Long' }, { id: 'bob', label: 'Bob' }, { id: 'braids', label: 'Braids' },
+    { id: 'buns', label: 'Buns' }, { id: 'hijab', label: 'Hijab' }
+  ];
+  Art.BOY_STYLES = [
+    { id: 'short', label: 'Short' }, { id: 'spiky', label: 'Spiky' }, { id: 'curly', label: 'Curly' }, { id: 'peci', label: 'Peci' }
+  ];
+  Art.STYLES = Art.GIRL_STYLES;
+  Art.stylesFor = g => (g === 'boy' ? Art.BOY_STYLES : Art.GIRL_STYLES);
+  Art.DEFAULT_HERO = { name: '', gender: 'girl', robe: 'lilac', hair: 'long', hairColor: '#2b2422', skin: '#cf9168', glasses: false, hat: true };
+
+  const INK = '#2a2320';
+  const fill = c => `style="fill:${c}"`;
+  const starPts = (cx, cy, R, r) => {
+    const pts = [];
+    for (let i = 0; i < 10; i++) {
+      const a = -Math.PI / 2 + i * Math.PI / 5, rad = i % 2 ? r : R;
+      pts.push((cx + Math.cos(a) * rad).toFixed(1) + ',' + (cy + Math.sin(a) * rad).toFixed(1));
+    }
+    return pts.join(' ');
+  };
+  const sparkle = (cx, cy, s) =>
+    `M${cx} ${cy - s} Q${cx + s * 0.15} ${cy - s * 0.15} ${cx + s} ${cy} Q${cx + s * 0.15} ${cy + s * 0.15} ${cx} ${cy + s} ` +
+    `Q${cx - s * 0.15} ${cy + s * 0.15} ${cx - s} ${cy} Q${cx - s * 0.15} ${cy - s * 0.15} ${cx} ${cy - s} Z`;
+  Art.starPts = starPts;
+
+  // Hidden sprite sheet: chalk filter + reusable icons
+  Art.defs = function () {
+    const S = 'stroke:var(--chalk);stroke-width:1.6;stroke-linejoin:round';
+    return `<svg class="sprites" width="0" height="0" aria-hidden="true" focusable="false"><defs>
+<filter id="chalk" x="-8%" y="-8%" width="116%" height="116%" color-interpolation-filters="sRGB">
+  <feTurbulence type="fractalNoise" baseFrequency="1.1" numOctaves="2" seed="4" result="noise"/>
+  <feDisplacementMap in="SourceGraphic" in2="noise" scale="2" xChannelSelector="R" yChannelSelector="G" result="rough"/>
+  <feColorMatrix in="noise" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 -1.6 1.75" result="speckle"/>
+  <feComposite in="rough" in2="speckle" operator="in"/>
+</filter>
+<symbol id="i-mushroom" viewBox="0 0 40 40"><path style="fill:var(--chalk);${S}" d="M14 22 L13 34 Q20 37 27 34 L26 22 Z"/><path style="fill:var(--coral);${S}" d="M5 23 Q5 6 20 6 Q35 6 35 23 Z"/><circle cx="14" cy="15" r="2.6" style="fill:var(--chalk)"/><circle cx="24" cy="11" r="3" style="fill:var(--chalk)"/><circle cx="28" cy="18" r="2" style="fill:var(--chalk)"/></symbol>
+<symbol id="i-crystal" viewBox="0 0 40 40"><path style="fill:var(--blue);${S}" d="M20 4 L31 14 L27 36 L13 36 L9 14 Z"/><path style="fill:none;${S};opacity:.7" d="M9 14 L31 14 M20 4 L16 14 L20 36 M20 4 L24 14 L20 36"/></symbol>
+<symbol id="i-star" viewBox="0 0 40 40"><polygon style="fill:var(--yellow);${S}" points="${starPts(20, 21, 16, 7)}"/></symbol>
+<symbol id="i-potion" viewBox="0 0 40 40"><rect x="15" y="2" width="10" height="5" rx="1.5" style="fill:var(--wood-light);${S}"/><path style="fill:var(--mint);${S}" d="M16 7 L24 7 L24 14 Q34 19 33 28 Q32 37 20 37 Q8 37 7 28 Q6 19 16 14 Z"/><path style="fill:none;${S};opacity:.6" d="M10 25 Q20 21 30 25"/></symbol>
+<symbol id="i-spark" viewBox="0 0 40 40"><path style="fill:var(--yellow);${S}" d="${sparkle(20, 20, 16)}"/><path style="fill:var(--chalk)" d="${sparkle(31, 9, 4)}"/></symbol>
+<symbol id="i-flare" viewBox="0 0 40 40"><path style="fill:var(--coral);${S}" d="M20 3 Q31 15 29 23 Q34 21 33 29 Q31 38 20 38 Q9 38 7 30 Q5 22 13 16 Q14 24 18 24 Q14 12 20 3 Z"/><path style="fill:var(--yellow)" d="M20 22 Q26 28 24 33 Q22 36 19 35 Q14 33 16 28 Z"/></symbol>
+<symbol id="i-comet" viewBox="0 0 40 40"><path style="fill:none;stroke:var(--blue);stroke-width:3;stroke-linecap:round" d="M19 21 L5 35 M23 25 L13 36 M15 17 L4 27"/><circle cx="26" cy="14" r="9" style="fill:var(--blue);${S}"/><circle cx="23" cy="12" r="2.4" style="fill:var(--chalk)"/></symbol>
+<symbol id="i-heart" viewBox="0 0 40 40"><path style="fill:var(--coral);${S}" d="M20 35 Q4 23 5 13 Q7 5 14 5.5 Q18.5 6 20 11 Q21.5 6 26 5.5 Q33 5 35 13 Q36 23 20 35 Z"/></symbol>
+<symbol id="i-heart-empty" viewBox="0 0 40 40"><path style="fill:none;stroke:var(--chalk-dim);stroke-width:2;stroke-dasharray:3 3;stroke-linejoin:round" d="M20 35 Q4 23 5 13 Q7 5 14 5.5 Q18.5 6 20 11 Q21.5 6 26 5.5 Q33 5 35 13 Q36 23 20 35 Z"/></symbol>
+<symbol id="i-rate" viewBox="0 0 40 40"><polygon style="fill:var(--yellow);${S}" points="${starPts(20, 21, 17, 7.5)}"/></symbol>
+<symbol id="i-rate-empty" viewBox="0 0 40 40"><polygon style="fill:none;stroke:var(--chalk-dim);stroke-width:1.8;stroke-dasharray:3 2.5;stroke-linejoin:round" points="${starPts(20, 21, 17, 7.5)}"/></symbol>
+<symbol id="i-lock" viewBox="0 0 40 40"><path style="fill:none;stroke:var(--chalk-dim);stroke-width:3" d="M13 18 V13 Q13 6 20 6 Q27 6 27 13 V18"/><rect x="9" y="18" width="22" height="17" rx="3" style="fill:var(--chalk-dim)"/></symbol>
+<symbol id="i-sound" viewBox="0 0 40 40"><path style="fill:var(--chalk)" d="M6 15 H13 L22 7 V33 L13 25 H6 Z"/><path style="fill:none;stroke:var(--chalk);stroke-width:2.6;stroke-linecap:round" d="M27 14 Q31 20 27 26 M31 10 Q38 20 31 30"/></symbol>
+<symbol id="i-mute" viewBox="0 0 40 40"><path style="fill:var(--chalk)" d="M6 15 H13 L22 7 V33 L13 25 H6 Z"/><path style="fill:none;stroke:var(--chalk);stroke-width:2.6;stroke-linecap:round" d="M27 15 L35 25 M35 15 L27 25"/></symbol>
+<symbol id="i-back" viewBox="0 0 40 40"><path style="fill:none;stroke:var(--chalk);stroke-width:3.2;stroke-linecap:round;stroke-linejoin:round" d="M24 8 L12 20 L24 32"/></symbol>
+<symbol id="i-shield" viewBox="0 0 40 40"><path style="fill:var(--blue);${S}" d="M20 3 L34 8.5 V19 Q34 30.5 20 37 Q6 30.5 6 19 V8.5 Z"/><polygon style="fill:var(--chalk)" points="${starPts(20, 19.5, 7.5, 3.2)}"/></symbol>
+<symbol id="i-jamu" viewBox="0 0 40 40"><rect x="15" y="2" width="10" height="5" rx="1.5" style="fill:var(--wood-light);${S}"/><path style="fill:var(--chalk);${S};opacity:.9" d="M16 7 H24 V12 Q30 15 30 21 V33 Q30 37 26 37 H14 Q10 37 10 33 V21 Q10 15 16 12 Z"/><path style="fill:var(--yellow)" d="M11.2 22 H28.8 V33 Q28.8 35.8 26 35.8 H14 Q11.2 35.8 11.2 33 Z"/><path style="fill:var(--mint);${S}" d="M24 26 Q33 18 37 25 Q31 32 24 26 Z"/></symbol>
+<symbol id="i-double" viewBox="0 0 40 40"><circle cx="20" cy="20" r="16" style="fill:rgba(245,213,97,.16);stroke:var(--yellow);stroke-width:2.4;stroke-dasharray:4 3"/><text x="20" y="21" text-anchor="middle" dominant-baseline="central" style="font:700 17px Andika,'Trebuchet MS',sans-serif;fill:var(--yellow)">×2</text></symbol>
+<symbol id="i-eraser" viewBox="0 0 40 40"><path style="fill:var(--wood-light);${S}" d="M7 12 H33 Q36 12 36 15 V21 H4 V15 Q4 12 7 12 Z"/><path style="fill:var(--chalk-dim);${S}" d="M4 21 H36 V27 Q36 29.5 33.5 29.5 H6.5 Q4 29.5 4 27 Z"/><path style="fill:none;stroke:var(--chalk);stroke-width:2;stroke-linecap:round;opacity:.8" d="M7 34 H13 M17 35.5 H25 M29 34 H33"/></symbol>
+<symbol id="i-bulb" viewBox="0 0 40 40"><path style="fill:var(--yellow);${S}" d="M20 4 Q31 4 31 15 Q31 21 25 25 L25 29 L15 29 L15 25 Q9 21 9 15 Q9 4 20 4 Z"/><rect x="15" y="31" width="10" height="5" rx="2" style="fill:var(--chalk)"/></symbol>
+</defs></svg>`;
+  };
+
+  Art.icon = (name, cls) => `<svg class="ico ${cls || ''}" viewBox="0 0 40 40" aria-hidden="true" focusable="false"><use href="#i-${name}"/></svg>`;
+
+  /* ---------- The mage ---------- */
+  Art.mage = function (hero, cls) {
+    const H = Object.assign({}, Art.DEFAULT_HERO, hero || {});
+    const robe = `var(--${H.robe})`, hair = H.hairColor, skin = H.skin;
+    const isHijab = H.hair === 'hijab';
+    let back = '';
+    const cap = `<path class="ch" ${fill(hair)} d="M62 94 Q60 114 66 120 L134 120 Q140 114 138 94 Q136 56 100 54 Q64 56 62 94 Z"/>`;
+    if (H.hair === 'long') back = `<path class="ch" ${fill(hair)} d="M62 96 Q55 150 70 180 L130 180 Q145 150 138 96 Q136 58 100 56 Q64 58 62 96 Z"/>`;
+    if (H.hair === 'bob') back = `<path class="ch" ${fill(hair)} d="M59 94 Q55 128 68 138 L132 138 Q145 128 141 94 Q138 55 100 53 Q62 55 59 94 Z"/>`;
+    if (H.hair === 'braids') {
+      const braid = xs => xs.map((x, i) => `<ellipse class="ch" ${fill(hair)} cx="${x}" cy="${120 + i * 17}" rx="9" ry="10"/>`).join('');
+      back = cap + braid([64, 62, 61, 61]) + braid([136, 138, 139, 139]) +
+        `<rect x="55" y="184" width="12" height="6" rx="2" style="fill:var(--pink)"/><rect x="133" y="184" width="12" height="6" rx="2" style="fill:var(--pink)"/>`;
+    }
+    if (H.hair === 'buns') back = `<circle class="ch" ${fill(hair)} cx="60" cy="74" r="16"/><circle class="ch" ${fill(hair)} cx="140" cy="74" r="16"/>` + cap;
+    if (H.hair === 'short' || H.hair === 'spiky' || H.hair === 'peci') back = `<path class="ch" ${fill(hair)} d="M63 100 Q58 58 100 51 Q142 58 137 100 Z"/>`;
+    if (H.hair === 'curly') back = `<path class="ch" ${fill(hair)} d="M61 106 Q55 57 100 49 Q145 57 139 106 Z"/>`;
+
+    const robeBody = `<path class="ch" style="fill:${robe}" d="M66 142 Q100 128 134 142 L160 238 Q100 252 40 238 Z"/>` +
+      `<path class="ch" style="fill:none" d="M88 137 L100 155 L112 137"/>` +
+      `<path style="fill:none;stroke:var(--yellow);stroke-width:4;stroke-linecap:round" d="M56 189 Q100 201 144 189"/>` +
+      `<path style="fill:var(--yellow)" d="${sparkle(80, 214, 6)}"/><path style="fill:var(--chalk)" d="${sparkle(122, 224, 5)}"/><path style="fill:var(--yellow)" d="${sparkle(114, 168, 4)}"/>`;
+    const arms = `<path class="ch" style="fill:${robe}" d="M70 146 Q50 172 48 204 L66 208 Q70 182 82 162 Z"/>` +
+      `<circle class="ch" ${fill(skin)} cx="57" cy="211" r="8"/>` +
+      `<path style="fill:none;stroke:var(--wood-light);stroke-width:5;stroke-linecap:round" d="M163 134 L186 66"/>` +
+      `<path class="ch" style="fill:${robe}" d="M128 146 Q150 142 163 121 L178 131 Q162 158 136 168 Z"/>` +
+      `<circle class="ch" ${fill(skin)} cx="171" cy="125" r="8"/>` +
+      `<g class="wand-tip"><polygon class="ch" style="fill:var(--yellow)" points="${starPts(188, 58, 11, 4.6)}"/>` +
+      `<path style="fill:var(--chalk)" d="${sparkle(172, 44, 4)}"/><path style="fill:var(--chalk)" d="${sparkle(199, 76, 3)}"/></g>`;
+    const neck = isHijab ? '' : `<rect ${fill(skin)} x="91" y="118" width="18" height="22"/>`;
+    const drape = isHijab ? `<path class="ch" ${fill(hair)} d="M56 100 Q52 44 100 42 Q148 44 144 100 Q150 128 154 152 Q100 172 46 152 Q50 128 56 100 Z"/>` : '';
+    const face = isHijab
+      ? `<ellipse class="ch" ${fill(skin)} cx="100" cy="97" rx="28" ry="31"/>`
+      : `<ellipse class="ch" ${fill(skin)} cx="100" cy="94" rx="33" ry="35"/>`;
+    const fy = isHijab ? 98 : 96;
+    const features =
+      `<path style="fill:none;stroke:${INK};stroke-width:2.2;stroke-linecap:round" d="M81 ${fy - 11} Q87 ${fy - 14} 93 ${fy - 11} M107 ${fy - 11} Q113 ${fy - 14} 119 ${fy - 11}"/>` +
+      `<ellipse cx="88" cy="${fy}" rx="4" ry="5" style="fill:${INK}"/><ellipse cx="112" cy="${fy}" rx="4" ry="5" style="fill:${INK}"/>` +
+      `<circle cx="89.6" cy="${fy - 2}" r="1.5" style="fill:#fff"/><circle cx="113.6" cy="${fy - 2}" r="1.5" style="fill:#fff"/>` +
+      `<ellipse cx="79" cy="${fy + 10}" rx="5" ry="3" style="fill:var(--pink);opacity:.6"/><ellipse cx="121" cy="${fy + 10}" rx="5" ry="3" style="fill:var(--pink);opacity:.6"/>` +
+      `<path style="fill:none;stroke:${INK};stroke-width:2.5;stroke-linecap:round" d="M91 ${fy + 14} Q100 ${fy + 21} 109 ${fy + 14}"/>`;
+    const shortFringe = `<path class="ch" ${fill(hair)} d="M66 94 Q63 55 100 53 Q137 55 134 94 Q131 78 122 72 Q110 79 98 73 Q86 79 76 74 Q69 80 66 94 Z"/>`;
+    const FRONT = {
+      short: shortFringe,
+      spiky: `<path class="ch" ${fill(hair)} d="M65 92 Q62 66 70 58 L64 44 L80 52 L82 36 L94 49 L101 32 L109 49 L120 37 L121 53 L136 46 L131 60 Q139 70 135 92 Q128 76 100 73 Q72 76 65 92 Z"/>`,
+      curly: [[68, 80, 10], [72, 64, 11], [84, 54, 11], [100, 50, 11], [116, 54, 11], [128, 64, 11], [132, 80, 10]]
+        .map(([x, y, r]) => `<circle class="ch" ${fill(hair)} cx="${x}" cy="${y}" r="${r}"/>`).join(''),
+      peci: shortFringe +
+        `<path class="ch" style="fill:#26222a" d="M68 71 L70 47 Q100 40 130 47 L132 71 Q100 64 68 71 Z"/>` +
+        `<path style="fill:none;stroke:#514a5c;stroke-width:2" d="M71 51 Q100 45 129 51"/>`
+    };
+    const bangs = isHijab ? '' : (FRONT[H.hair] || `<path class="ch" ${fill(hair)} d="M66 98 Q60 53 100 53 Q140 53 134 98 Q130 78 114 72 Q102 84 84 76 Q72 82 66 98 Z"/>`);
+    const glasses = H.glasses ? `<g style="fill:rgba(255,255,255,.18);stroke:${INK};stroke-width:2.4"><circle cx="88" cy="${fy}" r="9.5"/><circle cx="112" cy="${fy}" r="9.5"/></g>` +
+      `<path style="fill:none;stroke:${INK};stroke-width:2.4" d="M97.5 ${fy - 1} Q100 ${fy - 4} 102.5 ${fy - 1}"/>` : '';
+    const hatY = isHijab ? 62 : 66;
+    const hat = H.hat ? `<ellipse class="ch" style="fill:${robe}" cx="100" cy="${hatY}" rx="48" ry="9"/>` +
+      `<path class="ch" style="fill:${robe}" d="M65 ${hatY} Q86 ${hatY - 22} 96 ${hatY - 58} Q104 ${hatY - 64} 108 ${hatY - 54} Q114 ${hatY - 22} 135 ${hatY} Z"/>` +
+      `<path style="fill:none;stroke:var(--yellow);stroke-width:4;stroke-linecap:round" d="M70 ${hatY - 5} Q100 ${hatY - 13} 130 ${hatY - 5}"/>` +
+      `<polygon style="fill:var(--yellow)" points="${starPts(101, hatY - 28, 7, 3)}"/>` : '';
+
+    return `<svg class="mage ${cls || ''}" viewBox="0 0 200 260" role="img" aria-label="${esc(H.name || 'Mage')} the mage">` +
+      `<ellipse cx="100" cy="247" rx="64" ry="8" style="fill:rgba(0,0,0,.28)"/>` +
+      `<g filter="url(#chalk)">${back}${robeBody}${arms}${neck}${drape}${face}${features}${bangs}${glasses}${hat}</g></svg>`;
+  };
+  const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+
+  /* ---------- Monsters (all face left, towards the mage) ---------- */
+  const eye = (x, y, r, px) => `<circle class="ch" cx="${x}" cy="${y}" r="${r}" style="fill:var(--chalk)"/><circle cx="${x - px}" cy="${y + 1}" r="${r * 0.45}" style="fill:${INK}"/>`;
+  const MONSTERS = {
+    mossling: () =>
+      `<path class="ch" style="fill:var(--mint)" d="M28 160 Q16 98 58 76 Q78 42 112 52 Q148 46 162 84 Q192 112 176 160 Q100 184 28 160 Z"/>` +
+      `<path style="fill:none;stroke:var(--chalk);stroke-width:3;stroke-linecap:round" d="M108 52 Q104 34 112 20"/>` +
+      `<path class="ch" style="fill:var(--yellow)" d="M112 20 Q130 10 136 24 Q124 34 112 20 Z"/>` +
+      `<g style="fill:rgba(20,50,30,.28)"><circle cx="148" cy="130" r="7"/><circle cx="160" cy="112" r="4"/><circle cx="46" cy="150" r="5"/><circle cx="132" cy="70" r="4"/></g>` +
+      eye(72, 106, 14, 5) + eye(114, 106, 14, 5) +
+      `<path style="fill:none;stroke:${INK};stroke-width:4.5;stroke-linecap:round" d="M56 86 L86 94 M130 86 L102 94"/>` +
+      `<path style="fill:none;stroke:${INK};stroke-width:4;stroke-linecap:round" d="M74 140 Q94 128 114 140"/>` +
+      `<path style="fill:none;stroke:var(--chalk);stroke-width:2.5;stroke-linecap:round" d="M46 168 q6 -9 12 0 q6 -9 12 0 M120 172 q6 -9 12 0 q6 -9 12 0"/>`,
+    bat: () =>
+      `<path class="ch" style="fill:var(--lilac)" d="M72 100 Q32 66 6 90 Q22 98 18 116 Q34 108 40 126 Q54 112 72 126 Z"/>` +
+      `<path class="ch" style="fill:var(--lilac)" d="M128 100 Q168 66 194 90 Q178 98 182 116 Q166 108 160 126 Q146 112 128 126 Z"/>` +
+      `<path class="ch" style="fill:var(--lilac)" d="M74 82 L68 46 L94 72 Z M126 82 L132 46 L106 72 Z"/>` +
+      `<ellipse class="ch" style="fill:var(--lilac)" cx="100" cy="112" rx="35" ry="42"/>` +
+      `<path class="ch" style="fill:var(--blue)" d="M100 70 L107 81 L100 92 L93 81 Z"/>` +
+      `<circle class="ch" cx="87" cy="104" r="10" style="fill:var(--yellow)"/><circle cx="83" cy="105" r="4.5" style="fill:${INK}"/>` +
+      `<circle class="ch" cx="113" cy="104" r="10" style="fill:var(--yellow)"/><circle cx="109" cy="105" r="4.5" style="fill:${INK}"/>` +
+      `<path style="fill:none;stroke:${INK};stroke-width:3;stroke-linecap:round" d="M84 126 Q100 133 116 126"/>` +
+      `<path style="fill:var(--chalk)" d="M90 127 L94 138 L98 128 Z M102 128 L106 138 L110 127 Z"/>` +
+      `<path style="fill:none;stroke:var(--chalk);stroke-width:3;stroke-linecap:round" d="M90 152 L86 164 M110 152 L114 164"/>`,
+    golem: () =>
+      `<rect class="ch" x="24" y="84" width="26" height="64" rx="12" style="fill:var(--sand)"/><rect class="ch" x="150" y="84" width="26" height="64" rx="12" style="fill:var(--sand)"/>` +
+      `<rect class="ch" x="64" y="164" width="26" height="26" rx="6" style="fill:var(--sand)"/><rect class="ch" x="110" y="164" width="26" height="26" rx="6" style="fill:var(--sand)"/>` +
+      `<rect class="ch" x="52" y="74" width="96" height="96" rx="14" style="fill:var(--sand)"/>` +
+      `<rect class="ch" x="72" y="26" width="56" height="44" rx="9" style="fill:var(--sand)"/>` +
+      `<path style="fill:none;stroke:var(--chalk);stroke-width:3" d="M100 26 V12"/><circle class="ch" cx="100" cy="10" r="6" style="fill:var(--coral)"/>` +
+      `<rect x="80" y="42" width="13" height="9" rx="2" style="fill:var(--coral)"/><rect x="107" y="42" width="13" height="9" rx="2" style="fill:var(--coral)"/>` +
+      `<path style="fill:none;stroke:${INK};stroke-width:3.5;stroke-linecap:round" d="M86 60 H114"/>` +
+      `<circle class="ch" cx="100" cy="122" r="31" style="fill:var(--chalk)"/>` +
+      `<g style="stroke:${INK};stroke-width:2.5;stroke-linecap:round">${[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11].map(i => { const a = i * Math.PI / 6; return `<line x1="${(100 + Math.sin(a) * 25).toFixed(1)}" y1="${(122 - Math.cos(a) * 25).toFixed(1)}" x2="${(100 + Math.sin(a) * 29).toFixed(1)}" y2="${(122 - Math.cos(a) * 29).toFixed(1)}"/>`; }).join('')}</g>` +
+      `<path class="golem-hands" style="fill:none;stroke:${INK};stroke-width:4;stroke-linecap:round" d="M100 122 L100 100 M100 122 L86 114"/>` +
+      `<circle cx="100" cy="122" r="3.5" style="fill:${INK}"/>`,
+    toad: () =>
+      `<path style="fill:none;stroke:var(--chalk);stroke-width:2.5;stroke-linecap:round;opacity:.8" d="M70 40 q-8 -8 0 -16 q8 -8 0 -16 M128 44 q-8 -8 0 -16 q8 -8 0 -16"/>` +
+      `<ellipse class="ch" cx="56" cy="174" rx="20" ry="9" style="fill:var(--coral)"/><ellipse class="ch" cx="144" cy="174" rx="20" ry="9" style="fill:var(--coral)"/>` +
+      `<ellipse class="ch" cx="100" cy="130" rx="74" ry="47" style="fill:var(--coral)"/>` +
+      `<circle class="ch" cx="64" cy="88" r="21" style="fill:var(--coral)"/><circle class="ch" cx="136" cy="88" r="21" style="fill:var(--coral)"/>` +
+      eye(64, 88, 12, 4) + eye(136, 88, 12, 4) +
+      `<path style="fill:none;stroke:${INK};stroke-width:4;stroke-linecap:round" d="M42 126 Q100 152 158 126"/>` +
+      `<g style="fill:var(--yellow)"><circle cx="122" cy="152" r="7"/><circle cx="80" cy="160" r="5"/><circle cx="152" cy="124" r="5"/><circle cx="48" cy="140" r="4"/></g>`,
+    dragon: () =>
+      `<path class="ch" style="fill:var(--blue);opacity:.9" d="M118 98 Q126 38 180 22 Q172 48 192 58 Q168 66 182 88 Q158 86 162 108 Q140 96 120 108 Z"/>` +
+      `<path class="ch" style="fill:var(--lilac)" d="M166 160 Q196 150 192 116 Q200 120 198 104 Q186 112 186 118 Q186 140 166 146 Z"/>` +
+      `<path class="ch" style="fill:var(--lilac)" d="M70 172 Q50 122 80 98 Q100 82 130 92 Q172 106 174 152 Q174 178 152 184 L84 184 Q72 182 70 172 Z"/>` +
+      `<path class="ch" style="fill:var(--yellow);opacity:.85" d="M88 152 Q100 134 126 142 Q122 172 106 182 Q92 178 88 152 Z"/>` +
+      `<path style="fill:none;stroke:${INK};stroke-width:2;opacity:.5" d="M94 150 Q106 146 120 150 M92 162 Q104 158 118 162 M96 173 Q104 170 112 173"/>` +
+      `<path class="ch" style="fill:var(--chalk)" d="M98 88 L106 74 L114 88 L124 74 L132 90 L142 80 L146 96 Z"/>` +
+      `<path class="ch" style="fill:var(--lilac)" d="M90 112 Q86 74 64 60 Q34 46 18 62 Q8 74 20 84 L44 88 Q58 100 72 118 Z"/>` +
+      `<path class="ch" style="fill:var(--chalk)" d="M62 56 Q66 30 84 20 Q76 38 76 56 Z M48 52 Q46 30 58 16 Q56 34 62 50 Z"/>` +
+      `<circle class="ch" cx="50" cy="66" r="8" style="fill:var(--yellow)"/><ellipse cx="49" cy="66" rx="2.4" ry="6" style="fill:${INK}"/>` +
+      `<circle cx="22" cy="68" r="2.4" style="fill:${INK}"/>` +
+      `<path style="fill:none;stroke:${INK};stroke-width:3;stroke-linecap:round" d="M18 80 Q32 86 48 82"/>` +
+      `<path style="fill:var(--chalk)" d="M26 82 L29 89 L32 83 Z M36 84 L39 90 L42 84 Z"/>` +
+      `<path style="fill:none;stroke:var(--chalk);stroke-width:3;stroke-linecap:round" d="M84 186 l-6 6 M92 186 l-2 7 M146 186 l6 6 M138 186 l2 7"/>`,
+    grumpfish: () => {
+      let spikes = '';
+      for (let i = 0; i < 16; i++) {
+        const a = (i / 16) * Math.PI * 2, p = (r, o) => (100 + Math.cos(a + o) * r).toFixed(1) + ',' + (104 + Math.sin(a + o) * r).toFixed(1);
+        spikes += `<polygon points="${p(56, -0.13)} ${p(74, 0)} ${p(56, 0.13)}"/>`;
+      }
+      return `<path class="ch" style="fill:var(--coral)" d="M154 104 L190 78 Q183 104 190 130 Z"/>` +
+        `<g class="ch" style="fill:var(--chalk)">${spikes}</g>` +
+        `<circle class="ch" cx="100" cy="104" r="60" style="fill:var(--yellow)"/>` +
+        `<path style="fill:var(--chalk);opacity:.5" d="M52 124 Q100 170 148 124 Q100 148 52 124 Z"/>` +
+        `<g style="fill:var(--coral);opacity:.7"><circle cx="124" cy="80" r="6"/><circle cx="142" cy="100" r="4"/><circle cx="120" cy="130" r="5"/></g>` +
+        `<path class="ch" style="fill:var(--coral)" d="M110 110 Q132 96 140 118 Q124 124 110 110 Z"/>` +
+        eye(72, 92, 15, 6) +
+        `<path style="fill:none;stroke:${INK};stroke-width:4.5;stroke-linecap:round" d="M54 72 L86 82"/>` +
+        `<ellipse class="ch" cx="47" cy="120" rx="8" ry="7" style="fill:var(--coral)"/>` +
+        `<g style="fill:none;stroke:var(--blue);stroke-width:2.5"><circle cx="24" cy="94" r="6"/><circle cx="14" cy="72" r="4"/><circle cx="26" cy="54" r="3"/></g>`;
+    },
+    magpie: () =>
+      `<path class="ch" style="fill:#2f3644" d="M126 118 L192 148 L185 162 L118 136 Z"/>` +
+      `<path style="fill:var(--blue);opacity:.6" d="M140 128 L186 150 L183 156 L138 135 Z"/>` +
+      `<path class="ch" style="fill:var(--sand)" d="M150 162 Q140 188 163 191 Q187 190 178 162 Q170 156 164 158 Q156 156 150 162 Z"/>` +
+      `<path style="fill:none;stroke:var(--coral);stroke-width:3;stroke-linecap:round" d="M152 164 Q164 170 176 164"/>` +
+      `<polygon style="fill:var(--yellow)" points="${starPts(164, 176, 7, 3)}"/>` +
+      `<ellipse class="ch" cx="104" cy="112" rx="50" ry="38" style="fill:#2f3644"/>` +
+      `<path class="ch" style="fill:var(--chalk)" d="M64 116 Q70 152 112 148 Q90 136 92 112 Q80 102 64 116 Z"/>` +
+      `<path class="ch" style="fill:#2f3644" d="M100 96 Q142 84 162 112 Q134 128 104 120 Z"/>` +
+      `<path style="fill:var(--chalk)" d="M112 102 Q130 97 141 108 Q126 113 112 102 Z"/>` +
+      `<path style="fill:none;stroke:var(--blue);stroke-width:3;stroke-linecap:round;opacity:.85" d="M118 117 Q138 119 153 112"/>` +
+      `<path style="fill:none;stroke:var(--yellow);stroke-width:3.5;stroke-linecap:round" d="M96 148 L92 178 M112 148 L114 178 M84 178 H100 M106 178 H122"/>` +
+      `<circle class="ch" cx="62" cy="80" r="26" style="fill:#2f3644"/>` +
+      `<path class="ch" style="fill:var(--yellow)" d="M39 74 L13 83 L39 90 Z"/>` +
+      `<polygon class="ch" style="fill:var(--yellow)" points="${starPts(14, 96, 10, 4.2)}"/>` +
+      eye(57, 76, 8, 3) +
+      `<path style="fill:none;stroke:var(--chalk);stroke-width:3;stroke-linecap:round" d="M45 63 L67 69"/>`,
+    komodo: () =>
+      `<path class="ch" style="fill:var(--sand)" d="M140 128 Q182 128 197 102 Q192 142 150 152 Z"/>` +
+      `<path class="ch" style="fill:var(--sand)" d="M126 138 L122 176 L146 176 L148 138 Z"/>` +
+      `<ellipse class="ch" cx="104" cy="126" rx="58" ry="30" style="fill:var(--sand)"/>` +
+      `<path class="ch" style="fill:var(--sand)" d="M64 136 L56 176 L78 176 L84 138 Z"/>` +
+      `<path style="fill:none;stroke:var(--chalk);stroke-width:2.5;stroke-linecap:round" d="M56 176 l-5 5 M64 177 l-2 6 M72 177 l1 6 M122 176 l-5 5 M130 177 l-2 6 M138 177 l1 6"/>` +
+      `<g style="fill:rgba(60,40,20,.25)"><circle cx="112" cy="116" r="5"/><circle cx="130" cy="124" r="4"/><circle cx="98" cy="134" r="4"/><circle cx="144" cy="114" r="3"/></g>` +
+      `<path class="ch" style="fill:var(--chalk-dim)" d="M70 106 Q106 82 150 104 L144 114 Q106 96 76 116 Z"/>` +
+      `<path class="ch" style="fill:var(--sand)" d="M82 132 Q64 104 34 108 Q14 112 16 124 Q20 136 42 136 Q62 136 82 132 Z"/>` +
+      `<path class="ch" style="fill:var(--chalk-dim)" d="M42 108 Q46 82 72 84 Q90 88 86 112 Q64 104 42 108 Z"/>` +
+      `<path class="ch" style="fill:var(--coral)" d="M70 86 Q78 62 96 56 Q88 72 86 90 Z"/>` +
+      `<path style="fill:none;stroke:${INK};stroke-width:2.5;opacity:.6" d="M52 98 H80"/>` +
+      eye(50, 116, 6, 2) +
+      `<path style="fill:none;stroke:${INK};stroke-width:2.5;stroke-linecap:round" d="M18 128 Q34 132 50 130"/>` +
+      `<path style="fill:none;stroke:var(--coral);stroke-width:3;stroke-linecap:round" d="M16 126 L5 124 M5 124 L0 119 M5 124 L0 129"/>`,
+    cloud: () =>
+      `<path style="fill:none;stroke:var(--blue);stroke-width:3;stroke-linecap:round" d="M58 150 l-6 14 M82 156 l-6 14 M128 156 l-6 14 M152 150 l-6 14"/>` +
+      `<path class="ch" style="fill:var(--yellow)" d="M104 138 L90 170 L104 168 L95 196 L125 156 L109 158 L119 138 Z"/>` +
+      `<g class="ch" style="fill:#cdd7e3"><circle cx="64" cy="108" r="30"/><circle cx="100" cy="84" r="40"/><circle cx="140" cy="104" r="32"/><rect x="48" y="104" width="108" height="42" rx="21"/></g>` +
+      `<g style="fill:#cdd7e3"><circle cx="64" cy="108" r="28.4"/><circle cx="100" cy="84" r="38.4"/><circle cx="140" cy="104" r="30.4"/><rect x="49.6" y="105.6" width="104.8" height="38.8" rx="19.4"/></g>` +
+      eye(84, 100, 10, 4) + eye(118, 100, 10, 4) +
+      `<path style="fill:none;stroke:${INK};stroke-width:4;stroke-linecap:round" d="M70 82 L94 90 M132 82 L108 90"/>` +
+      `<path style="fill:none;stroke:${INK};stroke-width:4;stroke-linecap:round" d="M86 129 Q101 119 116 129"/>` +
+      `<path style="fill:none;stroke:var(--chalk);stroke-width:3;stroke-linecap:round" d="M32 94 Q14 95 14 85 Q14 77 22 79 M26 118 Q8 120 5 110"/>`,
+    muddle: () =>
+      `<g style="font:700 24px Andika,'Trebuchet MS',sans-serif;fill:var(--yellow)"><text x="20" y="62" transform="rotate(-14 20 62)">7</text><text x="168" y="72" transform="rotate(12 168 72)">3</text><text x="174" y="134" transform="rotate(-8 174 134)">?</text><text x="10" y="146" transform="rotate(10 10 146)">0</text></g>` +
+      `<path class="ch" style="fill:var(--pink)" d="M60 100 Q40 150 46 186 L154 186 Q160 150 140 100 Z"/>` +
+      `<path style="fill:var(--lilac);opacity:.85" d="M80 108 Q72 150 76 186 L124 186 Q128 150 120 108 Z"/>` +
+      `<g style="fill:var(--yellow)"><circle cx="100" cy="128" r="3"/><circle cx="100" cy="146" r="3"/><circle cx="100" cy="164" r="3"/></g>` +
+      `<path style="fill:none;stroke:var(--wood-light);stroke-width:5;stroke-linecap:round" d="M58 152 L34 96"/>` +
+      `<circle class="ch" cx="31" cy="88" r="11" style="fill:var(--yellow)"/>` +
+      `<text x="31" y="93.5" text-anchor="middle" style="font:700 15px Andika,'Trebuchet MS',sans-serif;fill:${INK}">?</text>` +
+      `<circle class="ch" cx="58" cy="152" r="8" style="fill:var(--blue)"/>` +
+      `<circle class="ch" cx="100" cy="82" r="30" style="fill:var(--blue)"/>` +
+      `<path class="ch" style="fill:var(--coral)" d="M74 66 Q60 28 26 30 Q50 44 62 72 Z"/>` +
+      `<path class="ch" style="fill:var(--mint)" d="M126 66 Q140 28 174 30 Q150 44 138 72 Z"/>` +
+      `<circle class="ch" cx="26" cy="30" r="6" style="fill:var(--yellow)"/><circle class="ch" cx="174" cy="30" r="6" style="fill:var(--yellow)"/>` +
+      `<path class="ch" style="fill:var(--yellow)" d="M68 70 Q100 54 132 70 L130 78 Q100 64 70 78 Z"/>` +
+      eye(88, 86, 7, 3) + eye(112, 86, 7, 3) +
+      `<circle cx="88" cy="86" r="10.5" style="fill:none;stroke:var(--yellow);stroke-width:2.5"/>` +
+      `<path style="fill:none;stroke:var(--yellow);stroke-width:1.5" d="M78 90 Q72 104 76 116"/>` +
+      `<path style="fill:var(--chalk);stroke:${INK};stroke-width:2.5;stroke-linejoin:round" d="M86 100 Q100 114 114 100 Z"/>` +
+      `<path style="fill:none;stroke:${INK};stroke-width:3.5;stroke-linecap:round" d="M100 98 Q90 91 82 97 Q78 101 83 103 M100 98 Q110 91 118 97 Q122 101 117 103"/>`
+  };
+
+  Art.monster = function (id, cls, label) {
+    return `<svg class="monster m-${id} ${cls || ''}" viewBox="0 0 200 200" role="img" aria-label="${esc(label || id)}">` +
+      `<ellipse cx="100" cy="190" rx="70" ry="8" style="fill:rgba(0,0,0,.28)"/>` +
+      `<g filter="url(#chalk)">${MONSTERS[id]()}</g></svg>`;
+  };
+})(window);
+
+;
+/* Math Is Magic: game shell (state, saving, sound, title, wardrobe, map, results) */
+(function () {
+  'use strict';
+  const Pz = window.Puzzles, Art = window.Art, esc = Pz.esc;
+
+  const REALMS = [
+    { name: 'Whispering Woods', monster: 'mossling', foe: 'Mossling', hp: 6, tiers: [1, 2, 3], pool: ['pattern', 'potion', 'odd', 'picture', 'sums', 'counting'], blurb: 'A grumpy blob of moss that messes up every pattern it finds.' },
+    { name: 'Crystal Caves', monster: 'bat', foe: 'Glimmer Bat', hp: 8, tiers: [1, 2, 3], pool: ['magic', 'pattern', 'backwards', 'counting', 'picture', 'sums'], blurb: 'It hangs upside down, so all of its sums come out backwards.' },
+    { name: 'Clocktower', monster: 'golem', foe: 'Tick-Tock Golem', hp: 10, tiers: [2, 3, 4], pool: ['calendar', 'backwards', 'legs', 'potion', 'pattern', 'magic'], blurb: 'A clockwork giant that is always exactly one hour late.' },
+    { name: 'Ember Marsh', monster: 'toad', foe: 'Lava Toad', hp: 12, tiers: [3, 4, 5], pool: ['legs', 'counting', 'magic', 'sums', 'odd', 'potion', 'calendar'], blurb: 'It only croaks in prime numbers. Very loudly.' },
+    { name: 'Moonspire', monster: 'dragon', foe: 'Shadow Dragon', hp: 15, tiers: [3, 4, 5], pool: Pz.CLASSIC_TYPES.slice(), blurb: 'The dragon who stole every zero in the kingdom.' },
+    { name: 'Coral Reef', monster: 'grumpfish', foe: 'Grumpfish', hp: 14, tiers: [3, 4, 5], pool: ['mystery', 'area', 'pattern', 'potion', 'legs', 'sums', 'odd'], blurb: 'Its spikes are so tough that small spells bounce right off.', traits: ['armored'] },
+    { name: 'Rice Terraces', monster: 'magpie', foe: 'Snatch the Magpie', hp: 15, tiers: [3, 4, 5], pool: ['area', 'counting', 'ages', 'magic', 'calendar', 'picture'], blurb: 'A cheeky bird that steals anything shiny, especially power-ups.', traits: ['thief'] },
+    { name: 'Komodo Isle', monster: 'komodo', foe: 'Komodo Knight', hp: 16, tiers: [3, 4, 5], pool: ['ages', 'mystery', 'backwards', 'legs', 'potion', 'magic'], blurb: 'A knight lizard who grows back stronger every time you slip up.', traits: ['regrow'] },
+    { name: 'Thunder Peaks', monster: 'cloud', foe: 'Grumble Cloud', hp: 17, tiers: [3, 4, 5], pool: ['mystery', 'area', 'ages', 'counting', 'sums', 'calendar', 'pattern'], blurb: 'A stormy cloud that huffs and puffs every hint away.', traits: ['gusty'] },
+    { name: 'Starfall Observatory', monster: 'muddle', foe: 'Count Muddle', hp: 20, tiers: [3, 4, 5], pool: Pz.TYPES.slice(), blurb: 'The sorcerer who scrambles the numbers in the sky. He thinks nobody can count better than him.', traits: ['armored', 'regrow'] }
+  ];
+  const TRAITS = {
+    armored: { name: 'Armoured', icon: 'shield', text: 'Spark spells bounce off. Use Flare or Comet.' },
+    thief: { name: 'Thief', icon: 'rate', text: 'Each wrong answer lets it snatch one of your power-ups. Win the fight to get them all back.' },
+    regrow: { name: 'Regrows', icon: 'heart', text: 'Each wrong answer heals it by 1 hit point.' },
+    gusty: { name: 'Gusty', icon: 'bulb', text: 'Its wind blows hints away, so there are no hints in this fight.' }
+  };
+  const CHAPTERS = [
+    { title: 'The Stolen Zeros', first: 0, last: 4, key: 'champion', rank: 'Grandmage of Numbers', deed: 'defeated the Shadow Dragon and brought every zero back to the Kingdom of Numbers.' },
+    { title: 'The Muddled Sky', first: 5, last: 9, key: 'champion2', rank: 'Archmage of the Stars', deed: 'outsmarted Count Muddle and put every number in the sky back where it belongs.' }
+  ];
+  const SPELLS = [
+    { name: 'Spark', power: 1, icon: 'spark', color: 'var(--yellow)' },
+    { name: 'Flare', power: 2, icon: 'flare', color: 'var(--coral)' },
+    { name: 'Comet', power: 3, icon: 'comet', color: 'var(--blue)' }
+  ];
+  const MAX_HEARTS = 3;
+  const HAIR_NAMES = ['black', 'dark brown', 'brown', 'ginger', 'pink', 'lilac', 'blue', 'mint', 'yellow', 'white'];
+  const SKIN_NAMES = ['light', 'light medium', 'medium', 'medium dark', 'dark'];
+
+  /* ---------- Saving ---------- */
+  const SAVE_KEY = 'math-is-magic-v1';
+  const STARTER_KIT = () => ({ shield: 1, jamu: 1, double: 1, eraser: 1 });
+  const freshSave = () => ({ hero: Object.assign({}, Art.DEFAULT_HERO), stars: REALMS.map(() => 0), unlocked: 1, sound: true, champion: false, champion2: false, made: false, items: STARTER_KIT() });
+  function loadSave() {
+    try {
+      const raw = localStorage.getItem(SAVE_KEY);
+      if (raw) {
+        const s = JSON.parse(raw);
+        const save = Object.assign(freshSave(), s, {
+          hero: Object.assign({}, Art.DEFAULT_HERO, s.hero || {}),
+          items: Object.assign({ shield: 0, jamu: 0, double: 0, eraser: 0 }, s.items || STARTER_KIT()),
+          stars: REALMS.map((_, i) => (s.stars && s.stars[i]) || 0)
+        });
+        // Players who beat the dragon before Chapter 2 existed get it unlocked
+        if (save.champion && save.unlocked < CHAPTERS[1].first + 1) save.unlocked = CHAPTERS[1].first + 1;
+        return save;
+      }
+    } catch (e) { /* storage blocked: play without saving */ }
+    return freshSave();
+  }
+  function persist() { try { localStorage.setItem(SAVE_KEY, JSON.stringify(state.save)); } catch (e) { /* ignore */ } }
+
+  const state = { save: freshSave(), screen: 'title', realm: 0, battle: null, result: null, confirmReset: false };
+
+  /* ---------- Sound (synthesised, starts after the first tap) ---------- */
+  const sfx = (() => {
+    let ctx = null;
+    const ac = () => {
+      if (!state.save.sound) return null;
+      try {
+        ctx = ctx || new (window.AudioContext || window.webkitAudioContext)();
+        if (ctx.state === 'suspended') ctx.resume();
+        return ctx;
+      } catch (e) { return null; }
+    };
+    function tone(freq, dur, o) {
+      const c = ac(); if (!c) return;
+      o = o || {};
+      const t = c.currentTime + (o.at || 0), osc = c.createOscillator(), g = c.createGain();
+      osc.type = o.type || 'sine';
+      osc.frequency.setValueAtTime(freq, t);
+      if (o.slide) osc.frequency.exponentialRampToValueAtTime(Math.max(40, freq + o.slide), t + dur);
+      g.gain.setValueAtTime(0.0001, t);
+      g.gain.exponentialRampToValueAtTime(o.vol || 0.12, t + 0.015);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+      osc.connect(g); g.connect(c.destination);
+      osc.start(t); osc.stop(t + dur + 0.05);
+    }
+    function noise(dur, o) {
+      const c = ac(); if (!c) return;
+      o = o || {};
+      const len = Math.floor(c.sampleRate * dur), buf = c.createBuffer(1, len, c.sampleRate), d = buf.getChannelData(0);
+      for (let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * (1 - i / len);
+      const src = c.createBufferSource(), f = c.createBiquadFilter(), g = c.createGain();
+      src.buffer = buf; f.type = 'bandpass'; f.frequency.value = o.freq || 1000; f.Q.value = 0.9; g.gain.value = o.vol || 0.12;
+      src.connect(f); f.connect(g); g.connect(c.destination);
+      src.start(c.currentTime + (o.at || 0));
+    }
+    return {
+      tap: () => tone(700, 0.05, { type: 'triangle', vol: 0.04 }),
+      cast: p => { noise(0.4, { freq: 900 + p * 350, vol: 0.1 }); tone(320, 0.38, { type: 'sawtooth', vol: 0.035, slide: 500 + p * 250 }); },
+      hit: () => { noise(0.2, { freq: 320, vol: 0.22 }); tone(150, 0.22, { type: 'square', vol: 0.05, slide: -70 }); },
+      correct: () => [523, 659, 784].forEach((f, i) => tone(f, 0.2, { type: 'triangle', vol: 0.12, at: i * 0.09 })),
+      wrong: () => { tone(233, 0.26, { type: 'square', vol: 0.05, slide: -90 }); tone(175, 0.32, { type: 'square', vol: 0.045, at: 0.13, slide: -60 }); },
+      win: () => [523, 659, 784, 1047, 784, 1047].forEach((f, i) => tone(f, i === 5 ? 0.55 : 0.16, { type: 'triangle', vol: 0.12, at: i * 0.12 })),
+      lose: () => [392, 330, 262, 196].forEach((f, i) => tone(f, 0.3, { type: 'triangle', vol: 0.09, at: i * 0.18 })),
+      shield: () => [880, 1175].forEach((f, i) => tone(f, 0.3, { type: 'sine', vol: 0.09, at: i * 0.08 })),
+      heal: () => [392, 523, 659, 880].forEach((f, i) => tone(f, 0.16, { type: 'sine', vol: 0.1, at: i * 0.07 })),
+      power: () => tone(260, 0.45, { type: 'triangle', vol: 0.1, slide: 900 }),
+      erase: () => noise(0.32, { freq: 2200, vol: 0.14 }),
+      loot: () => [1319, 1568, 2093].forEach((f, i) => tone(f, 0.14, { type: 'triangle', vol: 0.07, at: 0.25 + i * 0.07 }))
+    };
+  })();
+
+  /* ---------- Shared bits ---------- */
+  const board = () => document.getElementById('board');
+  const soundBtn = () => `<button class="icon-btn" data-act="sound" aria-pressed="${state.save.sound}" aria-label="Sound">${Art.icon(state.save.sound ? 'sound' : 'mute')}</button>`;
+  const rateHTML = n => `<span class="rate" role="img" aria-label="${n} of 3 stars">${[0, 1, 2].map(i => Art.icon(i < n ? 'rate' : 'rate-empty')).join('')}</span>`;
+  const totalStars = () => state.save.stars.reduce((a, b) => a + b, 0);
+  const heroName = () => (state.save.hero.name || '').trim() || Art.DEFAULT_HERO.name || 'Mage';
+  function say(text) { const sr = document.getElementById('sr'); if (sr) { sr.textContent = ''; setTimeout(() => { sr.textContent = text; }, 30); } }
+
+  const SCRIBBLES = [
+    ['1 + 2 + … + 100 = 5050', 3, 4, -5], ['3² + 4² = 5²', 72, 9, 5], ['7 × 8 = 56', 80, 46, -4], ['½ + ½ = 1', 4, 50, 3],
+    ['π ≈ 3.14', 10, 86, -3], ['2, 3, 5, 7, 11, 13…', 56, 91, 4], ['9 × 9 = 81', 84, 72, -6]
+  ].map(([t, x, y, r]) => `<span style="left:${x}%;top:${y}%;transform:rotate(${r}deg)">${t}</span>`).join('');
+
+  /* ---------- Screens ---------- */
+  const screens = {};
+
+  screens.title = () => {
+    const s = state.save;
+    const actions = s.made
+      ? `<button class="btn btn-primary" data-act="toMap">Continue as ${esc(heroName())}</button>
+         <button class="btn" data-act="toWardrobe">Change outfit</button>` +
+        (state.confirmReset
+          ? `<div class="confirm"><p>Start over? This erases every star.</p><div class="row" style="justify-content:center"><button class="btn btn-small" data-act="doReset">Yes, start over</button><button class="btn btn-small btn-ghost" data-act="cancelReset">Keep my stars</button></div></div>`
+          : `<button class="btn btn-ghost" data-act="askReset">Start over</button>`)
+      : `<button class="btn btn-primary" data-act="start">Start the adventure</button>`;
+    return `<section class="screen title-screen" aria-labelledby="t-title"><div class="wrap">
+      <div class="scribbles" aria-hidden="true">${SCRIBBLES}</div>
+      <div class="title-top">${soundBtn()}</div>
+      <p class="eyebrow">A chalkboard adventure</p>
+      <h1 id="t-title" class="display title-word">Math Is <em>Magic</em></h1>
+      <p class="hand">Every spell is a puzzle. Solve it to cast it.</p>
+      <div class="title-art">${Art.mage(s.hero, 'idle')}${Art.monster('dragon', '', 'The Shadow Dragon')}</div>
+      <div class="title-actions">${actions}</div>
+    </div></section>`;
+  };
+
+  function wardrobeOptions() {
+    const H = state.save.hero;
+    const sw = (key, val, bg, label) => `<button class="swatch" style="background:${bg}" data-act="set" data-arg="${key}:${val}" aria-pressed="${H[key] === val}" aria-label="${label}"></button>`;
+    return `
+      <div class="opt"><label class="opt-label" for="hero-name">Name</label>
+        <input id="hero-name" class="name-input" maxlength="14" autocomplete="off" spellcheck="false" placeholder="Type your name" value="${esc(H.name)}"></div>
+      <div class="opt"><span class="opt-label" id="lbl-gender">Gender</span>
+        <div class="pills" role="group" aria-labelledby="lbl-gender">${[['girl', 'Girl'], ['boy', 'Boy']].map(([id, label]) => `<button class="pill" data-act="set" data-arg="gender:${id}" aria-pressed="${H.gender === id}">${label}</button>`).join('')}</div></div>
+      <div class="opt"><span class="opt-label" id="lbl-robe">Robe</span>
+        <div class="swatches" role="group" aria-labelledby="lbl-robe">${Art.ROBES.map(r => sw('robe', r, `var(--${r})`, `${r} robe`)).join('')}</div></div>
+      <div class="opt"><span class="opt-label" id="lbl-hair">Hair</span>
+        <div class="pills" role="group" aria-labelledby="lbl-hair">${Art.stylesFor(H.gender).map(st => `<button class="pill" data-act="set" data-arg="hair:${st.id}" aria-pressed="${H.hair === st.id}">${st.label}</button>`).join('')}</div></div>
+      <div class="opt"><span class="opt-label" id="lbl-hc">${H.hair === 'hijab' ? 'Hijab colour' : 'Hair colour'}</span>
+        <div class="swatches" role="group" aria-labelledby="lbl-hc">${Art.HAIR_COLORS.map((c, i) => sw('hairColor', c, c, HAIR_NAMES[i])).join('')}</div></div>
+      <div class="opt"><span class="opt-label" id="lbl-skin">Skin</span>
+        <div class="swatches" role="group" aria-labelledby="lbl-skin">${Art.SKINS.map((c, i) => sw('skin', c, c, SKIN_NAMES[i] + ' skin')).join('')}</div></div>
+      <div class="opt"><span class="opt-label" id="lbl-extra">Extras</span>
+        <div class="pills" role="group" aria-labelledby="lbl-extra">
+          <button class="pill" data-act="toggle" data-arg="glasses" aria-pressed="${H.glasses}">Glasses</button>
+          <button class="pill" data-act="toggle" data-arg="hat" aria-pressed="${H.hat}">Wizard hat</button></div></div>
+      <div class="row"><button class="btn btn-primary" data-act="wardDone">${state.save.made ? 'Done' : 'Ready!'}</button></div>`;
+  }
+
+  screens.wardrobe = () => `<section class="screen" aria-labelledby="w-title"><div class="wrap">
+      <div class="topbar"><button class="icon-btn" data-act="wardBack" aria-label="Back">${Art.icon('back')}</button><h2 id="w-title" class="h2 grow">Dress your mage</h2></div>
+      <div class="ward">
+        <div class="ward-preview" id="ward-preview">${Art.mage(state.save.hero, 'idle')}</div>
+        <div class="ward-opts" id="ward-opts">${wardrobeOptions()}</div>
+      </div></div></section>`;
+
+  function refreshWardrobe() {
+    const prev = document.getElementById('ward-preview');
+    if (prev) prev.innerHTML = Art.mage(state.save.hero, 'idle');
+    const H = state.save.hero;
+    document.querySelectorAll('#ward-opts [data-act="set"]').forEach(b => {
+      const [k, v] = b.dataset.arg.split(':');
+      b.setAttribute('aria-pressed', String(H[k] === v));
+    });
+    document.querySelectorAll('#ward-opts [data-act="toggle"]').forEach(b => b.setAttribute('aria-pressed', String(!!H[b.dataset.arg])));
+    const lbl = document.getElementById('lbl-hc');
+    if (lbl) lbl.textContent = H.hair === 'hijab' ? 'Hijab colour' : 'Hair colour';
+  }
+
+  screens.map = () => {
+    const s = state.save, total = totalStars(), max = REALMS.length * 3;
+    const stop = (r, i) => {
+      const open = i < s.unlocked, stars = s.stars[i];
+      const cls = !open ? 'locked' : stars ? 'done' : '';
+      const row = open
+        ? `${rateHTML(stars)}<button class="btn btn-small ${stars ? '' : 'btn-primary'}" data-act="pickRealm" data-arg="${i}">${stars ? 'Play again' : 'Fight'}</button>`
+        : `<span class="locked-note">${Art.icon('lock')} Beat realm ${i} first</span>`;
+      return `<li class="stop ${cls}"><span class="stop-num" aria-hidden="true">${i + 1}</span>${Art.monster(r.monster, '', r.foe)}
+        <div class="stop-info"><h4 class="h3">${r.name}</h4><p class="stop-meta">${r.foe} · ${r.hp} hit points${r.traits ? ' · ' + r.traits.map(t => TRAITS[t].name).join(', ') : ''}</p><div class="stop-row">${row}</div></div></li>`;
+    };
+    const chapters = CHAPTERS.map((c, ci) => {
+      const open = c.first < s.unlocked;
+      return `<section class="chapter${open ? '' : ' chapter-locked'}" aria-labelledby="ch-${ci}">
+        <div class="chapter-head"><span class="eyebrow">Chapter ${ci + 1}</span><h3 id="ch-${ci}" class="h3">${c.title}</h3>
+        ${open ? '' : `<p class="locked-note">${Art.icon('lock')} Beat the Shadow Dragon to open this chapter</p>`}</div>
+        <ol class="stops">${REALMS.slice(c.first, c.last + 1).map((r, j) => stop(r, c.first + j)).join('')}</ol></section>`;
+    }).join('');
+    const story = !s.champion
+      ? 'The Shadow Dragon stole every zero in the kingdom! Beat its four helpers, then face the dragon at Moonspire.'
+      : !s.champion2
+        ? 'The zeros are back! But Count Muddle is scrambling the numbers in the sky. Beat his four helpers, then stop him at Starfall Observatory.'
+        : `${esc(heroName())} is an Archmage of the Stars! Play any realm again to collect every star.`;
+    return `<section class="screen" aria-labelledby="m-title"><div class="wrap wrap-narrow">
+      <div class="topbar"><button class="icon-btn" data-act="toTitle" aria-label="Back to the title screen">${Art.icon('back')}</button>
+        <h2 id="m-title" class="h2 grow">Kingdom of Numbers</h2>
+        <span class="star-count" role="img" aria-label="${total} of ${max} stars">${Art.icon('rate')}${total}/${max}</span></div>
+      <p class="story hand">${story}</p>
+      <div class="inv" role="group" aria-label="Your power-ups"><span class="eyebrow">Power-ups</span>${Object.keys(window.MIM.ITEMS).map(id => `<span title="${window.MIM.ITEMS[id].name}">${Art.icon(window.MIM.ITEMS[id].icon)}<span class="sr-only">${window.MIM.ITEMS[id].name}</span>×${s.items[id] || 0}</span>`).join('')}</div>
+      ${chapters}
+      <div class="map-foot row"><button class="btn btn-small" data-act="toWardrobe">Change outfit</button>${soundBtn()}</div>
+    </div></section>`;
+  };
+
+  screens.intro = () => {
+    const r = REALMS[state.realm];
+    return `<section class="screen" aria-labelledby="i-title"><div class="wrap wrap-narrow">
+      <div class="topbar"><button class="icon-btn" data-act="toMap" aria-label="Back to the map">${Art.icon('back')}</button><span class="eyebrow grow">Realm ${state.realm + 1} · ${r.name}</span></div>
+      <div class="intro enter">${Art.monster(r.monster, 'idle', r.foe)}
+        <h2 id="i-title" class="h2">${r.foe}</h2>
+        <p class="hand">${r.blurb}</p>
+        ${r.traits ? `<div class="traits"><p class="eyebrow">Special tricks</p>${r.traits.map(t => `<p class="trait">${Art.icon(TRAITS[t].icon)}<span><b>${TRAITS[t].name}.</b> ${TRAITS[t].text}</span></p>`).join('')}</div>` : ''}
+        <ul class="rules">
+          <li>${Art.icon('spark')}<span>Pick a spell. Stronger spells hit harder but come with harder puzzles.</span></li>
+          <li>${Art.icon('rate')}<span>Solve the puzzle to cast the spell. Three right in a row gives every spell +1 power until you miss.</span></li>
+          <li>${Art.icon('heart')}<span>A wrong answer lets ${r.foe} hit back. You have ${MAX_HEARTS} hearts.</span></li>
+          <li>${Art.icon('bulb')}<span>Stuck? A hint helps, but the spell loses 1 power.</span></li>
+          <li>${Art.icon('shield')}<span>Power-ups: you find one for every 3 right answers in a row and for every win. Tap one in battle to see what it does.</span></li>
+        </ul>
+        <button class="btn btn-primary" data-act="fight">Fight ${r.foe}!</button>
+      </div></div></section>`;
+  };
+
+  screens.result = () => {
+    const res = state.result, r = REALMS[res.realm];
+    if (res.won) {
+      const next = res.realm + 1 < REALMS.length;
+      const line = res.stars === 3 ? 'Perfect! You did not lose a single heart.'
+        : res.stars === 2 ? 'Great work. You lost one heart.'
+          : 'You did it! Win without losing a heart to earn all 3 stars.';
+      return `<section class="screen" aria-labelledby="r-title"><div class="wrap wrap-narrow"><div class="result enter">
+        <p class="eyebrow">Realm ${res.realm + 1} · ${r.name}</p>
+        <h2 id="r-title" class="h2">${r.foe} is beaten!</h2>
+        ${Art.mage(state.save.hero, 'idle')}
+        ${rateHTML(res.stars)}
+        <p class="fb-line">${line}</p>
+        <p class="dim">${res.cast} spells cast · ${res.misses} ${res.misses === 1 ? 'mistake' : 'mistakes'}${res.hints ? ` · ${res.hints} ${res.hints === 1 ? 'hint' : 'hints'}` : ''}</p>
+        ${res.returned && res.returned.length ? `<p class="loot">${Art.icon('rate')}<span>${r.foe} dropped everything it stole: ${res.returned.map(id => window.MIM.ITEMS[id].name).join(', ')}.</span></p>` : ''}
+        ${res.drop ? `<p class="loot">${Art.icon(window.MIM.ITEMS[res.drop].icon)}<span>Victory prize: ${window.MIM.ITEMS[res.drop].a} ${window.MIM.ITEMS[res.drop].name}!</span></p>` : ''}
+        ${res.unlockedNow && next ? `<p class="hand">${REALMS[res.realm + 1].name} is open now.</p>` : ''}
+        <div class="row">${next ? `<button class="btn btn-primary" data-act="pickRealm" data-arg="${res.realm + 1}">Next realm</button>` : ''}<button class="btn" data-act="toMap">Map</button></div>
+      </div></div></section>`;
+    }
+    return `<section class="screen" aria-labelledby="r-title"><div class="wrap wrap-narrow"><div class="result lost enter">
+      <p class="eyebrow">Realm ${res.realm + 1} · ${r.name}</p>
+      <h2 id="r-title" class="h2">${r.foe} won this round</h2>
+      ${Art.monster(r.monster, 'idle', r.foe)}
+      <p class="fb-line">Every mistake showed you a new trick. Have another go!</p>
+      <p class="dim">${res.cast} spells cast · ${r.foe} had ${res.hpLeft} of ${r.hp} hit points left</p>
+      <div class="row"><button class="btn btn-primary" data-act="fight">Try again</button><button class="btn" data-act="toMap">Map</button></div>
+    </div></div></section>`;
+  };
+
+  screens.final = () => {
+    const date = new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
+    const ci = state.finalChapter || 0, ch = CHAPTERS[ci];
+    const chStars = state.save.stars.slice(ch.first, ch.last + 1).reduce((a, b) => a + b, 0);
+    return `<section class="screen" aria-labelledby="c-title"><div class="wrap wrap-narrow"><div class="cert enter">
+      <p class="eyebrow">Certificate of Magic</p>
+      ${Art.mage(state.save.hero, 'idle')}
+      <p class="dim">This certifies that</p>
+      <h2 id="c-title" class="cert-name">${esc(heroName())}</h2>
+      <p class="fb-line">${ch.deed}</p>
+      <p class="h3">${ch.rank}</p>
+      <div class="cert-meta"><span>Chapter ${ci + 1}: ${ch.title}</span><span>${chStars} of 15 stars</span><span>${date}</span></div>
+      <p class="cert-sign">Signed by Grandmage Bintang</p>
+      ${ci === 0 ? `<p class="hand">A new adventure is waiting. Chapter 2, ${CHAPTERS[1].title}, is open!</p>
+      <div class="row" style="justify-content:center"><button class="btn btn-primary" data-act="pickRealm" data-arg="${CHAPTERS[1].first}">Start Chapter 2</button><button class="btn" data-act="toMap">Map</button></div>`
+        : '<button class="btn btn-primary" data-act="toMap">Back to the map</button>'}
+    </div></div></section>`;
+  };
+
+  /* ---------- Router ---------- */
+  function render() {
+    const fn = screens[state.screen] || screens.title;
+    board().innerHTML = fn();
+    const sc = board().firstElementChild;
+    if (sc) sc.scrollTop = 0;
+  }
+  function go(screen) { state.screen = screen; render(); }
+
+  /* ---------- Actions ---------- */
+  const actions = {
+    start: () => go('wardrobe'),
+    toMap: () => { state.confirmReset = false; go('map'); },
+    toTitle: () => go('title'),
+    toWardrobe: () => go('wardrobe'),
+    wardBack: () => go(state.save.made ? 'map' : 'title'),
+    wardDone: () => {
+      const input = document.getElementById('hero-name');
+      if (input) state.save.hero.name = input.value.trim().slice(0, 14) || Art.DEFAULT_HERO.name;
+      state.save.made = true; persist(); go('map');
+    },
+    set: arg => {
+      const i = arg.indexOf(':'), k = arg.slice(0, i), v = arg.slice(i + 1);
+      const H = state.save.hero;
+      H[k] = v;
+      if (k === 'gender') {
+        const ids = Art.stylesFor(v).map(st => st.id);
+        if (!ids.includes(H.hair)) H.hair = ids[0];
+        const opts = document.getElementById('ward-opts');
+        if (opts) opts.innerHTML = wardrobeOptions();
+      }
+      if (k === 'hair' && v === 'peci') H.hat = false;
+      persist(); refreshWardrobe();
+    },
+    toggle: arg => { state.save.hero[arg] = !state.save.hero[arg]; persist(); refreshWardrobe(); },
+    sound: () => {
+      state.save.sound = !state.save.sound; persist();
+      document.querySelectorAll('[data-act="sound"]').forEach(b => {
+        b.setAttribute('aria-pressed', String(state.save.sound));
+        b.innerHTML = Art.icon(state.save.sound ? 'sound' : 'mute');
+      });
+      if (state.save.sound) sfx.tap();
+    },
+    askReset: () => { state.confirmReset = true; render(); },
+    cancelReset: () => { state.confirmReset = false; render(); },
+    doReset: () => {
+      const keep = { hero: state.save.hero, sound: state.save.sound };
+      state.save = Object.assign(freshSave(), keep, { made: true });
+      state.confirmReset = false; persist(); go('map');
+    },
+    pickRealm: arg => {
+      const i = Number(arg);
+      if (i >= state.save.unlocked) return;
+      state.realm = i; go('intro');
+    }
+  };
+
+  document.addEventListener('click', e => {
+    const el = e.target.closest('[data-act]');
+    if (!el || el.disabled || !board().contains(el)) return;
+    const fn = actions[el.dataset.act];
+    if (!fn) return;
+    if (el.dataset.act !== 'sound') sfx.tap();
+    fn(el.dataset.arg, el, e);
+  });
+  document.addEventListener('input', e => {
+    if (e.target && e.target.id === 'hero-name') {
+      state.save.hero.name = e.target.value.slice(0, 14);
+      persist();
+      const prev = document.querySelector('#ward-preview .mage');
+      if (prev) prev.setAttribute('aria-label', `${heroName()} the mage`);
+    }
+  });
+
+  window.MIM = { state, REALMS, SPELLS, MAX_HEARTS, TRAITS, CHAPTERS, sfx, screens, actions, render, go, persist, soundBtn, rateHTML, heroName, say, esc };
+
+  /* ---------- Boot (keeps progress when the page is updated while open) ---------- */
+  function start(data) {
+    document.body.insertAdjacentHTML('afterbegin', Art.defs());
+    data = data || {};
+    state.save = data.save || loadSave();
+    if (data.screen && screens[data.screen]) {
+      state.screen = data.screen; state.realm = data.realm || 0;
+      state.battle = data.battle || null; state.result = data.result || null; state.finalChapter = data.finalChapter || 0;
+      if (state.battle && !state.battle.stolen) state.battle.stolen = [];
+      if (state.battle) state.battle.busy = false;
+      if (state.screen === 'battle' && !state.battle) state.screen = 'map';
+      if (state.screen === 'result' && !state.result) state.screen = 'map';
+    }
+    render();
+  }
+  window.MIM.boot = function () {
+    const hot = window.claude && window.claude.hot;
+    if (hot && typeof hot.snapshot === 'function') {
+      try { hot.snapshot(() => ({ save: state.save, screen: state.screen, realm: state.realm, battle: state.battle, result: state.result, finalChapter: state.finalChapter })); } catch (e) { /* ignore */ }
+    }
+    if (hot && typeof hot.ready === 'function') hot.ready(start);
+    else start((hot && hot.data) || {});
+  };
+})();
+
+;
+/* Math Is Magic: battles (spell choice, puzzles, answers, power-ups, animations) */
+(function () {
+  'use strict';
+  const M = window.MIM, Pz = window.Puzzles, Art = window.Art;
+  const { state, REALMS, SPELLS, sfx, esc } = M;
+  const reduced = () => window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const $ = id => document.getElementById(id);
+  const PRAISE = ['Correct!', 'Brilliant!', 'Spot on!', 'Yes!', 'Nailed it!'];
+
+  /* ---------- Power-ups ---------- */
+  const MAX_ITEM = 3;
+  const ITEMS = {
+    shield: { name: 'Shield Charm', short: 'Shield', a: 'a', icon: 'shield', what: 'Blocks the next hit from the monster, so a wrong answer costs no heart.',
+      why: b => b.shield ? 'Your shield is already up.' : '' },
+    jamu: { name: 'Jamu Potion', short: 'Jamu', a: 'a', icon: 'jamu', what: 'A warm herbal jamu that brings back 1 heart.',
+      why: b => b.hearts >= M.MAX_HEARTS ? 'Your hearts are already full. Save it for later!' : '' },
+    double: { name: 'Double Chalk', short: 'Double', a: 'a', icon: 'double', what: 'Your next correct spell hits twice as hard.',
+      why: b => b.double ? 'Double Chalk is already waiting for your next spell.' : '' },
+    eraser: { name: 'Board Eraser', short: 'Eraser', a: 'a', icon: 'eraser', what: 'Wipes away the puzzle on the board and gives you a new one.',
+      why: b => b.phase !== 'puzzle' ? 'Pick a spell first, then use it on the puzzle.' : '' }
+  };
+  const ITEM_IDS = Object.keys(ITEMS);
+  M.ITEMS = ITEMS;
+  const inv = () => state.save.items;
+
+  function grantRandom() {
+    const bag = inv();
+    const open = ITEM_IDS.filter(id => (bag[id] || 0) < MAX_ITEM);
+    if (!open.length) return null;
+    const id = Pz.rnd.pick(open);
+    bag[id] = (bag[id] || 0) + 1;
+    M.persist();
+    return id;
+  }
+  function blocked(id) {
+    const b = state.battle;
+    if (!b) return 'Power-ups only work in battles.';
+    if ((inv()[id] || 0) < 1) return 'You have none left. Get 3 right in a row to find more.';
+    if (b.phase === 'feedback' || b.busy) return 'Wait for your next spell.';
+    return ITEMS[id].why(b);
+  }
+
+  function newBattle(realm) {
+    const r = REALMS[realm];
+    state.battle = {
+      realm, hp: r.hp, hearts: M.MAX_HEARTS, streak: 0, recent: [],
+      phase: 'spell', spell: 0, puzzle: null, hintUsed: false, input: '', choice: null,
+      cast: 0, misses: 0, hints: 0, last: null, busy: false,
+      shield: false, double: false, info: null, stolen: []
+    };
+  }
+
+  function makePuzzle(spell) {
+    const b = state.battle, r = REALMS[b.realm];
+    let pool = r.pool.filter(t => !b.recent.includes(t));
+    if (!pool.length) pool = r.pool;
+    const type = Pz.rnd.pick(pool);
+    b.recent.push(type);
+    while (b.recent.length > Math.min(3, r.pool.length - 1)) b.recent.shift();
+    return Pz.make(type, r.tiers[spell], { name: M.heroName(), he: state.save.hero.gender === 'boy' ? 'He' : 'She' });
+  }
+
+  const has = trait => (REALMS[state.battle.realm].traits || []).includes(trait);
+  const basePower = (spell, hint) => Math.max(1, SPELLS[spell].power + (state.battle.streak >= 2 ? 1 : 0) - (hint ? 1 : 0));
+  const power = () => basePower(state.battle.spell, state.battle.hintUsed) * (state.battle.double ? 2 : 1);
+
+  /* ---------- Pieces ---------- */
+  function heartsHTML() {
+    const b = state.battle;
+    let out = '';
+    for (let i = 0; i < M.MAX_HEARTS; i++) out += Art.icon(i < b.hearts ? 'heart' : 'heart-empty');
+    return out;
+  }
+  function tallyHTML() {
+    const b = state.battle, max = REALMS[b.realm].hp;
+    let lines = '';
+    for (let i = 0; i < max; i++) {
+      const g = Math.floor(i / 5), pos = i % 5, x0 = 4 + g * 38;
+      const cls = i < b.hp ? 'on' : 'off';
+      lines += pos < 4
+        ? `<line class="${cls}" x1="${x0 + pos * 7}" y1="4" x2="${x0 + pos * 7}" y2="22"/>`
+        : `<line class="${cls}" x1="${x0 - 4}" y1="19" x2="${x0 + 25}" y2="7"/>`;
+    }
+    const w = 4 + Math.ceil(max / 5) * 38;
+    return `<svg class="tally" id="tally" viewBox="0 0 ${w} 26" role="img" aria-label="${b.hp} of ${max} hit points left" style="max-width:${w * 1.15}px">${lines}</svg>`;
+  }
+  const comboText = () => state.battle.streak >= 3 ? `${state.battle.streak} in a row! +1 power` : state.battle.streak === 2 ? 'One more for a combo!' : '';
+  const mageClass = () => 'fighter' + (state.battle.shield ? ' shielded' : '') + (state.battle.double ? ' doubled' : '');
+
+  function kitHTML() {
+    const b = state.battle, bag = inv();
+    const buttons = ITEM_IDS.map(id => {
+      const it = ITEMS[id], n = bag[id] || 0;
+      const active = (id === 'shield' && b.shield) || (id === 'double' && b.double);
+      const cls = 'item' + (active ? ' is-active' : '') + (b.info === id ? ' is-open' : '') + (n || active ? '' : ' is-empty');
+      return `<button class="${cls}" data-act="itemInfo" data-arg="${id}" aria-expanded="${b.info === id}" aria-label="${it.name}: ${n} left${active ? ', in use' : ''}">` +
+        `${Art.icon(it.icon)}<span class="item-name">${it.short}</span><span class="item-count">${n}</span></button>`;
+    }).join('');
+    let info = '';
+    if (b.info) {
+      const it = ITEMS[b.info], why = blocked(b.info);
+      info = `<div class="item-info enter">${Art.icon(it.icon)}<div class="item-text"><b>${it.name}</b><span>${it.what}</span>${why ? `<span class="item-why">${why}</span>` : ''}</div>` +
+        `<div class="item-btns">${why ? '' : `<button class="btn btn-primary btn-small" data-act="useItem" data-arg="${b.info}">Use it</button>`}<button class="btn btn-ghost btn-small" data-act="itemInfo" data-arg="">Close</button></div></div>`;
+    }
+    return `<div class="items" role="group" aria-label="Power-ups">${buttons}</div>${info}`;
+  }
+
+  function spellHTML() {
+    const b = state.battle, r = REALMS[b.realm];
+    const notes = [];
+    if (b.double) notes.push('Double Chalk is ready, so your next correct spell hits twice as hard.');
+    if (b.streak >= 2) notes.push('Combo! Every spell gets +1 power.');
+    if (has('armored')) notes.push(`${r.foe} is armoured, so Spark spells bounce off.`);
+    return `<div class="enter"><h3 class="h3">Choose a spell</h3><p class="dim">Stronger spells hit harder, but their puzzles are tougher.</p>${notes.map(n => `<p class="hand">${n}</p>`).join('')}</div>
+      <div class="spells enter">${SPELLS.map((s, i) => {
+        const bounce = i === 0 && has('armored');
+        return `<button class="spell" data-act="chooseSpell" data-arg="${i}"${bounce ? ' disabled' : ''}>${Art.icon(s.icon)}<span class="spell-name">${s.name}</span><span class="spell-power">${bounce ? 'Bounces off' : (basePower(i, false) * (b.double ? 2 : 1)) + ' power'}</span><span class="spell-level">Level ${r.tiers[i]}</span></button>`;
+      }).join('')}</div>`;
+  }
+
+  function answerHTML() {
+    const b = state.battle, p = b.puzzle;
+    if (p.input === 'number') {
+      const keys = [1, 2, 3, 4, 5, 6, 7, 8, 9].map(n => `<button class="key" data-act="key" data-arg="${n}">${n}</button>`).join('');
+      return `<div class="answer-box" id="answer-box" role="status" aria-label="Your answer">${b.input ? esc(b.input) : '<span class="placeholder">Type your answer</span>'}<span class="caret" aria-hidden="true"></span></div>
+        <div class="keypad" role="group" aria-label="Number pad">${keys}
+          <button class="key" data-act="key" data-arg="del" aria-label="Delete">${Art.icon('back')}</button>
+          <button class="key" data-act="key" data-arg="0">0</button>
+          <button class="key key-cast" id="cast-btn" data-act="cast" ${b.input ? '' : 'disabled'}>Cast!</button></div>`;
+    }
+    const style = p.choiceStyle === 'days' ? 'days' : p.choiceStyle === 'tiles' ? 'tiles-choice' : '';
+    return `<div class="choices ${style}" role="group" aria-label="Answers">${p.choices.map(c =>
+      `<button class="choice" data-act="choose" data-arg="${c.id}" aria-pressed="${b.choice === c.id}" aria-label="${esc(c.aria)}">${c.svg || esc(c.label)}</button>`).join('')}</div>
+      <button class="btn btn-primary" id="cast-btn" data-act="cast" ${b.choice === null ? 'disabled' : ''}>Cast!</button>`;
+  }
+
+  function puzzleHTML() {
+    const b = state.battle, p = b.puzzle, s = SPELLS[b.spell];
+    const pw = power();
+    const loss = pw - basePower(b.spell, true) * (b.double ? 2 : 1);
+    const hintBtn = b.hintUsed ? '' : has('gusty') ? `<p class="hand">The wind blows hints away in this fight.</p>` :
+      `<button class="btn btn-ghost btn-small" data-act="hint">${Art.icon('bulb')} Show a hint${loss > 0 ? ` (−${loss} power)` : ''}</button>`;
+    return `<div class="puzzle enter">
+      <div class="pz-head"><span class="tag">${Art.icon(s.icon)} ${s.name} · ${pw} power${b.streak >= 2 ? ' · combo' : ''}${b.double ? ' · ×2' : ''}</span><span class="tag">${esc(p.label)} · Level ${p.tier}</span></div>
+      <p class="prompt">${esc(p.prompt)}</p>
+      <div class="visual">${p.html}</div>
+      ${b.hintUsed ? `<div class="hint-note">${Art.icon('bulb')}<p class="hand">${esc(p.hint)}</p></div>` : ''}
+      <div class="answer" id="answer">${answerHTML()}</div>
+      ${hintBtn ? `<div class="pz-actions">${hintBtn}</div>` : ''}
+    </div>`;
+  }
+
+  function feedbackHTML() {
+    const b = state.battle, p = b.puzzle, r = REALMS[b.realm], L = b.last, s = SPELLS[b.spell];
+    let line;
+    if (L.ok) {
+      const helpers = [];
+      if (L.doubled) helpers.push('Double Chalk');
+      if (L.bonus) helpers.push('your combo');
+      line = `${s.name} hits ${r.foe} for ${L.dmg}${helpers.length ? `, thanks to ${helpers.join(' and ')}` : ''}.` + (b.hp === 0 ? ` ${r.foe} is beaten!` : '');
+    } else {
+      const picked = p.input === 'number' ? null : (p.choices.find(c => c.id === L.given) || {}).aria || '';
+      const given = p.input === 'number' ? L.given : (p.choiceStyle === 'tiles' ? 'the ' + picked : picked);
+      line = `You answered ${esc(given)}, but the answer is ${esc(Pz.answerText(p))}. ` +
+        (L.blocked ? `${r.foe} hits back, but your Shield Charm blocks it. No heart lost!`
+          : `${r.foe} hits back and you lose a heart.` + (b.hearts === 0 ? ' That was your last heart.' : '')) +
+        (L.stole ? ` ${r.foe} snatches your ${ITEMS[L.stole].name}!` : '') +
+        (L.regrew ? ` ${r.foe} regrows 1 hit point.` : '');
+    }
+    const loot = L.drop ? `<p class="loot">${Art.icon(ITEMS[L.drop].icon)}<span>${L.streak} in a row! You found ${ITEMS[L.drop].a} ${ITEMS[L.drop].name}.</span></p>` : '';
+    const btn = b.hp === 0 ? 'Claim victory' : b.hearts === 0 ? 'Continue' : 'Next spell';
+    return `<div class="feedback ${L.ok ? 'good' : 'bad'} enter">
+      <h3 class="fb-title">${L.title}</h3>
+      <p class="fb-line">${line}</p>
+      ${loot}
+      <div class="fb-explain"><span class="eyebrow">${L.ok ? 'The trick' : 'How to solve it'}</span>${esc(p.explain)}</div>
+      <button class="btn btn-primary" id="next-btn" data-act="next">${btn}</button>
+    </div>`;
+  }
+
+  function panelHTML() {
+    const ph = state.battle.phase;
+    return ph === 'spell' ? spellHTML() : ph === 'puzzle' ? puzzleHTML() : feedbackHTML();
+  }
+
+  M.screens.battle = () => {
+    const b = state.battle, r = REALMS[b.realm], H = state.save.hero;
+    const foeCls = b.hp === 0 ? 'is-beaten' : 'idle';
+    return `<section class="screen battle" id="battle-screen" aria-labelledby="b-title"><div class="wrap">
+      <div class="topbar">
+        <button class="icon-btn" data-act="quitBattle" aria-label="Leave the battle">${Art.icon('back')}</button>
+        <div class="grow"><p class="eyebrow">Realm ${b.realm + 1}</p><h2 id="b-title" class="realm-name">${r.name}</h2></div>
+        ${M.soundBtn()}
+      </div>
+      <div class="battle-body">
+        <div class="side">
+          <div class="arena" id="arena">
+            <div class="${mageClass()}" id="f-mage">${Art.mage(H, 'idle')}<span class="fighter-name">${esc(M.heroName())}</span><div class="hearts" id="hearts" role="img" aria-label="${b.hearts} of ${M.MAX_HEARTS} hearts">${heartsHTML()}</div></div>
+            <div class="fighter" id="f-foe">${Art.monster(r.monster, foeCls, r.foe)}<span class="fighter-name">${r.foe}</span>${tallyHTML()}${r.traits ? `<div class="trait-tags">${r.traits.map(t => `<span class="trait-tag">${M.TRAITS[t].name}</span>`).join('')}</div>` : ''}</div>
+            <div class="combo" id="combo">${comboText()}</div>
+          </div>
+          <div class="kit" id="kit">${kitHTML()}</div>
+        </div>
+        <div class="panel" id="panel">${panelHTML()}</div>
+      </div>
+    </div></section>`;
+  };
+
+  /* ---------- Partial updates ---------- */
+  function refreshPanel(scroll) {
+    const panel = $('panel');
+    if (!panel) return;
+    panel.innerHTML = panelHTML();
+    if (scroll) {
+      const sc = $('battle-screen');
+      if (sc && window.innerWidth < 860) {
+        const top = panel.getBoundingClientRect().top - sc.getBoundingClientRect().top + sc.scrollTop - 8;
+        if (scroll === 'panel' || sc.scrollTop > top) sc.scrollTo({ top: Math.max(0, top), behavior: reduced() ? 'auto' : 'smooth' });
+      }
+    }
+  }
+  function refreshKit() { const kit = $('kit'); if (kit) kit.innerHTML = kitHTML(); }
+  function refreshStatus() {
+    const b = state.battle;
+    const hearts = $('hearts');
+    if (hearts) { hearts.innerHTML = heartsHTML(); hearts.setAttribute('aria-label', `${b.hearts} of ${M.MAX_HEARTS} hearts`); }
+    const tally = $('tally');
+    if (tally) tally.outerHTML = tallyHTML();
+    const combo = $('combo');
+    if (combo) combo.textContent = comboText();
+    const mage = $('f-mage');
+    if (mage) mage.className = mageClass();
+  }
+  function refreshAnswer() {
+    const b = state.battle, box = $('answer-box'), btn = $('cast-btn');
+    if (box) box.innerHTML = (b.input ? esc(b.input) : '<span class="placeholder">Type your answer</span>') + '<span class="caret" aria-hidden="true"></span>';
+    if (btn) btn.disabled = b.puzzle.input === 'number' ? !b.input : b.choice === null;
+    document.querySelectorAll('#answer .choice').forEach(c => c.setAttribute('aria-pressed', String(Number(c.dataset.arg) === b.choice)));
+  }
+
+  /* ---------- Animation helpers ---------- */
+  function restart(el, cls) {
+    if (!el) return;
+    el.classList.remove(cls, 'idle');
+    void el.getBoundingClientRect();
+    el.classList.add(cls);
+    el.addEventListener('animationend', function done(ev) {
+      if (ev.target !== el) return;
+      el.classList.remove(cls);
+      if (!el.classList.contains('is-beaten')) el.classList.add('idle');
+      el.removeEventListener('animationend', done);
+    });
+  }
+  function pop(text, target, kind) {
+    const arena = $('arena');
+    if (!arena || !target) return;
+    const a = arena.getBoundingClientRect(), t = target.getBoundingClientRect();
+    const el = document.createElement('div');
+    el.className = 'dmg-pop' + (kind ? ' ' + kind : '');
+    el.textContent = text;
+    el.style.left = (t.left - a.left + t.width * 0.36) + 'px';
+    el.style.top = (t.top - a.top + t.height * 0.12) + 'px';
+    arena.appendChild(el);
+    setTimeout(() => el.remove(), 1100);
+  }
+  function bolt(color, width, done) {
+    const arena = $('arena'), mage = document.querySelector('#f-mage .mage'), foe = document.querySelector('#f-foe .monster');
+    if (!arena || !mage || !foe || reduced() || !Element.prototype.animate) { done(); return; }
+    const a = arena.getBoundingClientRect(), m = mage.getBoundingClientRect(), f = foe.getBoundingClientRect();
+    const x1 = m.left - a.left + m.width * 0.94, y1 = m.top - a.top + m.height * 0.22;
+    const x2 = f.left - a.left + f.width * 0.42, y2 = f.top - a.top + f.height * 0.5;
+    const cy = Math.min(y1, y2) - Math.max(40, a.height * 0.25);
+    const ns = 'http://www.w3.org/2000/svg';
+    const svg = document.createElementNS(ns, 'svg');
+    svg.setAttribute('class', 'bolt'); svg.setAttribute('viewBox', `0 0 ${a.width} ${a.height}`); svg.setAttribute('aria-hidden', 'true');
+    const path = document.createElementNS(ns, 'path');
+    path.setAttribute('d', `M${x1} ${y1} Q${(x1 + x2) / 2} ${cy} ${x2} ${y2}`);
+    path.setAttribute('pathLength', '1');
+    path.setAttribute('filter', 'url(#chalk)');
+    path.style.cssText = `stroke:${color};stroke-width:${width};stroke-dasharray:1;stroke-dashoffset:1`;
+    svg.appendChild(path); arena.appendChild(svg);
+    const anim = path.animate([{ strokeDashoffset: 1 }, { strokeDashoffset: 0 }], { duration: 420, easing: 'ease-in', fill: 'forwards' });
+    anim.onfinish = () => {
+      done();
+      const fade = svg.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 300, fill: 'forwards' });
+      fade.onfinish = () => svg.remove();
+    };
+  }
+
+  function playHit(dmg, doubled) {
+    const b = state.battle, mage = document.querySelector('#f-mage .mage'), foe = document.querySelector('#f-foe .monster');
+    restart(mage, 'is-cast');
+    sfx.cast(SPELLS[b.spell].power);
+    bolt(doubled ? 'var(--chalk)' : SPELLS[b.spell].color, 4 + Math.min(dmg, 8) * 2, () => {
+      sfx.hit();
+      if (b.hp === 0 && foe) { foe.classList.remove('idle'); foe.classList.add('is-beaten'); }
+      else restart(foe, 'is-hit');
+      pop('−' + dmg, foe, '');
+      refreshStatus();
+    });
+  }
+  function playAttack(shielded, regrew, stole) {
+    const mage = document.querySelector('#f-mage .mage'), foe = document.querySelector('#f-foe .monster');
+    restart(foe, 'is-lunge');
+    setTimeout(() => {
+      if (shielded) { sfx.shield(); pop('Blocked!', mage, 'buff'); }
+      else { sfx.hit(); restart(mage, 'is-hurt'); pop('−1', mage, 'hurt'); }
+      refreshStatus();
+    }, reduced() ? 0 : 260);
+    if (regrew || stole) setTimeout(() => {
+      if (regrew) { sfx.heal(); pop('+1', foe, 'heal'); }
+      else { sfx.erase(); pop('Snatch!', foe, 'buff'); }
+      refreshStatus(); refreshKit();
+    }, reduced() ? 0 : 700);
+  }
+
+  /* ---------- Turn logic ---------- */
+  function chooseSpell(i) {
+    const b = state.battle;
+    if (b.phase !== 'spell' || b.busy || (i === 0 && has('armored'))) return;
+    b.spell = i; b.puzzle = makePuzzle(i);
+    b.hintUsed = false; b.input = ''; b.choice = null; b.phase = 'puzzle';
+    if (b.info && b.info !== 'eraser') b.info = null;
+    refreshPanel('panel'); refreshKit();
+  }
+  function press(k) {
+    const b = state.battle;
+    if (b.phase !== 'puzzle' || b.puzzle.input !== 'number' || b.busy) return;
+    if (k === 'del') b.input = b.input.slice(0, -1);
+    else if (b.input.length < 5) b.input = b.input === '0' ? k : b.input + k;
+    refreshAnswer();
+  }
+  function choose(id) {
+    const b = state.battle;
+    if (b.phase !== 'puzzle' || b.puzzle.input !== 'choice' || b.busy) return;
+    b.choice = id; refreshAnswer();
+  }
+  function cast() {
+    const b = state.battle;
+    if (!b || b.phase !== 'puzzle' || b.busy) return;
+    const p = b.puzzle;
+    const val = p.input === 'number' ? b.input : b.choice;
+    if (val === '' || val === null) return;
+    const ok = Pz.check(p, p.input === 'number' ? Number(val) : val);
+    b.cast++; b.info = null;
+    if (ok) {
+      const doubled = b.double, dmg = power(), bonus = b.streak >= 2;
+      b.double = false;
+      b.streak++;
+      b.hp = Math.max(0, b.hp - dmg);
+      const drop = b.streak % 3 === 0 ? grantRandom() : null;
+      b.last = { ok: true, dmg, bonus, doubled, drop, streak: b.streak, given: val, title: Pz.rnd.pick(PRAISE) };
+      sfx.correct();
+      if (drop) sfx.loot();
+      playHit(dmg, doubled);
+      M.say(`Correct! ${SPELLS[b.spell].name} hits for ${dmg}.` + (drop ? ` You found ${ITEMS[drop].a} ${ITEMS[drop].name}.` : ''));
+    } else {
+      const shielded = b.shield;
+      b.streak = 0; b.misses++;
+      if (shielded) b.shield = false; else b.hearts = Math.max(0, b.hearts - 1);
+      let regrew = false, stole = null;
+      if (has('regrow') && b.hp < REALMS[b.realm].hp) { b.hp += 1; regrew = true; }
+      if (has('thief') && !shielded) {
+        const bag = inv(), owned = ITEM_IDS.filter(id => (bag[id] || 0) > 0);
+        if (owned.length) { stole = Pz.rnd.pick(owned); bag[stole]--; b.stolen.push(stole); M.persist(); }
+      }
+      b.last = { ok: false, blocked: shielded, regrew, stole, given: val, title: 'Not quite' };
+      sfx.wrong();
+      playAttack(shielded, regrew, stole);
+      M.say(`Not quite. The answer is ${Pz.answerText(p)}.` + (shielded ? ' Your shield blocked the hit.' : ''));
+    }
+    b.phase = 'feedback';
+    b.busy = true;
+    setTimeout(() => { b.busy = false; refreshKit(); }, reduced() ? 0 : 450);
+    refreshPanel('panel'); refreshKit();
+  }
+  function next() {
+    const b = state.battle;
+    if (!b || b.phase !== 'feedback' || b.busy) return;
+    if (b.hp === 0) return finish(true);
+    if (b.hearts === 0) return finish(false);
+    b.phase = 'spell'; b.puzzle = null; b.info = null;
+    refreshPanel('panel'); refreshKit();
+  }
+  function useItem(id) {
+    const b = state.battle;
+    if (!b || !ITEMS[id] || blocked(id)) return;
+    inv()[id]--;
+    M.persist();
+    b.info = null;
+    const mage = document.querySelector('#f-mage .mage');
+    if (id === 'shield') { b.shield = true; sfx.shield(); pop('Shield!', mage, 'buff'); M.say('Shield Charm is up. It blocks the next hit.'); }
+    if (id === 'jamu') { b.hearts = Math.min(M.MAX_HEARTS, b.hearts + 1); sfx.heal(); pop('+1', mage, 'heal'); M.say('Jamu Potion. You got a heart back.'); }
+    if (id === 'double') { b.double = true; sfx.power(); pop('×2', mage, ''); M.say('Double Chalk is ready for your next correct spell.'); }
+    if (id === 'eraser') { b.puzzle = makePuzzle(b.spell); b.hintUsed = false; b.input = ''; b.choice = null; sfx.erase(); M.say('The board is wiped. Here is a new puzzle.'); }
+    refreshStatus();
+    refreshKit();
+    if (id === 'eraser' || id === 'double') refreshPanel(id === 'eraser' ? 'panel' : false);
+  }
+  function finish(won) {
+    const b = state.battle, s = state.save, i = b.realm;
+    let unlockedNow = false, firstWin = false, drop = null;
+    if (won) {
+      s.stars[i] = Math.max(s.stars[i], b.hearts);
+      if (i + 1 < REALMS.length && s.unlocked < i + 2) { s.unlocked = i + 2; unlockedNow = true; }
+      const ci = M.CHAPTERS.findIndex(c => c.last === i);
+      if (ci >= 0 && !s[M.CHAPTERS[ci].key]) {
+        s[M.CHAPTERS[ci].key] = true; firstWin = true; state.finalChapter = ci;
+        if (ci + 1 < M.CHAPTERS.length && s.unlocked < M.CHAPTERS[ci + 1].first + 1) s.unlocked = M.CHAPTERS[ci + 1].first + 1;
+      }
+      b.stolen.forEach(id => { inv()[id] = Math.min(MAX_ITEM, (inv()[id] || 0) + 1); });
+      drop = grantRandom();
+      sfx.win();
+    } else sfx.lose();
+    M.persist();
+    state.result = { realm: i, won, stars: won ? b.hearts : 0, cast: b.cast, misses: b.misses, hints: b.hints, hpLeft: b.hp, unlockedNow, drop, returned: won ? b.stolen.slice() : [] };
+    state.battle = null;
+    M.go(firstWin ? 'final' : 'result');
+  }
+
+  Object.assign(M.actions, {
+    fight: () => { newBattle(state.realm); M.go('battle'); },
+    quitBattle: () => { state.battle = null; M.go('map'); },
+    chooseSpell: arg => chooseSpell(Number(arg)),
+    key: arg => press(arg),
+    choose: arg => choose(Number(arg)),
+    cast: () => cast(),
+    next: () => next(),
+    hint: () => {
+      const b = state.battle;
+      if (!b || b.phase !== 'puzzle' || b.hintUsed || has('gusty')) return;
+      b.hintUsed = true; b.hints++;
+      refreshPanel(false);
+    },
+    itemInfo: arg => {
+      const b = state.battle;
+      if (!b) return;
+      b.info = arg && b.info !== arg ? arg : null;
+      refreshKit();
+    },
+    useItem: arg => useItem(arg)
+  });
+
+  document.addEventListener('keydown', e => {
+    const b = state.battle;
+    if (state.screen !== 'battle' || !b || e.metaKey || e.ctrlKey || e.altKey) return;
+    if (e.target && /^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName)) return;
+    if (b.phase === 'puzzle') {
+      const p = b.puzzle;
+      if (p.input === 'number') {
+        if (/^[0-9]$/.test(e.key)) { e.preventDefault(); press(e.key); }
+        else if (e.key === 'Backspace' || e.key === 'Delete') { e.preventDefault(); press('del'); }
+        else if (e.key === 'Enter') { e.preventDefault(); cast(); }
+      } else {
+        const n = Number(e.key);
+        if (n >= 1 && n <= p.choices.length) { e.preventDefault(); choose(p.choices[n - 1].id); }
+        else if (e.key === 'Enter') { e.preventDefault(); if (b.choice !== null) cast(); }
+      }
+    } else if (b.phase === 'spell' && /^[1-3]$/.test(e.key)) {
+      e.preventDefault(); chooseSpell(Number(e.key) - 1);
+    } else if (b.phase === 'feedback' && e.key === 'Enter') {
+      e.preventDefault(); next();
+    }
+  });
+
+  // Small hook for automated play-testing
+  window.__mim = { state, cast, press, choose, chooseSpell, next, useItem };
+  M.boot();
+})();
+
+</script>
+</body>
+</html>
