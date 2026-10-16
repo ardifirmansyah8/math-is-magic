@@ -1,7 +1,7 @@
 /* Math Is Magic: game shell (state, saving, sound, title, wardrobe, map, results) */
 (function () {
   'use strict';
-  const Pz = window.Puzzles, Art = window.Art, esc = Pz.esc;
+  const Pz = window.Puzzles, Art = window.Art, Jobs = window.Jobs, esc = Pz.esc;
 
   const REALMS = [
     { name: 'Whispering Woods', monster: 'mossling', foe: 'Mossling', hp: 6, tiers: [1, 2, 3], pool: ['pattern', 'potion', 'odd', 'picture', 'sums', 'counting'], blurb: 'A grumpy blob of moss that messes up every pattern it finds.' },
@@ -22,8 +22,8 @@
     gusty: { name: 'Gusty', icon: 'bulb', text: 'Its wind blows hints away, so there are no hints in this fight.' }
   };
   const CHAPTERS = [
-    { title: 'The Stolen Zeros', first: 0, last: 4, key: 'champion', rank: 'Grandmage of Numbers', deed: 'defeated the Shadow Dragon and brought every zero back to the Kingdom of Numbers.' },
-    { title: 'The Muddled Sky', first: 5, last: 9, key: 'champion2', rank: 'Archmage of the Stars', deed: 'outsmarted Count Muddle and put every number in the sky back where it belongs.' }
+    { title: 'The Stolen Zeros', first: 0, last: 4, key: 'champion', rank: 'Champion of Numbers', deed: 'defeated the Shadow Dragon and brought every zero back to the Kingdom of Numbers.' },
+    { title: 'The Muddled Sky', first: 5, last: 9, key: 'champion2', rank: 'Grand Mage', deed: 'outsmarted Count Muddle and put every number in the sky back where it belongs.' }
   ];
   const SPELLS = [
     { name: 'Spark', power: 1, icon: 'spark', color: 'var(--yellow)' },
@@ -37,7 +37,7 @@
   /* ---------- Saving ---------- */
   const SAVE_KEY = 'math-is-magic-v1';
   const STARTER_KIT = () => ({ shield: 1, jamu: 1, double: 1, eraser: 1 });
-  const freshSave = () => ({ hero: Object.assign({}, Art.DEFAULT_HERO), stars: REALMS.map(() => 0), unlocked: 1, sound: true, champion: false, champion2: false, made: false, items: STARTER_KIT() });
+  const freshSave = () => ({ hero: Object.assign({}, Art.DEFAULT_HERO), stars: REALMS.map(() => 0), unlocked: 1, sound: true, champion: false, champion2: false, made: false, items: STARTER_KIT(), job: null, jobPending: false });
   function loadSave() {
     try {
       const raw = localStorage.getItem(SAVE_KEY);
@@ -50,6 +50,10 @@
         });
         // Players who beat the dragon before Chapter 2 existed get it unlocked
         if (save.champion && save.unlocked < CHAPTERS[1].first + 1) save.unlocked = CHAPTERS[1].first + 1;
+        // Players from before jobs existed get to pick one
+        const done = save.stars.filter(x => x > 0).length;
+        if (done >= REALMS.length && !save.job) save.job = 'grand';
+        if (!save.job && done >= 1) save.jobPending = true;
         return save;
       }
     } catch (e) { /* storage blocked: play without saving */ }
@@ -114,6 +118,11 @@
   const soundBtn = () => `<button class="icon-btn" data-act="sound" aria-pressed="${state.save.sound}" aria-label="Sound">${Art.icon(state.save.sound ? 'sound' : 'mute')}</button>`;
   const rateHTML = n => `<span class="rate" role="img" aria-label="${n} of 3 stars">${[0, 1, 2].map(i => Art.icon(i < n ? 'rate' : 'rate-empty')).join('')}</span>`;
   const totalStars = () => state.save.stars.reduce((a, b) => a + b, 0);
+  const cleared = () => state.save.stars.filter(x => x > 0).length;
+  const an = w => (/^[aeiou]/i.test(w) ? 'an ' : 'a ') + w;
+  const nextStage = () => { const s = state.save; for (let i = 0; i < REALMS.length; i++) if (i < s.unlocked && !s.stars[i]) return i; return -1; };
+  const myTitle = () => Jobs.title(state.save.job, cleared());
+  const myIcon = () => (state.save.job ? Jobs.JOBS[state.save.job].icon : 'spark');
   const heroName = () => (state.save.hero.name || '').trim() || Art.DEFAULT_HERO.name || 'Mage';
   function say(text) { const sr = document.getElementById('sr'); if (sr) { sr.textContent = ''; setTimeout(() => { sr.textContent = text; }, 30); } }
 
@@ -128,7 +137,8 @@
   screens.title = () => {
     const s = state.save;
     const actions = s.made
-      ? `<button class="btn btn-primary" data-act="toMap">Continue as ${esc(heroName())}</button>
+      ? `<p class="title-rank">${Art.icon(myIcon())}${esc(myTitle())}</p>
+         <button class="btn btn-primary" data-act="toMap">Continue as ${esc(heroName())}</button>
          <button class="btn" data-act="toWardrobe">Change outfit</button>` +
         (state.confirmReset
           ? `<div class="confirm"><p>Start over? This erases every star.</p><div class="row" style="justify-content:center"><button class="btn btn-small" data-act="doReset">Yes, start over</button><button class="btn btn-small btn-ghost" data-act="cancelReset">Keep my stars</button></div></div>`
@@ -210,12 +220,19 @@
       ? 'The Shadow Dragon stole every zero in the kingdom! Beat its four helpers, then face the dragon at Moonspire.'
       : !s.champion2
         ? 'The zeros are back! But Count Muddle is scrambling the numbers in the sky. Beat his four helpers, then stop him at Starfall Observatory.'
-        : `${esc(heroName())} is an Archmage of the Stars! Play any realm again to collect every star.`;
+        : `${esc(heroName())} is a Grand Mage! Play any realm again to collect every star.`;
+    const c = cleared(), t = Jobs.tierFor(c), J = s.job ? Jobs.JOBS[s.job] : null, k = Jobs.skills(s.job, c);
+    const me = `<div class="me-strip${s.jobPending ? ' is-pending' : ''}">${Art.icon(myIcon())}
+      <div class="me-text"><b>${esc(heroName())} · ${esc(myTitle())}</b>
+        <span>${J ? `${J.skill}: ${J.desc(t)}` : 'Clear stage 1 to choose your first job.'}</span>
+        <span class="dim">${k.maxHearts} hearts · Skill level ${t}</span></div>
+      ${c >= 1 ? `<button class="btn btn-small${s.jobPending ? ' btn-primary' : ''}" data-act="openJobs">${s.jobPending ? 'Choose your job' : 'Change job'}</button>` : ''}</div>`;
     return `<section class="screen" aria-labelledby="m-title"><div class="wrap wrap-narrow">
       <div class="topbar"><button class="icon-btn" data-act="toTitle" aria-label="Back to the title screen">${Art.icon('back')}</button>
         <h2 id="m-title" class="h2 grow">Kingdom of Numbers</h2>
         <span class="star-count" role="img" aria-label="${total} of ${max} stars">${Art.icon('rate')}${total}/${max}</span></div>
       <p class="story hand">${story}</p>
+      ${me}
       <div class="inv" role="group" aria-label="Your power-ups"><span class="eyebrow">Power-ups</span>${Object.keys(window.MIM.ITEMS).map(id => `<span title="${window.MIM.ITEMS[id].name}">${Art.icon(window.MIM.ITEMS[id].icon)}<span class="sr-only">${window.MIM.ITEMS[id].name}</span>×${s.items[id] || 0}</span>`).join('')}</div>
       ${chapters}
       <div class="map-foot row"><button class="btn btn-small" data-act="toWardrobe">Change outfit</button>${soundBtn()}</div>
@@ -223,7 +240,7 @@
   };
 
   screens.intro = () => {
-    const r = REALMS[state.realm];
+    const r = REALMS[state.realm], s = state.save, c = cleared(), t = Jobs.tierFor(c), k = Jobs.skills(s.job, c), J = s.job ? Jobs.JOBS[s.job] : null;
     return `<section class="screen" aria-labelledby="i-title"><div class="wrap wrap-narrow">
       <div class="topbar"><button class="icon-btn" data-act="toMap" aria-label="Back to the map">${Art.icon('back')}</button><span class="eyebrow grow">Realm ${state.realm + 1} · ${r.name}</span></div>
       <div class="intro enter">${Art.monster(r.monster, 'idle', r.foe)}
@@ -231,11 +248,12 @@
         <p class="hand">${r.blurb}</p>
         ${r.traits ? `<div class="traits"><p class="eyebrow">Special tricks</p>${r.traits.map(t => `<p class="trait">${Art.icon(TRAITS[t].icon)}<span><b>${TRAITS[t].name}.</b> ${TRAITS[t].text}</span></p>`).join('')}</div>` : ''}
         <ul class="rules">
+          ${J ? `<li>${Art.icon(J.icon)}<span>You are ${an(esc(myTitle()))}. <b>${J.skill}:</b> ${J.desc(t)}</span></li>` : ''}
           <li>${Art.icon('spark')}<span>Pick a spell. Stronger spells hit harder but come with harder puzzles.</span></li>
           <li>${Art.icon('rate')}<span>Solve the puzzle to cast the spell. Three right in a row gives every spell +1 power until you miss.</span></li>
-          <li>${Art.icon('heart')}<span>A wrong answer lets ${r.foe} hit back. You have ${MAX_HEARTS} hearts.</span></li>
-          <li>${Art.icon('bulb')}<span>Stuck? A hint helps, but the spell loses 1 power.</span></li>
-          <li>${Art.icon('shield')}<span>Power-ups: you find one for every 3 right answers in a row and for every win. Tap one in battle to see what it does.</span></li>
+          <li>${Art.icon('heart')}<span>A wrong answer lets ${r.foe} hit back. You have ${k.maxHearts} hearts.</span></li>
+          <li>${Art.icon('bulb')}<span>Stuck? A hint helps${k.freeHints ? ', and your job makes hints free.' : ', but the spell loses 1 power.'}</span></li>
+          <li>${Art.icon('shield')}<span>Power-ups: you find one for every ${k.dropEvery} right answers in a row and for every win. Tap one in battle to see what it does.</span></li>
         </ul>
         <button class="btn btn-primary" data-act="fight">Fight ${r.foe}!</button>
       </div></div></section>`;
@@ -256,9 +274,11 @@
         <p class="fb-line">${line}</p>
         <p class="dim">${res.cast} spells cast · ${res.misses} ${res.misses === 1 ? 'mistake' : 'mistakes'}${res.hints ? ` · ${res.hints} ${res.hints === 1 ? 'hint' : 'hints'}` : ''}</p>
         ${res.returned && res.returned.length ? `<p class="loot">${Art.icon('rate')}<span>${r.foe} dropped everything it stole: ${res.returned.map(id => window.MIM.ITEMS[id].name).join(', ')}.</span></p>` : ''}
-        ${res.drop ? `<p class="loot">${Art.icon(window.MIM.ITEMS[res.drop].icon)}<span>Victory prize: ${window.MIM.ITEMS[res.drop].a} ${window.MIM.ITEMS[res.drop].name}!</span></p>` : ''}
-        ${res.unlockedNow && next ? `<p class="hand">${REALMS[res.realm + 1].name} is open now.</p>` : ''}
-        <div class="row">${next ? `<button class="btn btn-primary" data-act="pickRealm" data-arg="${res.realm + 1}">Next realm</button>` : ''}<button class="btn" data-act="toMap">Map</button></div>
+        ${res.drops && res.drops.length ? `<p class="loot">${Art.icon(window.MIM.ITEMS[res.drops[0]].icon)}<span>Victory prize${res.drops.length > 1 ? 's' : ''}: ${res.drops.map(id => window.MIM.ITEMS[id].a + ' ' + window.MIM.ITEMS[id].name).join(' and ')}!</span></p>` : ''}
+        ${res.rankUp ? `<div class="rankup-note"><p class="eyebrow">Rank up!</p><p>${rankUpText(res.rankUp)}</p></div>` : ''}
+        ${res.unlockedNow && next && !res.rankUp ? `<p class="hand">${REALMS[res.realm + 1].name} is open now.</p>` : ''}
+        <div class="row">${res.rankUp ? '<button class="btn btn-primary" data-act="openJobs">Choose your job</button>'
+          : next ? `<button class="btn btn-primary" data-act="pickRealm" data-arg="${res.realm + 1}">Next realm</button>` : ''}<button class="btn" data-act="toMap">Map</button></div>
       </div></div></section>`;
     }
     return `<section class="screen" aria-labelledby="r-title"><div class="wrap wrap-narrow"><div class="result lost enter">
@@ -285,9 +305,51 @@
       <div class="cert-meta"><span>Chapter ${ci + 1}: ${ch.title}</span><span>${chStars} of 15 stars</span><span>${date}</span></div>
       <p class="cert-sign">Signed by Grandmage Bintang</p>
       ${ci === 0 ? `<p class="hand">A new adventure is waiting. Chapter 2, ${CHAPTERS[1].title}, is open!</p>
-      <div class="row" style="justify-content:center"><button class="btn btn-primary" data-act="pickRealm" data-arg="${CHAPTERS[1].first}">Start Chapter 2</button><button class="btn" data-act="toMap">Map</button></div>`
-        : '<button class="btn btn-primary" data-act="toMap">Back to the map</button>'}
+      <div class="row" style="justify-content:center">${state.save.jobPending ? '<button class="btn btn-primary" data-act="openJobs">Choose your job</button>' : `<button class="btn btn-primary" data-act="pickRealm" data-arg="${CHAPTERS[1].first}">Start Chapter 2</button>`}<button class="btn" data-act="toMap">Map</button></div>`
+        : `<div class="row" style="justify-content:center">${state.save.jobPending ? '<button class="btn btn-primary" data-act="openJobs">See your Grand Mage powers</button>' : ''}<button class="btn${state.save.jobPending ? '' : ' btn-primary'}" data-act="toMap">Back to the map</button></div>`}
     </div></div></section>`;
+  };
+
+  function rankUpText(ru) {
+    const bits = [];
+    const newJobs = Jobs.ORDER.filter(id => Jobs.JOBS[id].unlock === ru.after).map(id => Jobs.JOBS[id].school);
+    if (ru.after >= REALMS.length) return 'You are a Grand Mage now, the highest rank of all!';
+    if (ru.before === 0) bits.push('You are not a trainee any more. Time to choose a job!');
+    if (newJobs.length && ru.before > 0) bits.push(`New job unlocked: ${newJobs.join(', ')}.`);
+    if (Jobs.tierFor(ru.after) > Jobs.tierFor(ru.before)) bits.push(`Your skills grow to level ${Jobs.tierFor(ru.after)}.`);
+    if (Jobs.baseHearts(ru.after) > Jobs.baseHearts(ru.before)) bits.push(`You now have ${Jobs.baseHearts(ru.after)} hearts.`);
+    if (!bits.length) bits.push('You can pick a new job for the next stage, or keep your current one.');
+    return bits.join(' ');
+  }
+
+  /* ---------- Job Hall ---------- */
+  screens.jobs = () => {
+    const s = state.save, c = cleared(), t = Jobs.tierFor(c), k = Jobs.skills(s.job, c);
+    const ids = (c >= REALMS.length ? ['grand'] : []).concat(Jobs.ORDER);
+    const nextTier = c < 3 ? 3 : c < 5 ? 5 : c < 8 ? 8 : null;
+    const cards = ids.map(id => {
+      const J = Jobs.JOBS[id], locked = c < J.unlock, cur = s.job === id, name = J.titles[t - 1];
+      const action = locked ? `<p class="locked-note">${Art.icon('lock')} Unlocks after stage ${J.unlock}</p>`
+        : cur ? '<p class="job-current">Your job</p>'
+          : `<button class="btn btn-small" data-act="pickJob" data-arg="${id}">Choose ${name}</button>`;
+      return `<article class="job job-${id}${cur ? ' is-current' : ''}${locked ? ' is-locked' : ''}">
+        <div class="job-top">${Art.icon(locked ? 'lock' : J.icon)}<div><p class="eyebrow">${J.school}${id === 'grand' ? ' rank' : ' school'}</p><h3 class="h3">${locked ? J.school + ' job' : name}</h3></div></div>
+        <p class="job-skill">${locked ? J.blurb : `<b>${J.skill}.</b> ${J.desc(t)}`}</p>
+        ${!locked && nextTier && id !== 'grand' ? `<p class="job-next">Becomes ${J.titles[Jobs.tierFor(nextTier) - 1]} after stage ${nextTier}</p>` : ''}
+        ${action}</article>`;
+    }).join('');
+    const ns = nextStage();
+    const cta = s.job
+      ? `<button class="btn btn-primary" data-act="jobsDone">${ns >= 0 ? `Next stage: ${REALMS[ns].name}` : 'Back to the map'}</button>`
+      : '<button class="btn btn-ghost" data-act="toMap">Decide later</button>';
+    return `<section class="screen" aria-labelledby="j-title"><div class="wrap wrap-narrow">
+      <div class="topbar"><button class="icon-btn" data-act="toMap" aria-label="Back to the map">${Art.icon('back')}</button>
+        <div class="grow"><p class="eyebrow">${s.jobPending ? 'Rank up!' : 'Job Hall'}</p><h2 id="j-title" class="h2">${s.jobPending ? (c >= REALMS.length ? 'Grand Mage!' : 'Choose your job') : 'Job Hall'}</h2></div></div>
+      <div class="power-box"><div>${Art.icon('heart')}<b>${Jobs.baseHearts(c)}</b><span>hearts</span></div><div>${Art.icon('rate')}<b>${c}</b><span>stages cleared</span></div><div>${Art.icon('spark')}<b>${t}</b><span>skill level</span></div></div>
+      <p class="dim">Each job has its own skill. Skills get stronger as you clear more stages. You can switch jobs here any time.</p>
+      <div class="jobs">${cards}</div>
+      <div class="row">${cta}</div>
+    </div></section>`;
   };
 
   /* ---------- Router ---------- */
@@ -340,6 +402,18 @@
       state.save = Object.assign(freshSave(), keep, { made: true });
       state.confirmReset = false; persist(); go('map');
     },
+    openJobs: () => go('jobs'),
+    pickJob: arg => {
+      if (!Jobs.JOBS[arg] || cleared() < Jobs.JOBS[arg].unlock) return;
+      state.save.job = arg; state.save.jobPending = false; persist();
+      sfx.correct(); render();
+      say(`You are now ${an(myTitle())}.`);
+    },
+    jobsDone: () => {
+      state.save.jobPending = false; persist();
+      const ns = nextStage();
+      if (ns >= 0) { state.realm = ns; go('intro'); } else go('map');
+    },
     pickRealm: arg => {
       const i = Number(arg);
       if (i >= state.save.unlocked) return;
@@ -364,7 +438,7 @@
     }
   });
 
-  window.MIM = { state, REALMS, SPELLS, MAX_HEARTS, TRAITS, CHAPTERS, sfx, screens, actions, render, go, persist, soundBtn, rateHTML, heroName, say, esc };
+  window.MIM = { state, REALMS, SPELLS, MAX_HEARTS, TRAITS, CHAPTERS, cleared, nextStage, an, myTitle, myIcon, sfx, screens, actions, render, go, persist, soundBtn, rateHTML, heroName, say, esc };
 
   /* ---------- Boot (keeps progress when the page is updated while open) ---------- */
   function start(data) {
@@ -375,6 +449,7 @@
       state.screen = data.screen; state.realm = data.realm || 0;
       state.battle = data.battle || null; state.result = data.result || null; state.finalChapter = data.finalChapter || 0;
       if (state.battle && !state.battle.stolen) state.battle.stolen = [];
+      if (state.battle && !state.battle.k) { state.battle = null; if (state.screen === 'battle') state.screen = 'map'; }
       if (state.battle) state.battle.busy = false;
       if (state.screen === 'battle' && !state.battle) state.screen = 'map';
       if (state.screen === 'result' && !state.result) state.screen = 'map';

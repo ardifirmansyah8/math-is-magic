@@ -10,10 +10,10 @@
   /* ---------- Power-ups ---------- */
   const MAX_ITEM = 3;
   const ITEMS = {
-    shield: { name: 'Shield Charm', short: 'Shield', a: 'a', icon: 'shield', what: 'Blocks the next hit from the monster, so a wrong answer costs no heart.',
-      why: b => b.shield ? 'Your shield is already up.' : '' },
+    shield: { name: 'Shield Charm', short: 'Shield', a: 'a', icon: 'shield', what: 'Adds a shield that blocks the next hit from the monster, so a wrong answer costs no heart.',
+      why: b => b.shield >= 3 ? 'You already have 3 shields up.' : '' },
     jamu: { name: 'Jamu Potion', short: 'Jamu', a: 'a', icon: 'jamu', what: 'A warm herbal jamu that brings back 1 heart.',
-      why: b => b.hearts >= M.MAX_HEARTS ? 'Your hearts are already full. Save it for later!' : '' },
+      why: b => b.hearts >= b.maxHearts ? 'Your hearts are already full. Save it for later!' : '' },
     double: { name: 'Double Chalk', short: 'Double', a: 'a', icon: 'double', what: 'Your next correct spell hits twice as hard.',
       why: b => b.double ? 'Double Chalk is already waiting for your next spell.' : '' },
     eraser: { name: 'Board Eraser', short: 'Eraser', a: 'a', icon: 'eraser', what: 'Wipes away the puzzle on the board and gives you a new one.',
@@ -35,18 +35,19 @@
   function blocked(id) {
     const b = state.battle;
     if (!b) return 'Power-ups only work in battles.';
-    if ((inv()[id] || 0) < 1) return 'You have none left. Get 3 right in a row to find more.';
+    if ((inv()[id] || 0) < 1) return `You have none left. Get ${b.k.dropEvery} right in a row to find more.`;
     if (b.phase === 'feedback' || b.busy) return 'Wait for your next spell.';
     return ITEMS[id].why(b);
   }
 
   function newBattle(realm) {
-    const r = REALMS[realm];
+    const r = REALMS[realm], k = window.Jobs.skills(state.save.job, M.cleared());
     state.battle = {
-      realm, hp: r.hp, hearts: M.MAX_HEARTS, streak: 0, recent: [],
+      realm, hp: r.hp, hearts: k.maxHearts, maxHearts: k.maxHearts, k, streak: 0, recent: [],
       phase: 'spell', spell: 0, puzzle: null, hintUsed: false, input: '', choice: null,
       cast: 0, misses: 0, hints: 0, last: null, busy: false,
-      shield: false, double: false, info: null, stolen: []
+      shield: k.shieldStart, double: k.startDouble, info: null, stolen: [],
+      swaps: k.swaps, rewinds: k.rewinds
     };
   }
 
@@ -61,15 +62,25 @@
   }
 
   const has = trait => (REALMS[state.battle.realm].traits || []).includes(trait);
-  const basePower = (spell, hint) => Math.max(1, SPELLS[spell].power + (state.battle.streak >= 2 ? 1 : 0) - (hint ? 1 : 0));
+  const basePower = (spell, hint) => {
+    const b = state.battle;
+    return Math.max(1, SPELLS[spell].power + (b.streak >= 2 ? 1 : 0) - (hint && !b.k.freeHints ? 1 : 0)) + b.k.dmg;
+  };
   const power = () => basePower(state.battle.spell, state.battle.hintUsed) * (state.battle.double ? 2 : 1);
 
   /* ---------- Pieces ---------- */
   function heartsHTML() {
     const b = state.battle;
     let out = '';
-    for (let i = 0; i < M.MAX_HEARTS; i++) out += Art.icon(i < b.hearts ? 'heart' : 'heart-empty');
+    for (let i = 0; i < b.maxHearts; i++) out += Art.icon(i < b.hearts ? 'heart' : 'heart-empty');
     return out;
+  }
+  function statusHTML() {
+    const b = state.battle, chips = [];
+    if (b.shield > 0) chips.push(`<span class="chip-s" title="Shields">${Art.icon('shield')}×${b.shield}</span>`);
+    if (b.k.swaps) chips.push(`<span class="chip-s" title="Free puzzle swaps">${Art.icon('book')}×${b.swaps}</span>`);
+    if (b.k.rewinds) chips.push(`<span class="chip-s" title="Rewinds">${Art.icon('hourglass')}×${b.rewinds}</span>`);
+    return chips.join('');
   }
   function tallyHTML() {
     const b = state.battle, max = REALMS[b.realm].hp;
@@ -146,23 +157,31 @@
       <div class="visual">${p.html}</div>
       ${b.hintUsed ? `<div class="hint-note">${Art.icon('bulb')}<p class="hand">${esc(p.hint)}</p></div>` : ''}
       <div class="answer" id="answer">${answerHTML()}</div>
-      ${hintBtn ? `<div class="pz-actions">${hintBtn}</div>` : ''}
+      ${hintBtn || b.k.swaps ? `<div class="pz-actions">${hintBtn}${b.k.swaps ? `<button class="btn btn-ghost btn-small" data-act="swap"${b.swaps ? '' : ' disabled'}>${Art.icon('book')} Swap puzzle (${b.swaps} left)</button>` : ''}</div>` : ''}
     </div>`;
   }
 
   function feedbackHTML() {
     const b = state.battle, p = b.puzzle, r = REALMS[b.realm], L = b.last, s = SPELLS[b.spell];
+    if (L.rewound) {
+      return `<div class="feedback rewind enter">
+        <h3 class="fb-title">${L.title}</h3>
+        <p class="fb-line">That answer was not right, but your Rewind skill turned back time before ${r.foe} could hit you. Have another go at the same puzzle.${b.rewinds ? ` (${b.rewinds} rewind${b.rewinds === 1 ? '' : 's'} left)` : ''}</p>
+        <button class="btn btn-primary" id="next-btn" data-act="retry">Try again</button>
+      </div>`;
+    }
     let line;
     if (L.ok) {
       const helpers = [];
       if (L.doubled) helpers.push('Double Chalk');
       if (L.bonus) helpers.push('your combo');
-      line = `${s.name} hits ${r.foe} for ${L.dmg}${helpers.length ? `, thanks to ${helpers.join(' and ')}` : ''}.` + (b.hp === 0 ? ` ${r.foe} is beaten!` : '');
+      line = `${s.name} hits ${r.foe} for ${L.dmg}${helpers.length ? `, thanks to ${helpers.join(' and ')}` : ''}.` + (b.hp === 0 ? ` ${r.foe} is beaten!` : '') +
+        (L.healed ? ' Your Mend skill heals 1 heart.' : '') + (L.shieldUp ? ' Your Ward skill raises a new shield.' : '');
     } else {
       const picked = p.input === 'number' ? null : (p.choices.find(c => c.id === L.given) || {}).aria || '';
       const given = p.input === 'number' ? L.given : (p.choiceStyle === 'tiles' ? 'the ' + picked : picked);
       line = `You answered ${esc(given)}, but the answer is ${esc(Pz.answerText(p))}. ` +
-        (L.blocked ? `${r.foe} hits back, but your Shield Charm blocks it. No heart lost!`
+        (L.blocked ? `${r.foe} hits back, but your shield blocks it. No heart lost!`
           : `${r.foe} hits back and you lose a heart.` + (b.hearts === 0 ? ' That was your last heart.' : '')) +
         (L.stole ? ` ${r.foe} snatches your ${ITEMS[L.stole].name}!` : '') +
         (L.regrew ? ` ${r.foe} regrows 1 hit point.` : '');
@@ -195,7 +214,7 @@
       <div class="battle-body">
         <div class="side">
           <div class="arena" id="arena">
-            <div class="${mageClass()}" id="f-mage">${Art.mage(H, 'idle')}<span class="fighter-name">${esc(M.heroName())}</span><div class="hearts" id="hearts" role="img" aria-label="${b.hearts} of ${M.MAX_HEARTS} hearts">${heartsHTML()}</div></div>
+            <div class="${mageClass()}" id="f-mage">${Art.mage(H, 'idle')}<span class="fighter-name">${esc(M.heroName())}</span><span class="job-title">${Art.icon(M.myIcon())}${esc(M.myTitle())}</span><div class="hearts${b.maxHearts > 4 ? ' many' : ''}" id="hearts" role="img" aria-label="${b.hearts} of ${b.maxHearts} hearts">${heartsHTML()}</div><div class="status" id="status">${statusHTML()}</div></div>
             <div class="fighter" id="f-foe">${Art.monster(r.monster, foeCls, r.foe)}<span class="fighter-name">${r.foe}</span>${tallyHTML()}${r.traits ? `<div class="trait-tags">${r.traits.map(t => `<span class="trait-tag">${M.TRAITS[t].name}</span>`).join('')}</div>` : ''}</div>
             <div class="combo" id="combo">${comboText()}</div>
           </div>
@@ -223,7 +242,9 @@
   function refreshStatus() {
     const b = state.battle;
     const hearts = $('hearts');
-    if (hearts) { hearts.innerHTML = heartsHTML(); hearts.setAttribute('aria-label', `${b.hearts} of ${M.MAX_HEARTS} hearts`); }
+    if (hearts) { hearts.innerHTML = heartsHTML(); hearts.setAttribute('aria-label', `${b.hearts} of ${b.maxHearts} hearts`); }
+    const status = $('status');
+    if (status) status.innerHTML = statusHTML();
     const tally = $('tally');
     if (tally) tally.outerHTML = tallyHTML();
     const combo = $('combo');
@@ -348,16 +369,27 @@
       b.double = false;
       b.streak++;
       b.hp = Math.max(0, b.hp - dmg);
-      const drop = b.streak % 3 === 0 ? grantRandom() : null;
-      b.last = { ok: true, dmg, bonus, doubled, drop, streak: b.streak, given: val, title: Pz.rnd.pick(PRAISE) };
+      const drop = b.streak % b.k.dropEvery === 0 ? grantRandom() : null;
+      let healed = false, shieldUp = false;
+      if (b.k.healEvery && b.streak % b.k.healEvery === 0 && b.hearts < b.maxHearts && b.hp > 0) { b.hearts++; healed = true; }
+      if (b.k.shieldOnStreak && b.streak % 3 === 0 && b.shield < 3 && b.hp > 0) { b.shield++; shieldUp = true; }
+      b.last = { ok: true, dmg, bonus, doubled, drop, healed, shieldUp, streak: b.streak, given: val, title: Pz.rnd.pick(PRAISE) };
       sfx.correct();
       if (drop) sfx.loot();
       playHit(dmg, doubled);
       M.say(`Correct! ${SPELLS[b.spell].name} hits for ${dmg}.` + (drop ? ` You found ${ITEMS[drop].a} ${ITEMS[drop].name}.` : ''));
+    } else if (b.rewinds > 0) {
+      b.rewinds--;
+      if (!b.k.rewindKeepsCombo) b.streak = 0;
+      b.last = { ok: false, rewound: true, given: val, title: 'Time rewinds!' };
+      sfx.power();
+      pop('Rewind!', document.querySelector('#f-mage .mage'), 'buff');
+      M.say('Not quite, but time rewinds. Try the same puzzle again.');
+      refreshStatus();
     } else {
-      const shielded = b.shield;
+      const shielded = b.shield > 0;
       b.streak = 0; b.misses++;
-      if (shielded) b.shield = false; else b.hearts = Math.max(0, b.hearts - 1);
+      if (shielded) b.shield--; else b.hearts = Math.max(0, b.hearts - 1);
       let regrew = false, stole = null;
       if (has('regrow') && b.hp < REALMS[b.realm].hp) { b.hp += 1; regrew = true; }
       if (has('thief') && !shielded) {
@@ -377,10 +409,26 @@
   function next() {
     const b = state.battle;
     if (!b || b.phase !== 'feedback' || b.busy) return;
+    if (b.last && b.last.rewound) return retry();
     if (b.hp === 0) return finish(true);
     if (b.hearts === 0) return finish(false);
     b.phase = 'spell'; b.puzzle = null; b.info = null;
     refreshPanel('panel'); refreshKit();
+  }
+  function retry() {
+    const b = state.battle;
+    if (!b || b.phase !== 'feedback' || !b.last || !b.last.rewound) return;
+    b.phase = 'puzzle'; b.input = ''; b.choice = null; b.last = null;
+    refreshPanel('panel'); refreshKit();
+  }
+  function swap() {
+    const b = state.battle;
+    if (!b || b.phase !== 'puzzle' || b.busy || b.swaps < 1) return;
+    b.swaps--;
+    b.puzzle = makePuzzle(b.spell); b.hintUsed = false; b.input = ''; b.choice = null;
+    sfx.erase();
+    M.say('Here is a new puzzle.');
+    refreshPanel('panel'); refreshStatus();
   }
   function useItem(id) {
     const b = state.battle;
@@ -389,8 +437,8 @@
     M.persist();
     b.info = null;
     const mage = document.querySelector('#f-mage .mage');
-    if (id === 'shield') { b.shield = true; sfx.shield(); pop('Shield!', mage, 'buff'); M.say('Shield Charm is up. It blocks the next hit.'); }
-    if (id === 'jamu') { b.hearts = Math.min(M.MAX_HEARTS, b.hearts + 1); sfx.heal(); pop('+1', mage, 'heal'); M.say('Jamu Potion. You got a heart back.'); }
+    if (id === 'shield') { b.shield = Math.min(3, b.shield + 1); sfx.shield(); pop('Shield!', mage, 'buff'); M.say('Shield Charm is up. It blocks the next hit.'); }
+    if (id === 'jamu') { b.hearts = Math.min(b.maxHearts, b.hearts + 1); sfx.heal(); pop('+1', mage, 'heal'); M.say('Jamu Potion. You got a heart back.'); }
     if (id === 'double') { b.double = true; sfx.power(); pop('×2', mage, ''); M.say('Double Chalk is ready for your next correct spell.'); }
     if (id === 'eraser') { b.puzzle = makePuzzle(b.spell); b.hintUsed = false; b.input = ''; b.choice = null; sfx.erase(); M.say('The board is wiped. Here is a new puzzle.'); }
     refreshStatus();
@@ -399,9 +447,10 @@
   }
   function finish(won) {
     const b = state.battle, s = state.save, i = b.realm;
-    let unlockedNow = false, firstWin = false, drop = null;
+    let unlockedNow = false, firstWin = false, rankUp = null;
+    const drops = [], before = M.cleared(), stars = Math.max(1, 3 - (b.maxHearts - b.hearts));
     if (won) {
-      s.stars[i] = Math.max(s.stars[i], b.hearts);
+      s.stars[i] = Math.max(s.stars[i], stars);
       if (i + 1 < REALMS.length && s.unlocked < i + 2) { s.unlocked = i + 2; unlockedNow = true; }
       const ci = M.CHAPTERS.findIndex(c => c.last === i);
       if (ci >= 0 && !s[M.CHAPTERS[ci].key]) {
@@ -409,11 +458,17 @@
         if (ci + 1 < M.CHAPTERS.length && s.unlocked < M.CHAPTERS[ci + 1].first + 1) s.unlocked = M.CHAPTERS[ci + 1].first + 1;
       }
       b.stolen.forEach(id => { inv()[id] = Math.min(MAX_ITEM, (inv()[id] || 0) + 1); });
-      drop = grantRandom();
+      for (let n = 0; n < b.k.prizes; n++) { const d = grantRandom(); if (d) drops.push(d); }
+      const after = M.cleared();
+      if (after > before) {
+        s.jobPending = true;
+        if (after >= REALMS.length) s.job = 'grand';
+        rankUp = { before, after };
+      }
       sfx.win();
     } else sfx.lose();
     M.persist();
-    state.result = { realm: i, won, stars: won ? b.hearts : 0, cast: b.cast, misses: b.misses, hints: b.hints, hpLeft: b.hp, unlockedNow, drop, returned: won ? b.stolen.slice() : [] };
+    state.result = { realm: i, won, stars: won ? stars : 0, cast: b.cast, misses: b.misses, hints: b.hints, hpLeft: b.hp, unlockedNow, drops, rankUp, returned: won ? b.stolen.slice() : [] };
     state.battle = null;
     M.go(firstWin ? 'final' : 'result');
   }
@@ -438,7 +493,9 @@
       b.info = arg && b.info !== arg ? arg : null;
       refreshKit();
     },
-    useItem: arg => useItem(arg)
+    useItem: arg => useItem(arg),
+    retry: () => retry(),
+    swap: () => swap()
   });
 
   document.addEventListener('keydown', e => {
@@ -464,6 +521,6 @@
   });
 
   // Small hook for automated play-testing
-  window.__mim = { state, cast, press, choose, chooseSpell, next, useItem };
+  window.__mim = { state, cast, press, choose, chooseSpell, next, useItem, retry, swap };
   M.boot();
 })();

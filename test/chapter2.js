@@ -112,7 +112,7 @@ fs.mkdirSync(OUT, { recursive: true });
   await page.screenshot({ path: path.join(OUT, 'c7-boss.png') });
   await winOut(page);
   check(await page.evaluate(() => window.MIM.state.screen === 'final' && window.MIM.state.save.champion2), 'beating Count Muddle shows the chapter 2 certificate');
-  check(/Archmage of the Stars/.test(await page.textContent('.cert')), 'certificate names the new rank');
+  check(/Grand Mage/.test(await page.textContent('.cert')), 'certificate names the new rank');
   await page.screenshot({ path: path.join(OUT, 'c8-cert2.png') });
 
   // Gallery: new monsters and new puzzle types

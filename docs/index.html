@@ -304,7 +304,7 @@ button { font: inherit; color: inherit; }
 }
 .loot .ico { width: 32px; height: 32px; }
 .fighter.shielded::after {
-  content: ""; position: absolute; left: 50%; top: 0; width: 96%; height: 78%;
+  content: ""; position: absolute; left: 50%; top: 0; width: min(96%, 190px); aspect-ratio: 4 / 5;
   transform: translateX(-50%);
   border: 3px dashed var(--blue); border-radius: 50%;
   box-shadow: 0 0 18px rgba(143, 208, 240, .45), inset 0 0 22px rgba(143, 208, 240, .22);
@@ -505,6 +505,45 @@ button { font: inherit; color: inherit; }
 .sh-edge line { stroke: var(--chalk); stroke-width: 3; stroke-linecap: round; }
 .sh-out { fill: rgba(245, 213, 97, .2); stroke: var(--chalk); stroke-width: 3; stroke-linejoin: round; }
 .sh-lbl { fill: var(--yellow); font: 700 13px var(--font-body); }
+
+
+/* Ranks and jobs */
+.title-rank { display: inline-flex; align-items: center; justify-content: center; gap: 6px; font-family: var(--font-hand); color: var(--yellow); font-size: 19px; }
+.title-rank .ico { width: 24px; height: 24px; }
+.me-strip { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 12px; padding: 12px 14px; border: 2px solid rgba(243, 239, 228, .45); border-radius: var(--wobble); background: rgba(0, 0, 0, .14); }
+.me-strip > .ico { width: 36px; height: 36px; }
+.me-strip.is-pending { border-color: var(--yellow); box-shadow: 0 0 0 3px rgba(245, 213, 97, .18); }
+.me-text { display: grid; gap: 2px; flex: 1 1 200px; min-width: 0; font-size: 15px; line-height: 1.4; }
+.me-text b { font-size: 17px; }
+.power-box { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.power-box > div { display: grid; justify-items: center; gap: 2px; padding: 10px 6px; border: 2px solid rgba(243, 239, 228, .4); border-radius: var(--wobble); text-align: center; }
+.power-box .ico { width: 26px; height: 26px; }
+.power-box b { font-size: 24px; line-height: 1; font-variant-numeric: tabular-nums; }
+.power-box span { font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--chalk-dim); font-weight: 700; }
+.jobs { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 12px; }
+.job { display: grid; gap: 8px; align-content: start; padding: 14px; border: 2.5px solid rgba(243, 239, 228, .5); border-radius: var(--wobble); background: rgba(0, 0, 0, .12); }
+.job-top { display: flex; gap: 10px; align-items: center; }
+.job-top .ico { width: 38px; height: 38px; }
+.job-top .h3 { font-size: 22px; }
+.job-skill { font-size: 15px; line-height: 1.45; }
+.job-next { font-size: 13px; color: var(--chalk-dim); }
+.job-current { font: 700 16px var(--font-hand); color: var(--yellow); }
+.job .btn { justify-self: start; }
+.job.is-current { border-color: var(--yellow); background: rgba(245, 213, 97, .1); }
+.job.is-locked { border-style: dashed; opacity: .6; }
+.job-grand { border-color: var(--yellow); }
+.rankup-note { display: grid; gap: 4px; max-width: 30em; padding: 10px 14px; border: 2px dashed var(--yellow); border-radius: var(--wobble); }
+.job-title { display: inline-flex; align-items: center; gap: 4px; font-size: 12.5px; font-weight: 700; color: var(--yellow); text-align: center; line-height: 1.2; }
+.job-title .ico { width: 16px; height: 16px; }
+.hearts { flex-wrap: wrap; justify-content: center; }
+.hearts.many .ico { width: 21px; height: 21px; }
+.status { display: flex; flex-wrap: wrap; gap: 4px; justify-content: center; min-height: 0; }
+.status:empty { display: none; }
+.chip-s { display: inline-flex; align-items: center; gap: 2px; padding: 1px 7px 1px 3px; border: 1.5px solid rgba(243, 239, 228, .45); border-radius: 999px; font-size: 13px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.chip-s .ico { width: 18px; height: 18px; }
+.feedback.rewind { border-color: var(--yellow); }
+.feedback.rewind .fb-title { color: var(--yellow); }
+.pz-actions .btn[disabled] { opacity: .4; }
 
 /* ---------- Motion ---------- */
 @keyframes bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
@@ -1878,6 +1917,10 @@ button { font: inherit; color: inherit; }
 <symbol id="i-jamu" viewBox="0 0 40 40"><rect x="15" y="2" width="10" height="5" rx="1.5" style="fill:var(--wood-light);${S}"/><path style="fill:var(--chalk);${S};opacity:.9" d="M16 7 H24 V12 Q30 15 30 21 V33 Q30 37 26 37 H14 Q10 37 10 33 V21 Q10 15 16 12 Z"/><path style="fill:var(--yellow)" d="M11.2 22 H28.8 V33 Q28.8 35.8 26 35.8 H14 Q11.2 35.8 11.2 33 Z"/><path style="fill:var(--mint);${S}" d="M24 26 Q33 18 37 25 Q31 32 24 26 Z"/></symbol>
 <symbol id="i-double" viewBox="0 0 40 40"><circle cx="20" cy="20" r="16" style="fill:rgba(245,213,97,.16);stroke:var(--yellow);stroke-width:2.4;stroke-dasharray:4 3"/><text x="20" y="21" text-anchor="middle" dominant-baseline="central" style="font:700 17px Andika,'Trebuchet MS',sans-serif;fill:var(--yellow)">×2</text></symbol>
 <symbol id="i-eraser" viewBox="0 0 40 40"><path style="fill:var(--wood-light);${S}" d="M7 12 H33 Q36 12 36 15 V21 H4 V15 Q4 12 7 12 Z"/><path style="fill:var(--chalk-dim);${S}" d="M4 21 H36 V27 Q36 29.5 33.5 29.5 H6.5 Q4 29.5 4 27 Z"/><path style="fill:none;stroke:var(--chalk);stroke-width:2;stroke-linecap:round;opacity:.8" d="M7 34 H13 M17 35.5 H25 M29 34 H33"/></symbol>
+<symbol id="i-book" viewBox="0 0 40 40"><path style="fill:var(--chalk);${S}" d="M20 10 Q12 5 4 7.5 V32 Q12 29.5 20 34 Z"/><path style="fill:var(--lilac);${S}" d="M20 10 Q28 5 36 7.5 V32 Q28 29.5 20 34 Z"/><path style="fill:none;stroke:var(--ink);stroke-width:1.4;opacity:.45" d="M8 14 Q12 13 16 15 M8 19 Q12 18 16 20 M8 24 Q12 23 16 25"/></symbol>
+<symbol id="i-leaf" viewBox="0 0 40 40"><path style="fill:var(--mint);${S}" d="M8 33 Q5 11 32 5 Q36 29 12 35 Z"/><path style="fill:none;stroke:var(--chalk);stroke-width:1.8;stroke-linecap:round" d="M6 37 Q17 24 29 9 M15 25 L13 17 M20 19 L25 21"/></symbol>
+<symbol id="i-hourglass" viewBox="0 0 40 40"><path style="fill:var(--wood-light);${S}" d="M8 3 H32 V8 H8 Z M8 32 H32 V37 H8 Z"/><path style="fill:rgba(243,239,228,.22);${S}" d="M11 8 H29 Q29 16 22 20 Q29 24 29 32 H11 Q11 24 18 20 Q11 16 11 8 Z"/><path style="fill:var(--yellow)" d="M14 11 H26 Q24.5 15.5 20 18 Q15.5 15.5 14 11 Z M13 31 Q13.8 25.5 20 23.5 Q26.2 25.5 27 31 Z"/></symbol>
+<symbol id="i-crown" viewBox="0 0 40 40"><path style="fill:var(--yellow);${S}" d="M5 29 L7 11 L14 19 L20 7 L26 19 L33 11 L35 29 Z"/><rect x="5" y="29" width="30" height="5.5" rx="1.5" style="fill:var(--yellow);${S}"/><circle cx="20" cy="22" r="2.8" style="fill:var(--pink)"/><circle cx="12" cy="24.5" r="2" style="fill:var(--blue)"/><circle cx="28" cy="24.5" r="2" style="fill:var(--mint)"/></symbol>
 <symbol id="i-bulb" viewBox="0 0 40 40"><path style="fill:var(--yellow);${S}" d="M20 4 Q31 4 31 15 Q31 21 25 25 L25 29 L15 29 L15 25 Q9 21 9 15 Q9 4 20 4 Z"/><rect x="15" y="31" width="10" height="5" rx="2" style="fill:var(--chalk)"/></symbol>
 </defs></svg>`;
   };
@@ -2094,10 +2137,92 @@ button { font: inherit; color: inherit; }
 })(window);
 
 ;
+/* Math Is Magic: ranks and jobs (pure data and rules, no DOM) */
+(function (root) {
+  'use strict';
+  const S = n => (n === 1 ? '' : 's');
+
+  // Skill tier grows with the number of different stages cleared
+  const tierFor = cleared => (cleared >= 8 ? 4 : cleared >= 5 ? 3 : cleared >= 3 ? 2 : 1);
+  // Base hearts grow too
+  const baseHearts = cleared => (cleared >= 10 ? 5 : cleared >= 5 ? 4 : 3);
+
+  const JOBS = {
+    flame: {
+      school: 'Flame', skill: 'Blaze', icon: 'flare', unlock: 1,
+      titles: ['Ember Apprentice', 'Fire Mage', 'Flame Wizard', 'Inferno Sorcerer'],
+      blurb: 'For mages who like to hit hard.',
+      desc: t => `Every correct spell hits for +${[1, 2, 2, 3][t - 1]} extra damage.`
+    },
+    shield: {
+      school: 'Shield', skill: 'Ward', icon: 'shield', unlock: 1,
+      titles: ['Ward Apprentice', 'Guardian', 'Paladin', 'Aegis Keeper'],
+      blurb: 'For mages who never want to lose a heart.',
+      desc: t => { const n = [1, 1, 2, 3][t - 1]; return `Start every battle with ${n} shield${S(n)}.` + (t >= 2 ? ' Get a shield back after every 3 right answers in a row.' : ''); }
+    },
+    wisdom: {
+      school: 'Wisdom', skill: 'Insight', icon: 'book', unlock: 1,
+      titles: ['Owl Apprentice', 'Scholar', 'Sage', 'Oracle'],
+      blurb: 'For mages who love clues and a fresh start.',
+      desc: t => { const n = [0, 1, 2, 3][t - 1]; return 'Hints never cost power.' + (n ? ` Swap a puzzle for a new one ${n === 1 ? 'once' : n + ' times'} per battle.` : ''); }
+    },
+    nature: {
+      school: 'Nature', skill: 'Mend', icon: 'leaf', unlock: 2,
+      titles: ['Jamu Apprentice', 'Healer', 'Druid', 'Life Weaver'],
+      blurb: 'For mages who like to keep going.',
+      desc: t => { const n = [1, 1, 2, 2][t - 1]; return `+${n} extra heart${S(n)}.` + (t >= 2 ? ` Heal 1 heart after every ${t === 4 ? 2 : 3} right answers in a row.` : ''); }
+    },
+    time: {
+      school: 'Time', skill: 'Rewind', icon: 'hourglass', unlock: 3,
+      titles: ['Clock Apprentice', 'Time Mage', 'Chronomancer', 'Time Keeper'],
+      blurb: 'For mages who want a second try.',
+      desc: t => { const n = [1, 1, 2, 2][t - 1]; return `When you get one wrong, time rewinds so you can try the same puzzle again. Works ${n === 1 ? 'once' : n + ' times'} per battle.` + (t >= 3 ? ' Rewinds keep your combo going.' : ''); }
+    },
+    star: {
+      school: 'Star', skill: 'Lucky Star', icon: 'rate', unlock: 4,
+      titles: ['Star Apprentice', 'Stargazer', 'Astrologer', 'Star Caller'],
+      blurb: 'For mages who love collecting power-ups.',
+      desc: t => 'Find a power-up every 2 right answers in a row.' + (t >= 2 ? ' Win 2 prizes after every victory.' : '') + (t >= 3 ? ` Start every battle with Double Chalk${t >= 4 ? ' and a shield' : ''}.` : '')
+    },
+    grand: {
+      school: 'Grand', skill: 'Mastery', icon: 'crown', unlock: 10,
+      titles: ['Grand Mage', 'Grand Mage', 'Grand Mage', 'Grand Mage'],
+      blurb: 'The highest rank. All the schools of magic at once.',
+      desc: () => '+2 damage, 2 shields, free hints and 2 swaps, +1 heart and healing, 1 rewind, and lucky power-ups.'
+    }
+  };
+  const ORDER = ['flame', 'shield', 'wisdom', 'nature', 'time', 'star'];
+
+  function title(job, cleared) {
+    if (!job || !JOBS[job]) return 'Trainee Mage';
+    return JOBS[job].titles[tierFor(cleared) - 1];
+  }
+
+  // Everything a battle needs to know about the player's job, at their current tier
+  function skills(job, cleared) {
+    const t = tierFor(cleared);
+    const k = { tier: t, dmg: 0, shieldStart: 0, shieldOnStreak: false, freeHints: false, swaps: 0, extraHearts: 0, healEvery: 0, rewinds: 0, rewindKeepsCombo: false, dropEvery: 3, prizes: 1, startDouble: false };
+    switch (job) {
+      case 'flame': k.dmg = [1, 2, 2, 3][t - 1]; break;
+      case 'shield': k.shieldStart = [1, 1, 2, 3][t - 1]; k.shieldOnStreak = t >= 2; break;
+      case 'wisdom': k.freeHints = true; k.swaps = [0, 1, 2, 3][t - 1]; break;
+      case 'nature': k.extraHearts = [1, 1, 2, 2][t - 1]; k.healEvery = t === 1 ? 0 : t === 4 ? 2 : 3; break;
+      case 'time': k.rewinds = [1, 1, 2, 2][t - 1]; k.rewindKeepsCombo = t >= 3; break;
+      case 'star': k.dropEvery = 2; k.prizes = t >= 2 ? 2 : 1; k.startDouble = t >= 3; if (t >= 4) k.shieldStart = 1; break;
+      case 'grand': Object.assign(k, { dmg: 2, shieldStart: 2, shieldOnStreak: true, freeHints: true, swaps: 2, extraHearts: 1, healEvery: 3, rewinds: 1, rewindKeepsCombo: true, dropEvery: 2, prizes: 2 }); break;
+    }
+    k.maxHearts = baseHearts(cleared) + k.extraHearts;
+    return k;
+  }
+
+  root.Jobs = { JOBS, ORDER, tierFor, baseHearts, title, skills };
+})(typeof window !== 'undefined' ? window : globalThis);
+
+;
 /* Math Is Magic: game shell (state, saving, sound, title, wardrobe, map, results) */
 (function () {
   'use strict';
-  const Pz = window.Puzzles, Art = window.Art, esc = Pz.esc;
+  const Pz = window.Puzzles, Art = window.Art, Jobs = window.Jobs, esc = Pz.esc;
 
   const REALMS = [
     { name: 'Whispering Woods', monster: 'mossling', foe: 'Mossling', hp: 6, tiers: [1, 2, 3], pool: ['pattern', 'potion', 'odd', 'picture', 'sums', 'counting'], blurb: 'A grumpy blob of moss that messes up every pattern it finds.' },
@@ -2118,8 +2243,8 @@ button { font: inherit; color: inherit; }
     gusty: { name: 'Gusty', icon: 'bulb', text: 'Its wind blows hints away, so there are no hints in this fight.' }
   };
   const CHAPTERS = [
-    { title: 'The Stolen Zeros', first: 0, last: 4, key: 'champion', rank: 'Grandmage of Numbers', deed: 'defeated the Shadow Dragon and brought every zero back to the Kingdom of Numbers.' },
-    { title: 'The Muddled Sky', first: 5, last: 9, key: 'champion2', rank: 'Archmage of the Stars', deed: 'outsmarted Count Muddle and put every number in the sky back where it belongs.' }
+    { title: 'The Stolen Zeros', first: 0, last: 4, key: 'champion', rank: 'Champion of Numbers', deed: 'defeated the Shadow Dragon and brought every zero back to the Kingdom of Numbers.' },
+    { title: 'The Muddled Sky', first: 5, last: 9, key: 'champion2', rank: 'Grand Mage', deed: 'outsmarted Count Muddle and put every number in the sky back where it belongs.' }
   ];
   const SPELLS = [
     { name: 'Spark', power: 1, icon: 'spark', color: 'var(--yellow)' },
@@ -2133,7 +2258,7 @@ button { font: inherit; color: inherit; }
   /* ---------- Saving ---------- */
   const SAVE_KEY = 'math-is-magic-v1';
   const STARTER_KIT = () => ({ shield: 1, jamu: 1, double: 1, eraser: 1 });
-  const freshSave = () => ({ hero: Object.assign({}, Art.DEFAULT_HERO), stars: REALMS.map(() => 0), unlocked: 1, sound: true, champion: false, champion2: false, made: false, items: STARTER_KIT() });
+  const freshSave = () => ({ hero: Object.assign({}, Art.DEFAULT_HERO), stars: REALMS.map(() => 0), unlocked: 1, sound: true, champion: false, champion2: false, made: false, items: STARTER_KIT(), job: null, jobPending: false });
   function loadSave() {
     try {
       const raw = localStorage.getItem(SAVE_KEY);
@@ -2146,6 +2271,10 @@ button { font: inherit; color: inherit; }
         });
         // Players who beat the dragon before Chapter 2 existed get it unlocked
         if (save.champion && save.unlocked < CHAPTERS[1].first + 1) save.unlocked = CHAPTERS[1].first + 1;
+        // Players from before jobs existed get to pick one
+        const done = save.stars.filter(x => x > 0).length;
+        if (done >= REALMS.length && !save.job) save.job = 'grand';
+        if (!save.job && done >= 1) save.jobPending = true;
         return save;
       }
     } catch (e) { /* storage blocked: play without saving */ }
@@ -2210,6 +2339,11 @@ button { font: inherit; color: inherit; }
   const soundBtn = () => `<button class="icon-btn" data-act="sound" aria-pressed="${state.save.sound}" aria-label="Sound">${Art.icon(state.save.sound ? 'sound' : 'mute')}</button>`;
   const rateHTML = n => `<span class="rate" role="img" aria-label="${n} of 3 stars">${[0, 1, 2].map(i => Art.icon(i < n ? 'rate' : 'rate-empty')).join('')}</span>`;
   const totalStars = () => state.save.stars.reduce((a, b) => a + b, 0);
+  const cleared = () => state.save.stars.filter(x => x > 0).length;
+  const an = w => (/^[aeiou]/i.test(w) ? 'an ' : 'a ') + w;
+  const nextStage = () => { const s = state.save; for (let i = 0; i < REALMS.length; i++) if (i < s.unlocked && !s.stars[i]) return i; return -1; };
+  const myTitle = () => Jobs.title(state.save.job, cleared());
+  const myIcon = () => (state.save.job ? Jobs.JOBS[state.save.job].icon : 'spark');
   const heroName = () => (state.save.hero.name || '').trim() || Art.DEFAULT_HERO.name || 'Mage';
   function say(text) { const sr = document.getElementById('sr'); if (sr) { sr.textContent = ''; setTimeout(() => { sr.textContent = text; }, 30); } }
 
@@ -2224,7 +2358,8 @@ button { font: inherit; color: inherit; }
   screens.title = () => {
     const s = state.save;
     const actions = s.made
-      ? `<button class="btn btn-primary" data-act="toMap">Continue as ${esc(heroName())}</button>
+      ? `<p class="title-rank">${Art.icon(myIcon())}${esc(myTitle())}</p>
+         <button class="btn btn-primary" data-act="toMap">Continue as ${esc(heroName())}</button>
          <button class="btn" data-act="toWardrobe">Change outfit</button>` +
         (state.confirmReset
           ? `<div class="confirm"><p>Start over? This erases every star.</p><div class="row" style="justify-content:center"><button class="btn btn-small" data-act="doReset">Yes, start over</button><button class="btn btn-small btn-ghost" data-act="cancelReset">Keep my stars</button></div></div>`
@@ -2306,12 +2441,19 @@ button { font: inherit; color: inherit; }
       ? 'The Shadow Dragon stole every zero in the kingdom! Beat its four helpers, then face the dragon at Moonspire.'
       : !s.champion2
         ? 'The zeros are back! But Count Muddle is scrambling the numbers in the sky. Beat his four helpers, then stop him at Starfall Observatory.'
-        : `${esc(heroName())} is an Archmage of the Stars! Play any realm again to collect every star.`;
+        : `${esc(heroName())} is a Grand Mage! Play any realm again to collect every star.`;
+    const c = cleared(), t = Jobs.tierFor(c), J = s.job ? Jobs.JOBS[s.job] : null, k = Jobs.skills(s.job, c);
+    const me = `<div class="me-strip${s.jobPending ? ' is-pending' : ''}">${Art.icon(myIcon())}
+      <div class="me-text"><b>${esc(heroName())} · ${esc(myTitle())}</b>
+        <span>${J ? `${J.skill}: ${J.desc(t)}` : 'Clear stage 1 to choose your first job.'}</span>
+        <span class="dim">${k.maxHearts} hearts · Skill level ${t}</span></div>
+      ${c >= 1 ? `<button class="btn btn-small${s.jobPending ? ' btn-primary' : ''}" data-act="openJobs">${s.jobPending ? 'Choose your job' : 'Change job'}</button>` : ''}</div>`;
     return `<section class="screen" aria-labelledby="m-title"><div class="wrap wrap-narrow">
       <div class="topbar"><button class="icon-btn" data-act="toTitle" aria-label="Back to the title screen">${Art.icon('back')}</button>
         <h2 id="m-title" class="h2 grow">Kingdom of Numbers</h2>
         <span class="star-count" role="img" aria-label="${total} of ${max} stars">${Art.icon('rate')}${total}/${max}</span></div>
       <p class="story hand">${story}</p>
+      ${me}
       <div class="inv" role="group" aria-label="Your power-ups"><span class="eyebrow">Power-ups</span>${Object.keys(window.MIM.ITEMS).map(id => `<span title="${window.MIM.ITEMS[id].name}">${Art.icon(window.MIM.ITEMS[id].icon)}<span class="sr-only">${window.MIM.ITEMS[id].name}</span>×${s.items[id] || 0}</span>`).join('')}</div>
       ${chapters}
       <div class="map-foot row"><button class="btn btn-small" data-act="toWardrobe">Change outfit</button>${soundBtn()}</div>
@@ -2319,7 +2461,7 @@ button { font: inherit; color: inherit; }
   };
 
   screens.intro = () => {
-    const r = REALMS[state.realm];
+    const r = REALMS[state.realm], s = state.save, c = cleared(), t = Jobs.tierFor(c), k = Jobs.skills(s.job, c), J = s.job ? Jobs.JOBS[s.job] : null;
     return `<section class="screen" aria-labelledby="i-title"><div class="wrap wrap-narrow">
       <div class="topbar"><button class="icon-btn" data-act="toMap" aria-label="Back to the map">${Art.icon('back')}</button><span class="eyebrow grow">Realm ${state.realm + 1} · ${r.name}</span></div>
       <div class="intro enter">${Art.monster(r.monster, 'idle', r.foe)}
@@ -2327,11 +2469,12 @@ button { font: inherit; color: inherit; }
         <p class="hand">${r.blurb}</p>
         ${r.traits ? `<div class="traits"><p class="eyebrow">Special tricks</p>${r.traits.map(t => `<p class="trait">${Art.icon(TRAITS[t].icon)}<span><b>${TRAITS[t].name}.</b> ${TRAITS[t].text}</span></p>`).join('')}</div>` : ''}
         <ul class="rules">
+          ${J ? `<li>${Art.icon(J.icon)}<span>You are ${an(esc(myTitle()))}. <b>${J.skill}:</b> ${J.desc(t)}</span></li>` : ''}
           <li>${Art.icon('spark')}<span>Pick a spell. Stronger spells hit harder but come with harder puzzles.</span></li>
           <li>${Art.icon('rate')}<span>Solve the puzzle to cast the spell. Three right in a row gives every spell +1 power until you miss.</span></li>
-          <li>${Art.icon('heart')}<span>A wrong answer lets ${r.foe} hit back. You have ${MAX_HEARTS} hearts.</span></li>
-          <li>${Art.icon('bulb')}<span>Stuck? A hint helps, but the spell loses 1 power.</span></li>
-          <li>${Art.icon('shield')}<span>Power-ups: you find one for every 3 right answers in a row and for every win. Tap one in battle to see what it does.</span></li>
+          <li>${Art.icon('heart')}<span>A wrong answer lets ${r.foe} hit back. You have ${k.maxHearts} hearts.</span></li>
+          <li>${Art.icon('bulb')}<span>Stuck? A hint helps${k.freeHints ? ', and your job makes hints free.' : ', but the spell loses 1 power.'}</span></li>
+          <li>${Art.icon('shield')}<span>Power-ups: you find one for every ${k.dropEvery} right answers in a row and for every win. Tap one in battle to see what it does.</span></li>
         </ul>
         <button class="btn btn-primary" data-act="fight">Fight ${r.foe}!</button>
       </div></div></section>`;
@@ -2352,9 +2495,11 @@ button { font: inherit; color: inherit; }
         <p class="fb-line">${line}</p>
         <p class="dim">${res.cast} spells cast · ${res.misses} ${res.misses === 1 ? 'mistake' : 'mistakes'}${res.hints ? ` · ${res.hints} ${res.hints === 1 ? 'hint' : 'hints'}` : ''}</p>
         ${res.returned && res.returned.length ? `<p class="loot">${Art.icon('rate')}<span>${r.foe} dropped everything it stole: ${res.returned.map(id => window.MIM.ITEMS[id].name).join(', ')}.</span></p>` : ''}
-        ${res.drop ? `<p class="loot">${Art.icon(window.MIM.ITEMS[res.drop].icon)}<span>Victory prize: ${window.MIM.ITEMS[res.drop].a} ${window.MIM.ITEMS[res.drop].name}!</span></p>` : ''}
-        ${res.unlockedNow && next ? `<p class="hand">${REALMS[res.realm + 1].name} is open now.</p>` : ''}
-        <div class="row">${next ? `<button class="btn btn-primary" data-act="pickRealm" data-arg="${res.realm + 1}">Next realm</button>` : ''}<button class="btn" data-act="toMap">Map</button></div>
+        ${res.drops && res.drops.length ? `<p class="loot">${Art.icon(window.MIM.ITEMS[res.drops[0]].icon)}<span>Victory prize${res.drops.length > 1 ? 's' : ''}: ${res.drops.map(id => window.MIM.ITEMS[id].a + ' ' + window.MIM.ITEMS[id].name).join(' and ')}!</span></p>` : ''}
+        ${res.rankUp ? `<div class="rankup-note"><p class="eyebrow">Rank up!</p><p>${rankUpText(res.rankUp)}</p></div>` : ''}
+        ${res.unlockedNow && next && !res.rankUp ? `<p class="hand">${REALMS[res.realm + 1].name} is open now.</p>` : ''}
+        <div class="row">${res.rankUp ? '<button class="btn btn-primary" data-act="openJobs">Choose your job</button>'
+          : next ? `<button class="btn btn-primary" data-act="pickRealm" data-arg="${res.realm + 1}">Next realm</button>` : ''}<button class="btn" data-act="toMap">Map</button></div>
       </div></div></section>`;
     }
     return `<section class="screen" aria-labelledby="r-title"><div class="wrap wrap-narrow"><div class="result lost enter">
@@ -2381,9 +2526,51 @@ button { font: inherit; color: inherit; }
       <div class="cert-meta"><span>Chapter ${ci + 1}: ${ch.title}</span><span>${chStars} of 15 stars</span><span>${date}</span></div>
       <p class="cert-sign">Signed by Grandmage Bintang</p>
       ${ci === 0 ? `<p class="hand">A new adventure is waiting. Chapter 2, ${CHAPTERS[1].title}, is open!</p>
-      <div class="row" style="justify-content:center"><button class="btn btn-primary" data-act="pickRealm" data-arg="${CHAPTERS[1].first}">Start Chapter 2</button><button class="btn" data-act="toMap">Map</button></div>`
-        : '<button class="btn btn-primary" data-act="toMap">Back to the map</button>'}
+      <div class="row" style="justify-content:center">${state.save.jobPending ? '<button class="btn btn-primary" data-act="openJobs">Choose your job</button>' : `<button class="btn btn-primary" data-act="pickRealm" data-arg="${CHAPTERS[1].first}">Start Chapter 2</button>`}<button class="btn" data-act="toMap">Map</button></div>`
+        : `<div class="row" style="justify-content:center">${state.save.jobPending ? '<button class="btn btn-primary" data-act="openJobs">See your Grand Mage powers</button>' : ''}<button class="btn${state.save.jobPending ? '' : ' btn-primary'}" data-act="toMap">Back to the map</button></div>`}
     </div></div></section>`;
+  };
+
+  function rankUpText(ru) {
+    const bits = [];
+    const newJobs = Jobs.ORDER.filter(id => Jobs.JOBS[id].unlock === ru.after).map(id => Jobs.JOBS[id].school);
+    if (ru.after >= REALMS.length) return 'You are a Grand Mage now, the highest rank of all!';
+    if (ru.before === 0) bits.push('You are not a trainee any more. Time to choose a job!');
+    if (newJobs.length && ru.before > 0) bits.push(`New job unlocked: ${newJobs.join(', ')}.`);
+    if (Jobs.tierFor(ru.after) > Jobs.tierFor(ru.before)) bits.push(`Your skills grow to level ${Jobs.tierFor(ru.after)}.`);
+    if (Jobs.baseHearts(ru.after) > Jobs.baseHearts(ru.before)) bits.push(`You now have ${Jobs.baseHearts(ru.after)} hearts.`);
+    if (!bits.length) bits.push('You can pick a new job for the next stage, or keep your current one.');
+    return bits.join(' ');
+  }
+
+  /* ---------- Job Hall ---------- */
+  screens.jobs = () => {
+    const s = state.save, c = cleared(), t = Jobs.tierFor(c), k = Jobs.skills(s.job, c);
+    const ids = (c >= REALMS.length ? ['grand'] : []).concat(Jobs.ORDER);
+    const nextTier = c < 3 ? 3 : c < 5 ? 5 : c < 8 ? 8 : null;
+    const cards = ids.map(id => {
+      const J = Jobs.JOBS[id], locked = c < J.unlock, cur = s.job === id, name = J.titles[t - 1];
+      const action = locked ? `<p class="locked-note">${Art.icon('lock')} Unlocks after stage ${J.unlock}</p>`
+        : cur ? '<p class="job-current">Your job</p>'
+          : `<button class="btn btn-small" data-act="pickJob" data-arg="${id}">Choose ${name}</button>`;
+      return `<article class="job job-${id}${cur ? ' is-current' : ''}${locked ? ' is-locked' : ''}">
+        <div class="job-top">${Art.icon(locked ? 'lock' : J.icon)}<div><p class="eyebrow">${J.school}${id === 'grand' ? ' rank' : ' school'}</p><h3 class="h3">${locked ? J.school + ' job' : name}</h3></div></div>
+        <p class="job-skill">${locked ? J.blurb : `<b>${J.skill}.</b> ${J.desc(t)}`}</p>
+        ${!locked && nextTier && id !== 'grand' ? `<p class="job-next">Becomes ${J.titles[Jobs.tierFor(nextTier) - 1]} after stage ${nextTier}</p>` : ''}
+        ${action}</article>`;
+    }).join('');
+    const ns = nextStage();
+    const cta = s.job
+      ? `<button class="btn btn-primary" data-act="jobsDone">${ns >= 0 ? `Next stage: ${REALMS[ns].name}` : 'Back to the map'}</button>`
+      : '<button class="btn btn-ghost" data-act="toMap">Decide later</button>';
+    return `<section class="screen" aria-labelledby="j-title"><div class="wrap wrap-narrow">
+      <div class="topbar"><button class="icon-btn" data-act="toMap" aria-label="Back to the map">${Art.icon('back')}</button>
+        <div class="grow"><p class="eyebrow">${s.jobPending ? 'Rank up!' : 'Job Hall'}</p><h2 id="j-title" class="h2">${s.jobPending ? (c >= REALMS.length ? 'Grand Mage!' : 'Choose your job') : 'Job Hall'}</h2></div></div>
+      <div class="power-box"><div>${Art.icon('heart')}<b>${Jobs.baseHearts(c)}</b><span>hearts</span></div><div>${Art.icon('rate')}<b>${c}</b><span>stages cleared</span></div><div>${Art.icon('spark')}<b>${t}</b><span>skill level</span></div></div>
+      <p class="dim">Each job has its own skill. Skills get stronger as you clear more stages. You can switch jobs here any time.</p>
+      <div class="jobs">${cards}</div>
+      <div class="row">${cta}</div>
+    </div></section>`;
   };
 
   /* ---------- Router ---------- */
@@ -2436,6 +2623,18 @@ button { font: inherit; color: inherit; }
       state.save = Object.assign(freshSave(), keep, { made: true });
       state.confirmReset = false; persist(); go('map');
     },
+    openJobs: () => go('jobs'),
+    pickJob: arg => {
+      if (!Jobs.JOBS[arg] || cleared() < Jobs.JOBS[arg].unlock) return;
+      state.save.job = arg; state.save.jobPending = false; persist();
+      sfx.correct(); render();
+      say(`You are now ${an(myTitle())}.`);
+    },
+    jobsDone: () => {
+      state.save.jobPending = false; persist();
+      const ns = nextStage();
+      if (ns >= 0) { state.realm = ns; go('intro'); } else go('map');
+    },
     pickRealm: arg => {
       const i = Number(arg);
       if (i >= state.save.unlocked) return;
@@ -2460,7 +2659,7 @@ button { font: inherit; color: inherit; }
     }
   });
 
-  window.MIM = { state, REALMS, SPELLS, MAX_HEARTS, TRAITS, CHAPTERS, sfx, screens, actions, render, go, persist, soundBtn, rateHTML, heroName, say, esc };
+  window.MIM = { state, REALMS, SPELLS, MAX_HEARTS, TRAITS, CHAPTERS, cleared, nextStage, an, myTitle, myIcon, sfx, screens, actions, render, go, persist, soundBtn, rateHTML, heroName, say, esc };
 
   /* ---------- Boot (keeps progress when the page is updated while open) ---------- */
   function start(data) {
@@ -2471,6 +2670,7 @@ button { font: inherit; color: inherit; }
       state.screen = data.screen; state.realm = data.realm || 0;
       state.battle = data.battle || null; state.result = data.result || null; state.finalChapter = data.finalChapter || 0;
       if (state.battle && !state.battle.stolen) state.battle.stolen = [];
+      if (state.battle && !state.battle.k) { state.battle = null; if (state.screen === 'battle') state.screen = 'map'; }
       if (state.battle) state.battle.busy = false;
       if (state.screen === 'battle' && !state.battle) state.screen = 'map';
       if (state.screen === 'result' && !state.result) state.screen = 'map';
@@ -2500,10 +2700,10 @@ button { font: inherit; color: inherit; }
   /* ---------- Power-ups ---------- */
   const MAX_ITEM = 3;
   const ITEMS = {
-    shield: { name: 'Shield Charm', short: 'Shield', a: 'a', icon: 'shield', what: 'Blocks the next hit from the monster, so a wrong answer costs no heart.',
-      why: b => b.shield ? 'Your shield is already up.' : '' },
+    shield: { name: 'Shield Charm', short: 'Shield', a: 'a', icon: 'shield', what: 'Adds a shield that blocks the next hit from the monster, so a wrong answer costs no heart.',
+      why: b => b.shield >= 3 ? 'You already have 3 shields up.' : '' },
     jamu: { name: 'Jamu Potion', short: 'Jamu', a: 'a', icon: 'jamu', what: 'A warm herbal jamu that brings back 1 heart.',
-      why: b => b.hearts >= M.MAX_HEARTS ? 'Your hearts are already full. Save it for later!' : '' },
+      why: b => b.hearts >= b.maxHearts ? 'Your hearts are already full. Save it for later!' : '' },
     double: { name: 'Double Chalk', short: 'Double', a: 'a', icon: 'double', what: 'Your next correct spell hits twice as hard.',
       why: b => b.double ? 'Double Chalk is already waiting for your next spell.' : '' },
     eraser: { name: 'Board Eraser', short: 'Eraser', a: 'a', icon: 'eraser', what: 'Wipes away the puzzle on the board and gives you a new one.',
@@ -2525,18 +2725,19 @@ button { font: inherit; color: inherit; }
   function blocked(id) {
     const b = state.battle;
     if (!b) return 'Power-ups only work in battles.';
-    if ((inv()[id] || 0) < 1) return 'You have none left. Get 3 right in a row to find more.';
+    if ((inv()[id] || 0) < 1) return `You have none left. Get ${b.k.dropEvery} right in a row to find more.`;
     if (b.phase === 'feedback' || b.busy) return 'Wait for your next spell.';
     return ITEMS[id].why(b);
   }
 
   function newBattle(realm) {
-    const r = REALMS[realm];
+    const r = REALMS[realm], k = window.Jobs.skills(state.save.job, M.cleared());
     state.battle = {
-      realm, hp: r.hp, hearts: M.MAX_HEARTS, streak: 0, recent: [],
+      realm, hp: r.hp, hearts: k.maxHearts, maxHearts: k.maxHearts, k, streak: 0, recent: [],
       phase: 'spell', spell: 0, puzzle: null, hintUsed: false, input: '', choice: null,
       cast: 0, misses: 0, hints: 0, last: null, busy: false,
-      shield: false, double: false, info: null, stolen: []
+      shield: k.shieldStart, double: k.startDouble, info: null, stolen: [],
+      swaps: k.swaps, rewinds: k.rewinds
     };
   }
 
@@ -2551,15 +2752,25 @@ button { font: inherit; color: inherit; }
   }
 
   const has = trait => (REALMS[state.battle.realm].traits || []).includes(trait);
-  const basePower = (spell, hint) => Math.max(1, SPELLS[spell].power + (state.battle.streak >= 2 ? 1 : 0) - (hint ? 1 : 0));
+  const basePower = (spell, hint) => {
+    const b = state.battle;
+    return Math.max(1, SPELLS[spell].power + (b.streak >= 2 ? 1 : 0) - (hint && !b.k.freeHints ? 1 : 0)) + b.k.dmg;
+  };
   const power = () => basePower(state.battle.spell, state.battle.hintUsed) * (state.battle.double ? 2 : 1);
 
   /* ---------- Pieces ---------- */
   function heartsHTML() {
     const b = state.battle;
     let out = '';
-    for (let i = 0; i < M.MAX_HEARTS; i++) out += Art.icon(i < b.hearts ? 'heart' : 'heart-empty');
+    for (let i = 0; i < b.maxHearts; i++) out += Art.icon(i < b.hearts ? 'heart' : 'heart-empty');
     return out;
+  }
+  function statusHTML() {
+    const b = state.battle, chips = [];
+    if (b.shield > 0) chips.push(`<span class="chip-s" title="Shields">${Art.icon('shield')}×${b.shield}</span>`);
+    if (b.k.swaps) chips.push(`<span class="chip-s" title="Free puzzle swaps">${Art.icon('book')}×${b.swaps}</span>`);
+    if (b.k.rewinds) chips.push(`<span class="chip-s" title="Rewinds">${Art.icon('hourglass')}×${b.rewinds}</span>`);
+    return chips.join('');
   }
   function tallyHTML() {
     const b = state.battle, max = REALMS[b.realm].hp;
@@ -2636,23 +2847,31 @@ button { font: inherit; color: inherit; }
       <div class="visual">${p.html}</div>
       ${b.hintUsed ? `<div class="hint-note">${Art.icon('bulb')}<p class="hand">${esc(p.hint)}</p></div>` : ''}
       <div class="answer" id="answer">${answerHTML()}</div>
-      ${hintBtn ? `<div class="pz-actions">${hintBtn}</div>` : ''}
+      ${hintBtn || b.k.swaps ? `<div class="pz-actions">${hintBtn}${b.k.swaps ? `<button class="btn btn-ghost btn-small" data-act="swap"${b.swaps ? '' : ' disabled'}>${Art.icon('book')} Swap puzzle (${b.swaps} left)</button>` : ''}</div>` : ''}
     </div>`;
   }
 
   function feedbackHTML() {
     const b = state.battle, p = b.puzzle, r = REALMS[b.realm], L = b.last, s = SPELLS[b.spell];
+    if (L.rewound) {
+      return `<div class="feedback rewind enter">
+        <h3 class="fb-title">${L.title}</h3>
+        <p class="fb-line">That answer was not right, but your Rewind skill turned back time before ${r.foe} could hit you. Have another go at the same puzzle.${b.rewinds ? ` (${b.rewinds} rewind${b.rewinds === 1 ? '' : 's'} left)` : ''}</p>
+        <button class="btn btn-primary" id="next-btn" data-act="retry">Try again</button>
+      </div>`;
+    }
     let line;
     if (L.ok) {
       const helpers = [];
       if (L.doubled) helpers.push('Double Chalk');
       if (L.bonus) helpers.push('your combo');
-      line = `${s.name} hits ${r.foe} for ${L.dmg}${helpers.length ? `, thanks to ${helpers.join(' and ')}` : ''}.` + (b.hp === 0 ? ` ${r.foe} is beaten!` : '');
+      line = `${s.name} hits ${r.foe} for ${L.dmg}${helpers.length ? `, thanks to ${helpers.join(' and ')}` : ''}.` + (b.hp === 0 ? ` ${r.foe} is beaten!` : '') +
+        (L.healed ? ' Your Mend skill heals 1 heart.' : '') + (L.shieldUp ? ' Your Ward skill raises a new shield.' : '');
     } else {
       const picked = p.input === 'number' ? null : (p.choices.find(c => c.id === L.given) || {}).aria || '';
       const given = p.input === 'number' ? L.given : (p.choiceStyle === 'tiles' ? 'the ' + picked : picked);
       line = `You answered ${esc(given)}, but the answer is ${esc(Pz.answerText(p))}. ` +
-        (L.blocked ? `${r.foe} hits back, but your Shield Charm blocks it. No heart lost!`
+        (L.blocked ? `${r.foe} hits back, but your shield blocks it. No heart lost!`
           : `${r.foe} hits back and you lose a heart.` + (b.hearts === 0 ? ' That was your last heart.' : '')) +
         (L.stole ? ` ${r.foe} snatches your ${ITEMS[L.stole].name}!` : '') +
         (L.regrew ? ` ${r.foe} regrows 1 hit point.` : '');
@@ -2685,7 +2904,7 @@ button { font: inherit; color: inherit; }
       <div class="battle-body">
         <div class="side">
           <div class="arena" id="arena">
-            <div class="${mageClass()}" id="f-mage">${Art.mage(H, 'idle')}<span class="fighter-name">${esc(M.heroName())}</span><div class="hearts" id="hearts" role="img" aria-label="${b.hearts} of ${M.MAX_HEARTS} hearts">${heartsHTML()}</div></div>
+            <div class="${mageClass()}" id="f-mage">${Art.mage(H, 'idle')}<span class="fighter-name">${esc(M.heroName())}</span><span class="job-title">${Art.icon(M.myIcon())}${esc(M.myTitle())}</span><div class="hearts${b.maxHearts > 4 ? ' many' : ''}" id="hearts" role="img" aria-label="${b.hearts} of ${b.maxHearts} hearts">${heartsHTML()}</div><div class="status" id="status">${statusHTML()}</div></div>
             <div class="fighter" id="f-foe">${Art.monster(r.monster, foeCls, r.foe)}<span class="fighter-name">${r.foe}</span>${tallyHTML()}${r.traits ? `<div class="trait-tags">${r.traits.map(t => `<span class="trait-tag">${M.TRAITS[t].name}</span>`).join('')}</div>` : ''}</div>
             <div class="combo" id="combo">${comboText()}</div>
           </div>
@@ -2713,7 +2932,9 @@ button { font: inherit; color: inherit; }
   function refreshStatus() {
     const b = state.battle;
     const hearts = $('hearts');
-    if (hearts) { hearts.innerHTML = heartsHTML(); hearts.setAttribute('aria-label', `${b.hearts} of ${M.MAX_HEARTS} hearts`); }
+    if (hearts) { hearts.innerHTML = heartsHTML(); hearts.setAttribute('aria-label', `${b.hearts} of ${b.maxHearts} hearts`); }
+    const status = $('status');
+    if (status) status.innerHTML = statusHTML();
     const tally = $('tally');
     if (tally) tally.outerHTML = tallyHTML();
     const combo = $('combo');
@@ -2838,16 +3059,27 @@ button { font: inherit; color: inherit; }
       b.double = false;
       b.streak++;
       b.hp = Math.max(0, b.hp - dmg);
-      const drop = b.streak % 3 === 0 ? grantRandom() : null;
-      b.last = { ok: true, dmg, bonus, doubled, drop, streak: b.streak, given: val, title: Pz.rnd.pick(PRAISE) };
+      const drop = b.streak % b.k.dropEvery === 0 ? grantRandom() : null;
+      let healed = false, shieldUp = false;
+      if (b.k.healEvery && b.streak % b.k.healEvery === 0 && b.hearts < b.maxHearts && b.hp > 0) { b.hearts++; healed = true; }
+      if (b.k.shieldOnStreak && b.streak % 3 === 0 && b.shield < 3 && b.hp > 0) { b.shield++; shieldUp = true; }
+      b.last = { ok: true, dmg, bonus, doubled, drop, healed, shieldUp, streak: b.streak, given: val, title: Pz.rnd.pick(PRAISE) };
       sfx.correct();
       if (drop) sfx.loot();
       playHit(dmg, doubled);
       M.say(`Correct! ${SPELLS[b.spell].name} hits for ${dmg}.` + (drop ? ` You found ${ITEMS[drop].a} ${ITEMS[drop].name}.` : ''));
+    } else if (b.rewinds > 0) {
+      b.rewinds--;
+      if (!b.k.rewindKeepsCombo) b.streak = 0;
+      b.last = { ok: false, rewound: true, given: val, title: 'Time rewinds!' };
+      sfx.power();
+      pop('Rewind!', document.querySelector('#f-mage .mage'), 'buff');
+      M.say('Not quite, but time rewinds. Try the same puzzle again.');
+      refreshStatus();
     } else {
-      const shielded = b.shield;
+      const shielded = b.shield > 0;
       b.streak = 0; b.misses++;
-      if (shielded) b.shield = false; else b.hearts = Math.max(0, b.hearts - 1);
+      if (shielded) b.shield--; else b.hearts = Math.max(0, b.hearts - 1);
       let regrew = false, stole = null;
       if (has('regrow') && b.hp < REALMS[b.realm].hp) { b.hp += 1; regrew = true; }
       if (has('thief') && !shielded) {
@@ -2867,10 +3099,26 @@ button { font: inherit; color: inherit; }
   function next() {
     const b = state.battle;
     if (!b || b.phase !== 'feedback' || b.busy) return;
+    if (b.last && b.last.rewound) return retry();
     if (b.hp === 0) return finish(true);
     if (b.hearts === 0) return finish(false);
     b.phase = 'spell'; b.puzzle = null; b.info = null;
     refreshPanel('panel'); refreshKit();
+  }
+  function retry() {
+    const b = state.battle;
+    if (!b || b.phase !== 'feedback' || !b.last || !b.last.rewound) return;
+    b.phase = 'puzzle'; b.input = ''; b.choice = null; b.last = null;
+    refreshPanel('panel'); refreshKit();
+  }
+  function swap() {
+    const b = state.battle;
+    if (!b || b.phase !== 'puzzle' || b.busy || b.swaps < 1) return;
+    b.swaps--;
+    b.puzzle = makePuzzle(b.spell); b.hintUsed = false; b.input = ''; b.choice = null;
+    sfx.erase();
+    M.say('Here is a new puzzle.');
+    refreshPanel('panel'); refreshStatus();
   }
   function useItem(id) {
     const b = state.battle;
@@ -2879,8 +3127,8 @@ button { font: inherit; color: inherit; }
     M.persist();
     b.info = null;
     const mage = document.querySelector('#f-mage .mage');
-    if (id === 'shield') { b.shield = true; sfx.shield(); pop('Shield!', mage, 'buff'); M.say('Shield Charm is up. It blocks the next hit.'); }
-    if (id === 'jamu') { b.hearts = Math.min(M.MAX_HEARTS, b.hearts + 1); sfx.heal(); pop('+1', mage, 'heal'); M.say('Jamu Potion. You got a heart back.'); }
+    if (id === 'shield') { b.shield = Math.min(3, b.shield + 1); sfx.shield(); pop('Shield!', mage, 'buff'); M.say('Shield Charm is up. It blocks the next hit.'); }
+    if (id === 'jamu') { b.hearts = Math.min(b.maxHearts, b.hearts + 1); sfx.heal(); pop('+1', mage, 'heal'); M.say('Jamu Potion. You got a heart back.'); }
     if (id === 'double') { b.double = true; sfx.power(); pop('×2', mage, ''); M.say('Double Chalk is ready for your next correct spell.'); }
     if (id === 'eraser') { b.puzzle = makePuzzle(b.spell); b.hintUsed = false; b.input = ''; b.choice = null; sfx.erase(); M.say('The board is wiped. Here is a new puzzle.'); }
     refreshStatus();
@@ -2889,9 +3137,10 @@ button { font: inherit; color: inherit; }
   }
   function finish(won) {
     const b = state.battle, s = state.save, i = b.realm;
-    let unlockedNow = false, firstWin = false, drop = null;
+    let unlockedNow = false, firstWin = false, rankUp = null;
+    const drops = [], before = M.cleared(), stars = Math.max(1, 3 - (b.maxHearts - b.hearts));
     if (won) {
-      s.stars[i] = Math.max(s.stars[i], b.hearts);
+      s.stars[i] = Math.max(s.stars[i], stars);
       if (i + 1 < REALMS.length && s.unlocked < i + 2) { s.unlocked = i + 2; unlockedNow = true; }
       const ci = M.CHAPTERS.findIndex(c => c.last === i);
       if (ci >= 0 && !s[M.CHAPTERS[ci].key]) {
@@ -2899,11 +3148,17 @@ button { font: inherit; color: inherit; }
         if (ci + 1 < M.CHAPTERS.length && s.unlocked < M.CHAPTERS[ci + 1].first + 1) s.unlocked = M.CHAPTERS[ci + 1].first + 1;
       }
       b.stolen.forEach(id => { inv()[id] = Math.min(MAX_ITEM, (inv()[id] || 0) + 1); });
-      drop = grantRandom();
+      for (let n = 0; n < b.k.prizes; n++) { const d = grantRandom(); if (d) drops.push(d); }
+      const after = M.cleared();
+      if (after > before) {
+        s.jobPending = true;
+        if (after >= REALMS.length) s.job = 'grand';
+        rankUp = { before, after };
+      }
       sfx.win();
     } else sfx.lose();
     M.persist();
-    state.result = { realm: i, won, stars: won ? b.hearts : 0, cast: b.cast, misses: b.misses, hints: b.hints, hpLeft: b.hp, unlockedNow, drop, returned: won ? b.stolen.slice() : [] };
+    state.result = { realm: i, won, stars: won ? stars : 0, cast: b.cast, misses: b.misses, hints: b.hints, hpLeft: b.hp, unlockedNow, drops, rankUp, returned: won ? b.stolen.slice() : [] };
     state.battle = null;
     M.go(firstWin ? 'final' : 'result');
   }
@@ -2928,7 +3183,9 @@ button { font: inherit; color: inherit; }
       b.info = arg && b.info !== arg ? arg : null;
       refreshKit();
     },
-    useItem: arg => useItem(arg)
+    useItem: arg => useItem(arg),
+    retry: () => retry(),
+    swap: () => swap()
   });
 
   document.addEventListener('keydown', e => {
@@ -2954,7 +3211,7 @@ button { font: inherit; color: inherit; }
   });
 
   // Small hook for automated play-testing
-  window.__mim = { state, cast, press, choose, chooseSpell, next, useItem };
+  window.__mim = { state, cast, press, choose, chooseSpell, next, useItem, retry, swap };
   M.boot();
 })();
 

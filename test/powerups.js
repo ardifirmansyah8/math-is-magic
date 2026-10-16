@@ -52,7 +52,7 @@ fs.mkdirSync(OUT, { recursive: true });
   // Shield up, then a wrong answer costs nothing
   await use(page, 'shield');
   let b = await B(page);
-  check(b.shield === true && (await items(page)).shield === 0, 'shield activates and is used up');
+  check(b.shield === 1 && (await items(page)).shield === 0, 'shield activates and is used up');
   check(await page.$eval('#f-mage', el => el.classList.contains('shielded')), 'mage shows the shield bubble');
   // Double Chalk on a Spark
   await use(page, 'double');
@@ -69,9 +69,9 @@ fs.mkdirSync(OUT, { recursive: true });
   await page.click('.spell[data-arg="0"]'); await page.waitForTimeout(200);
   await answer(page, false);
   b = await B(page);
-  check(b.hearts === 3 && b.last.blocked && !b.shield, 'shield blocked the hit, hearts still 3');
+  check(b.hearts === 3 && b.last.blocked && b.shield === 0, 'shield blocked the hit, hearts still 3');
   const fbText = await page.textContent('.feedback');
-  check(/Shield Charm blocks it/.test(fbText), 'feedback mentions the shield');
+  check(/shield blocks it/.test(fbText), 'feedback mentions the shield');
   await page.screenshot({ path: path.join(OUT, 'p4-blocked-feedback.png') });
   await page.click('#next-btn'); await page.waitForTimeout(150);
 
@@ -119,7 +119,7 @@ fs.mkdirSync(OUT, { recursive: true });
   }
   await page.waitForTimeout(300);
   const res = await page.evaluate(() => window.MIM.state.result);
-  check(res && res.won && !!res.drop, 'victory prize granted: ' + (res && res.drop));
+  check(res && res.won && res.drops && res.drops.length === 1, 'victory prize granted: ' + (res && res.drops));
   check(/Victory prize/.test(await page.textContent('.result')), 'result screen shows the prize');
   await page.screenshot({ path: path.join(OUT, 'p7-result.png') });
 
