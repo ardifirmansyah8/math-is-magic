@@ -38,7 +38,7 @@
   /* ---------- Saving ---------- */
   const SAVE_KEY = 'math-is-magic-v1';
   const STARTER_KIT = () => ({ shield: 1, jamu: 1, double: 1, eraser: 1 });
-  const freshSave = () => ({ hero: Object.assign({}, Art.DEFAULT_HERO), stars: REALMS.map(() => 0), unlocked: 1, sound: true, champion: false, champion2: false, made: false, items: STARTER_KIT(), job: null, jobPending: false, beaten: REALMS.map(() => 0) });
+  const freshSave = () => ({ hero: Object.assign({}, Art.DEFAULT_HERO), stars: REALMS.map(() => 0), unlocked: 1, sound: true, champion: false, champion2: false, made: false, items: STARTER_KIT(), job: null, jobPending: false, beaten: REALMS.map(() => 0), hurt: 0 });
   function loadSave() {
     try {
       const raw = localStorage.getItem(SAVE_KEY);
@@ -48,7 +48,8 @@
           hero: Object.assign({}, Art.DEFAULT_HERO, s.hero || {}),
           items: Object.assign({ shield: 0, jamu: 0, double: 0, eraser: 0 }, s.items || STARTER_KIT()),
           stars: REALMS.map((_, i) => (s.stars && s.stars[i]) || 0),
-          beaten: REALMS.map((_, i) => (s.beaten && s.beaten[i]) || ((s.stars && s.stars[i]) ? 1 : 0))
+          beaten: REALMS.map((_, i) => (s.beaten && s.beaten[i]) || ((s.stars && s.stars[i]) ? 1 : 0)),
+          hurt: Math.max(0, Math.floor(Number(s.hurt) || 0))
         });
         // Players who beat the dragon before Chapter 2 existed get it unlocked
         if (save.champion && save.unlocked < CHAPTERS[1].first + 1) save.unlocked = CHAPTERS[1].first + 1;
@@ -122,6 +123,9 @@
   const totalStars = () => state.save.stars.reduce((a, b) => a + b, 0);
   const cleared = () => state.save.stars.filter(x => x > 0).length;
   const an = w => (/^[aeiou]/i.test(w) ? 'an ' : 'a ') + w;
+  // Hearts carry over between battles. save.hurt counts the hearts missing, so a heart gained from a rank-up or a job arrives full
+  const heartsNow = () => { const max = Jobs.skills(state.save.job, cleared()).maxHearts; return { now: Math.max(1, max - (state.save.hurt || 0)), max }; };
+  const heartRow = (now, max) => `<span class="mini-hearts" role="img" aria-label="${now} of ${max} hearts">${Array.from({ length: max }, (_, i) => Art.icon(i < now ? 'heart' : 'heart-empty')).join('')}</span>`;
   const nextStage = () => { const s = state.save; for (let i = 0; i < REALMS.length; i++) if (i < s.unlocked && !s.stars[i]) return i; return -1; };
   const myTitle = () => Jobs.title(state.save.job, cleared());
   const myIcon = () => (state.save.job ? Jobs.JOBS[state.save.job].icon : 'spark');
@@ -223,11 +227,11 @@
       : !s.champion2
         ? 'The zeros are back! But Kakacau, the Star Scrambler, is mixing up the numbers in the sky. Beat the four monsters on the way, then face Kakacau at Starfall Observatory.'
         : `${esc(heroName())} is a Grand Mage! Play any realm again to collect every star.`;
-    const c = cleared(), t = Jobs.tierFor(c), J = s.job ? Jobs.JOBS[s.job] : null, k = Jobs.skills(s.job, c);
+    const c = cleared(), t = Jobs.tierFor(c), J = s.job ? Jobs.JOBS[s.job] : null, h = heartsNow();
     const me = `<div class="me-strip${s.jobPending ? ' is-pending' : ''}">${Art.icon(myIcon())}
       <div class="me-text"><b>${esc(heroName())} · ${esc(myTitle())}</b>
         <span>${J ? `${J.skill}: ${J.desc(t)}` : 'Clear stage 1 to choose your first job.'}</span>
-        <span class="dim">${k.maxHearts} hearts · Skill level ${t}</span></div>
+        <span class="me-hearts">${heartRow(h.now, h.max)}<span class="dim">${h.now < h.max ? `${h.now} of ${h.max} hearts` : `${h.max} hearts`} · Skill level ${t}</span></span></div>
       ${c >= 1 ? `<button class="btn btn-small${s.jobPending ? ' btn-primary' : ''}" data-act="openJobs">${s.jobPending ? 'Choose your job' : 'Change job'}</button>` : ''}</div>`;
     return `<section class="screen" aria-labelledby="m-title"><div class="wrap wrap-narrow">
       <div class="topbar"><button class="icon-btn" data-act="toTitle" aria-label="Back to the title screen">${Art.icon('back')}</button>
@@ -242,7 +246,7 @@
   };
 
   screens.intro = () => {
-    const r = REALMS[state.realm], s = state.save, c = cleared(), t = Jobs.tierFor(c), k = Jobs.skills(s.job, c), J = s.job ? Jobs.JOBS[s.job] : null;
+    const r = REALMS[state.realm], s = state.save, c = cleared(), t = Jobs.tierFor(c), k = Jobs.skills(s.job, c), J = s.job ? Jobs.JOBS[s.job] : null, h = heartsNow();
     return `<section class="screen" aria-labelledby="i-title"><div class="wrap wrap-narrow">
       <div class="topbar"><button class="icon-btn" data-act="toMap" aria-label="Back to the map">${Art.icon('back')}</button><span class="eyebrow grow">Realm ${state.realm + 1} · ${r.name}</span></div>
       <div class="intro enter">${Art.monster(r.monster, 'idle', r.foe)}
@@ -255,7 +259,7 @@
           ${J ? `<li>${Art.icon(J.icon)}<span>You are ${an(esc(myTitle()))}. <b>${J.skill}:</b> ${J.desc(t)}</span></li>` : ''}
           <li>${Art.icon('spark')}<span>Pick a spell. Stronger spells hit harder but come with harder puzzles.</span></li>
           <li>${Art.icon('rate')}<span>Solve the puzzle to cast the spell. Three right in a row gives every spell +1 power until you miss.</span></li>
-          <li>${Art.icon('heart')}<span>A wrong answer lets ${r.foe} hit back. You have ${k.maxHearts} hearts.</span></li>
+          <li>${Art.icon('heart')}<span>A wrong answer lets ${r.foe} hit back. ${h.now < h.max ? `You have ${h.now} of ${h.max} hearts left from your last fight, and a Jamu Potion gives one back.` : `You have ${h.max} hearts, and the ones you keep come with you to the next fight.`}</span></li>
           <li>${Art.icon('bulb')}<span>Stuck? A hint helps${k.freeHints ? ', and your job makes hints free.' : ', but the spell loses 1 power.'}</span></li>
           <li>${Art.icon('shield')}<span>Power-ups: you find one for every ${k.dropEvery} right answers in a row and for every win. Tap one in battle to see what it does.</span></li>
         </ul>
@@ -264,7 +268,7 @@
   };
 
   screens.result = () => {
-    const res = state.result, r = REALMS[res.realm];
+    const res = state.result, r = REALMS[res.realm], h = heartsNow();
     if (res.won) {
       const next = res.realm + 1 < REALMS.length;
       const line = res.stars === 3 ? 'Perfect! You did not lose a single heart.'
@@ -277,6 +281,7 @@
         ${rateHTML(res.stars)}
         <p class="fb-line">${line}</p>
         <p class="dim">${res.cast} spells cast · ${res.misses} ${res.misses === 1 ? 'mistake' : 'mistakes'}${res.hints ? ` · ${res.hints} ${res.hints === 1 ? 'hint' : 'hints'}` : ''}</p>
+        <p class="carry">${heartRow(h.now, h.max)}<span>${h.now < h.max ? 'Your hearts come with you to the next fight. A Jamu Potion in battle gives one back.' : 'Your hearts are all full for the next fight.'}</span></p>
         ${res.returned && res.returned.length ? `<p class="loot">${Art.icon('rate')}<span>${r.foe} dropped everything it stole: ${res.returned.map(id => window.MIM.ITEMS[id].name).join(', ')}.</span></p>` : ''}
         ${res.drops && res.drops.length ? `<p class="loot">${Art.icon(window.MIM.ITEMS[res.drops[0]].icon)}<span>Victory prize${res.drops.length > 1 ? 's' : ''}: ${res.drops.map(id => window.MIM.ITEMS[id].a + ' ' + window.MIM.ITEMS[id].name).join(' and ')}!</span></p>` : ''}
         ${res.rankUp ? `<div class="rankup-note"><p class="eyebrow">Rank up!</p><p>${rankUpText(res.rankUp)}</p></div>` : ''}
@@ -290,6 +295,7 @@
       <h2 id="r-title" class="h2">${r.foe} won this round</h2>
       ${Art.monster(r.monster, 'idle', r.foe)}
       <p class="fb-line">Every mistake showed you a new trick. Have another go!</p>
+      <p class="carry">${heartRow(h.now, h.max)}<span>You had a rest, so your hearts are full again.</span></p>
       <p class="dim">${res.cast} spells cast · ${r.foe} had ${res.hpLeft} of ${r.hp} hit points left</p>
       <div class="row"><button class="btn btn-primary" data-act="fight">Try again</button><button class="btn" data-act="toMap">Map</button></div>
     </div></div></section>`;
@@ -475,7 +481,7 @@
     }
   });
 
-  window.MIM = { state, REALMS, TOPICS, SPELLS, MAX_HEARTS, TRAITS, CHAPTERS, totalStars, cleared, nextStage, an, myTitle, myIcon, sfx, screens, actions, render, go, persist, soundBtn, rateHTML, heroName, say, esc };
+  window.MIM = { state, REALMS, TOPICS, SPELLS, MAX_HEARTS, TRAITS, CHAPTERS, totalStars, cleared, nextStage, heartsNow, heartRow, an, myTitle, myIcon, sfx, screens, actions, render, go, persist, soundBtn, rateHTML, heroName, say, esc };
 
   /* ---------- Boot (keeps progress when the page is updated while open) ---------- */
   function start(data) {

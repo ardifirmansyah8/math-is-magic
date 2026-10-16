@@ -294,6 +294,11 @@
 .me-strip.is-pending { border-color: var(--yellow); box-shadow: 0 0 0 3px rgba(245, 213, 97, .18); }
 .me-text { display: grid; gap: 2px; flex: 1 1 200px; min-width: 0; font-size: 15px; line-height: 1.4; }
 .me-text b { font-size: 17px; }
+.me-hearts { display: flex; flex-wrap: wrap; align-items: center; gap: 2px 8px; }
+.mini-hearts { display: inline-flex; flex-wrap: wrap; gap: 1px; vertical-align: middle; }
+.mini-hearts .ico { width: 20px; height: 20px; }
+.carry { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 6px 10px; max-width: 30em; }
+.carry .mini-hearts .ico { width: 26px; height: 26px; }
 .power-box { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
 .power-box > div { display: grid; justify-items: center; gap: 2px; padding: 10px 6px; border: 2px solid rgba(243, 239, 228, .4); border-radius: var(--wobble); text-align: center; }
 .power-box .ico { width: 26px; height: 26px; }

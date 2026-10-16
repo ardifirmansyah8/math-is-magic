@@ -51,14 +51,22 @@
   }
 
   function newBattle(realm) {
-    const r = REALMS[realm], k = window.Jobs.skills(state.save.job, M.cleared());
+    const r = REALMS[realm], k = window.Jobs.skills(state.save.job, M.cleared()), h = M.heartsNow();
     state.battle = {
-      realm, hp: r.hp, hearts: k.maxHearts, maxHearts: k.maxHearts, k, streak: 0, recent: [],
+      realm, hp: r.hp, hearts: h.now, startHearts: h.now, maxHearts: k.maxHearts, k, streak: 0, recent: [],
       phase: 'spell', spell: 0, puzzle: null, hintUsed: false, input: '', choice: null,
       cast: 0, misses: 0, hints: 0, last: null, busy: false,
       shield: k.shieldStart, double: k.startDouble, info: null, stolen: [],
       swaps: k.swaps, rewinds: k.rewinds
     };
+  }
+
+  // Hearts carry over, so the save follows every change. Running out means a rest: the next fight starts full
+  function syncHearts() {
+    const b = state.battle;
+    if (!b) return;
+    state.save.hurt = b.hearts > 0 ? Math.max(0, b.maxHearts - b.hearts) : 0;
+    M.persist();
   }
 
   function makePuzzle(spell) {
@@ -418,6 +426,7 @@
       playAttack(shielded, regrew, stole);
       M.say(`Not quite. The answer is ${Pz.answerText(p)}.` + (shielded ? ' Your shield blocked the hit.' : ''));
     }
+    syncHearts();
     b.phase = 'feedback';
     b.busy = true;
     setTimeout(() => { b.busy = false; refreshKit(); }, reduced() ? 0 : 450);
@@ -458,6 +467,7 @@
     if (id === 'jamu') { b.hearts = Math.min(b.maxHearts, b.hearts + 1); sfx.heal(); pop('+1', mage, 'heal'); M.say('Jamu Potion. You got a heart back.'); }
     if (id === 'double') { b.double = true; sfx.power(); pop('×2', mage, ''); M.say('Double Chalk is ready for your next correct spell.'); }
     if (id === 'eraser') { b.puzzle = makePuzzle(b.spell); b.hintUsed = false; b.input = ''; b.choice = null; sfx.erase(); M.say('The board is wiped. Here is a new puzzle.'); }
+    if (id === 'jamu') syncHearts();
     refreshStatus();
     refreshKit();
     if (id === 'eraser' || id === 'double') refreshPanel(id === 'eraser' ? 'panel' : false);
@@ -465,7 +475,7 @@
   function finish(won) {
     const b = state.battle, s = state.save, i = b.realm;
     let unlockedNow = false, firstWin = false, rankUp = null;
-    const drops = [], before = M.cleared(), stars = Math.max(1, 3 - (b.maxHearts - b.hearts));
+    const drops = [], before = M.cleared(), stars = Math.max(1, 3 - Math.max(0, (b.startHearts ?? b.maxHearts) - b.hearts));
     if (won) {
       s.stars[i] = Math.max(s.stars[i], stars);
       s.beaten[i] = (s.beaten[i] || 0) + 1;
@@ -485,6 +495,7 @@
       }
       sfx.win();
     } else sfx.lose();
+    s.hurt = won ? Math.max(0, b.maxHearts - b.hearts) : 0;
     M.persist();
     state.result = { realm: i, won, stars: won ? stars : 0, cast: b.cast, misses: b.misses, hints: b.hints, hpLeft: b.hp, unlockedNow, drops, rankUp, returned: won ? b.stolen.slice() : [] };
     state.battle = null;
@@ -493,7 +504,7 @@
 
   Object.assign(M.actions, {
     fight: () => { newBattle(state.realm); M.go('battle'); },
-    quitBattle: () => { state.battle = null; M.go('map'); },
+    quitBattle: () => { syncHearts(); state.battle = null; M.go('map'); },
     chooseSpell: arg => chooseSpell(Number(arg)),
     key: arg => press(arg),
     choose: arg => choose(Number(arg)),

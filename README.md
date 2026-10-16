@@ -10,6 +10,7 @@ A chalkboard adventure where every spell is a math puzzle. Dress your mage, pick
 - Three spells from your job's spellbook (Fire, Holy, Meteor and more). Harder puzzles hit harder, and every monster has a weak spot.
 - Ranks from Trainee Mage to Grand Mage, with a job to pick after each stage (Flame, Shield, Wisdom, Nature, Time or Star), each with its own skill.
 - Power-ups: Shield Charm, Jamu Potion, Double Chalk and Board Eraser.
+- Hearts carry over from one fight to the next. Jamu Potions give hearts back, and losing a fight refills them for the retry.
 - Chapter 2 monsters with tricks: armoured, thief, regrows and gusty.
 - A monster notebook, and a parent page with practice history and recent mistakes.
 - Girl or boy mage with hairstyles, hijab and peci options.
