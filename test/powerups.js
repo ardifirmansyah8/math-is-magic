@@ -39,7 +39,7 @@ fs.mkdirSync(OUT, { recursive: true });
   const mapInv = await page.textContent('.inv');
   check(/×1.*×1.*×1.*×1/.test(mapInv.replace(/\s+/g, '')), 'map shows starter kit: ' + mapInv.replace(/\s+/g, ' ').trim());
   await page.screenshot({ path: path.join(OUT, 'p1-map.png') });
-  await page.click('.stop >> button:has-text("Fight")'); await page.click('button:has-text("Fight Mossling!")'); await page.waitForTimeout(250);
+  await page.click('.stop >> button:has-text("Fight")'); await page.click('.intro >> button.btn-primary'); await page.waitForTimeout(250);
   check((await page.$$('.item')).length === 4, 'four power-up buttons in battle');
 
   // Jamu with full hearts is refused with a reason
@@ -146,7 +146,7 @@ fs.mkdirSync(OUT, { recursive: true });
   // Desktop look
   const d = await open(1280, 800, false);
   await d.click('text=Start the adventure'); await d.click('text=Ready!'); await d.waitForTimeout(100);
-  await d.click('.stop >> button:has-text("Fight")'); await d.click('button:has-text("Fight Mossling!")'); await d.waitForTimeout(200);
+  await d.click('.stop >> button:has-text("Fight")'); await d.click('.intro >> button.btn-primary'); await d.waitForTimeout(200);
   await use(d, 'shield');
   await d.click('.spell[data-arg="2"]'); await d.waitForTimeout(300);
   await d.click('.item[data-arg="eraser"]'); await d.waitForTimeout(100);

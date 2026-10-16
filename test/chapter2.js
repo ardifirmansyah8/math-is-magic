@@ -46,7 +46,7 @@ fs.mkdirSync(OUT, { recursive: true });
   const fresh = await open(390, 844);
   await fresh.click('text=Start the adventure'); await fresh.click('text=Ready!'); await fresh.waitForTimeout(150);
   check((await fresh.$$('.chapter')).length === 2, 'map shows two chapters');
-  check(/Beat the Shadow Dragon to open this chapter/.test(await fresh.textContent('.chapter-locked')), 'chapter 2 locked for a new player');
+  check(/Beat Nolnaga to open this chapter/.test(await fresh.textContent('.chapter-locked')), 'chapter 2 locked for a new player');
   check(/0\/30/.test(await fresh.textContent('.star-count')), 'star total is out of 30');
   await fresh.evaluate(() => document.querySelectorAll('.chapter')[1].scrollIntoView());
   await fresh.screenshot({ path: path.join(OUT, 'c1-map-locked.png') });
@@ -111,7 +111,7 @@ fs.mkdirSync(OUT, { recursive: true });
   await fight(page, 9);
   await page.screenshot({ path: path.join(OUT, 'c7-boss.png') });
   await winOut(page);
-  check(await page.evaluate(() => window.MIM.state.screen === 'final' && window.MIM.state.save.champion2), 'beating Count Muddle shows the chapter 2 certificate');
+  check(await page.evaluate(() => window.MIM.state.screen === 'final' && window.MIM.state.save.champion2), 'beating Kakacau shows the chapter 2 certificate');
   check(/Grand Mage/.test(await page.textContent('.cert')), 'certificate names the new rank');
   await page.screenshot({ path: path.join(OUT, 'c8-cert2.png') });
 

@@ -22,7 +22,7 @@ const OUT = process.argv[2], PORT = process.argv[3];
   check(/Continue as Mage/.test(await page.textContent('.title-actions')), 'blank name falls back to "Mage"');
   await page.click('text=Change outfit'); await page.fill('#hero-name', 'Rina'); await page.click('text=Done'); await page.waitForTimeout(150);
   check(await page.evaluate(() => window.MIM.state.save.hero.name) === 'Rina', 'typed name is saved');
-  await page.click('.stop >> button:has-text("Fight")'); await page.click('button:has-text("Fight Mossling!")'); await page.waitForTimeout(200);
+  await page.click('.stop >> button:has-text("Fight")'); await page.click('.intro >> button.btn-primary'); await page.waitForTimeout(200);
   for (let i = 0; i < 12 && await page.evaluate(() => window.__mim.state.screen) === 'battle'; i++) {
     const ph = await page.evaluate(() => window.__mim.state.battle.phase);
     if (ph === 'feedback') { await page.click('#next-btn'); await page.waitForTimeout(120); continue; }

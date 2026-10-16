@@ -62,7 +62,7 @@ fs.mkdirSync(OUT, { recursive: true });
   await page.click('.intro >> button.btn-primary'); await page.waitForTimeout(200);
   check(/Ember Apprentice/.test(await page.textContent('#f-mage')), 'job title shows under the mage');
   await spell(page, 0); await answer(page, true);
-  check((await B(page)).last.dmg === 2, 'Blaze: Spark hits for 1 + 1 = 2');
+  { const L = (await B(page)).last; check(L.dmg === 2 + (L.weak ? 1 : 0), `Blaze: smallest spell hits for 1 + 1${L.weak ? ' + 1 weak spot' : ''} = ${L.dmg}`); }
 
   // 2. Shield, tier 3: two shields, wrong answer uses one
   page = await open(seed(5, 'shield'));
@@ -81,7 +81,7 @@ fs.mkdirSync(OUT, { recursive: true });
   const p0 = await page.evaluate(() => document.querySelector('.pz-head .tag').textContent);
   await page.click('[data-act="hint"]'); await page.waitForTimeout(120);
   const p1 = await page.evaluate(() => document.querySelector('.pz-head .tag').textContent);
-  check(p0 === p1 && /2 power/.test(p1), 'hint did not cost power');
+  check(p0 === p1 && /[23] power/.test(p1), 'hint did not cost power: ' + p1.replace(/\s+/g, ' ').trim());
   const before = await page.evaluate(() => window.__mim.state.battle.puzzle.prompt + window.__mim.state.battle.puzzle.html);
   await page.click('[data-act="swap"]'); await page.waitForTimeout(150);
   b = await B(page);

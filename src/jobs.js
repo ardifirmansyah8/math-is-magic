@@ -54,6 +54,19 @@
   };
   const ORDER = ['flame', 'shield', 'wisdom', 'nature', 'time', 'star'];
 
+  // Three spells per job, weakest to strongest: [name, icon, colour token]
+  const SPELLBOOK = {
+    none: [['Fire', 'flare', 'coral'], ['Blizzard', 'snow', 'blue'], ['Thunder', 'bolt', 'yellow']],
+    flame: [['Fire', 'flare', 'coral'], ['Firestorm', 'flare', 'coral'], ['Inferno', 'flare', 'yellow']],
+    shield: [['Light', 'spark', 'chalk'], ['Holy', 'spark', 'yellow'], ['Radiance', 'spark', 'chalk']],
+    wisdom: [['Aero', 'swirl', 'mint'], ['Thunder', 'bolt', 'yellow'], ['Tornado', 'swirl', 'mint']],
+    nature: [['Water', 'drop', 'blue'], ['Quake', 'rock', 'sand'], ['Tsunami', 'drop', 'blue']],
+    time: [['Gravity', 'comet', 'lilac'], ['Comet', 'comet', 'blue'], ['Meteor', 'comet', 'coral']],
+    star: [['Twinkle', 'rate', 'yellow'], ['Stardust', 'rate', 'chalk'], ['Supernova', 'rate', 'pink']],
+    grand: [['Holy', 'spark', 'yellow'], ['Meteor', 'comet', 'coral'], ['Infinity', 'infinity', 'lilac']]
+  };
+  const spells = job => (SPELLBOOK[job] || SPELLBOOK.none).map(([name, icon, color]) => ({ name, icon, color: `var(--${color})` }));
+
   function title(job, cleared) {
     if (!job || !JOBS[job]) return 'Trainee Mage';
     return JOBS[job].titles[tierFor(cleared) - 1];
@@ -76,5 +89,5 @@
     return k;
   }
 
-  root.Jobs = { JOBS, ORDER, tierFor, baseHearts, title, skills };
+  root.Jobs = { JOBS, ORDER, SPELLBOOK, spells, tierFor, baseHearts, title, skills };
 })(typeof window !== 'undefined' ? window : globalThis);

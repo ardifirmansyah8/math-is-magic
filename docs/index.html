@@ -569,6 +569,88 @@ button { font: inherit; color: inherit; }
   .spell:hover { transform: none; }
 }
 
+/* ---------- Monster notebook ---------- */
+.beast-title { font-family: var(--font-hand); color: var(--yellow); font-size: 18px; }
+.weak-chip { display: inline-flex; align-items: center; gap: 6px; padding: 4px 12px; border: 2px dashed var(--yellow); border-radius: 999px; font-weight: 700; font-size: 15px; }
+.weak-chip .ico { width: 20px; height: 20px; }
+.beasts { display: grid; gap: 14px; }
+.beast { display: grid; grid-template-columns: 120px minmax(0, 1fr); gap: 14px; align-items: start; padding: 14px; border: 2.5px solid rgba(243, 239, 228, .45); border-radius: var(--wobble); background: rgba(0, 0, 0, .12); }
+.beast .monster { width: 120px; height: 120px; }
+.beast-info { display: grid; gap: 6px; min-width: 0; }
+.beast-facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 6px 14px; margin: 4px 0 0; }
+.beast-facts div { display: grid; gap: 1px; }
+.beast-facts dt { font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--chalk-dim); font-weight: 700; }
+.beast-facts dd { margin: 0; font-size: 15px; display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+.beast-facts .rate .ico { width: 18px; height: 18px; }
+.beast-tricks { margin: 2px 0 0; padding-left: 18px; font-size: 15px; display: grid; gap: 4px; }
+.beast-tricks b { color: var(--coral); }
+.beast-origin { font-size: 13px; color: var(--chalk-dim); font-style: italic; }
+.beast.is-unknown { border-style: dashed; }
+.monster.silhouette { filter: brightness(0) saturate(0); opacity: .35; }
+.monster.silhouette g { filter: none; }
+@media (max-width: 420px) {
+  .beast { grid-template-columns: 1fr; justify-items: start; }
+  .beast .monster { width: 140px; height: 140px; justify-self: center; }
+}
+.tag-weak { border-color: var(--yellow); color: var(--yellow); }
+.weak-tag { color: var(--yellow); }
+
+/* ---------- Parent page ---------- */
+:root { --viz-right: #4c98d8; --viz-wrong: #d6723e; --viz-grid: rgba(243, 239, 228, .16); }
+.pp .wrap { max-width: 860px; gap: 16px; }
+.pp-tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; }
+.pp-tile { display: grid; gap: 4px; padding: 12px 14px; border: 2px solid rgba(243, 239, 228, .4); border-radius: var(--wobble); background: rgba(0, 0, 0, .12); }
+.pp-label { font-size: 13px; color: var(--chalk-dim); font-weight: 700; }
+.pp-value { font: 700 28px var(--font-body); line-height: 1.1; }
+.pp-section { display: grid; gap: 10px; padding-top: 14px; border-top: 2px dashed rgba(243, 239, 228, .2); }
+.pp-focus { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 10px; }
+.pp-card { display: grid; gap: 8px; align-content: start; padding: 12px 14px; border: 2px solid rgba(243, 239, 228, .35); border-radius: var(--wobble); }
+.pp-h { margin: 0; display: flex; align-items: center; gap: 8px; font-size: 17px; }
+.pp-h .ico { width: 22px; height: 22px; }
+.pp-card ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 8px; }
+.pp-card li { display: grid; gap: 2px; font-size: 16px; }
+.pp-card li span { font-size: 14px; color: var(--chalk-dim); }
+.pp-legend { display: flex; gap: 16px; font-size: 14px; color: var(--chalk-dim); }
+.pp-legend span { display: inline-flex; align-items: center; gap: 6px; }
+.sw { display: inline-block; width: 12px; height: 12px; border-radius: 3px; }
+.sw-right { background: var(--viz-right); }
+.sw-wrong { background: var(--viz-wrong); }
+.pp-chart { position: relative; max-width: 560px; }
+.act-chart { width: 100%; height: auto; display: block; overflow: visible; }
+.viz-right { fill: var(--viz-right); }
+.viz-wrong { fill: var(--viz-wrong); }
+.viz-grid { stroke: var(--viz-grid); stroke-width: 1; }
+.viz-tick { fill: var(--chalk-dim); font: 600 10px var(--font-body); font-variant-numeric: tabular-nums; }
+.act-bar .hit { fill: transparent; }
+.act-bar { cursor: default; outline: none; }
+.act-bar.is-hot .viz-right, .act-bar.is-hot .viz-wrong, .act-bar:focus-visible .viz-right, .act-bar:focus-visible .viz-wrong { filter: brightness(1.18); }
+.act-bar:focus-visible .hit { stroke: var(--yellow); stroke-width: 1.5; stroke-dasharray: 3 3; }
+.pp-tip { position: absolute; z-index: 2; padding: 6px 10px; border-radius: 8px; background: var(--chalk); color: var(--ink); font-size: 13px; font-weight: 700; white-space: nowrap; pointer-events: none; box-shadow: 0 4px 14px rgba(0, 0, 0, .35); }
+.pp-table summary { cursor: pointer; color: var(--chalk-dim); font-size: 14px; }
+.pp-scroll { overflow-x: auto; }
+.pp-table table { border-collapse: collapse; margin-top: 8px; font-size: 14px; font-variant-numeric: tabular-nums; }
+.pp-table th, .pp-table td { padding: 4px 12px 4px 0; text-align: left; border-bottom: 1px solid var(--viz-grid); }
+.pp-topics { margin: 0; padding: 0; list-style: none; display: grid; gap: 12px; }
+.pp-topic { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(90px, 1fr) minmax(0, 1fr); gap: 6px 14px; align-items: center; }
+.pp-topic-name { display: grid; gap: 1px; min-width: 0; }
+.pp-topic-name span, .pp-topic-nums span { font-size: 13px; color: var(--chalk-dim); }
+.pp-topic-nums { display: grid; gap: 1px; }
+.pp-topic-nums b { font-size: 18px; font-variant-numeric: tabular-nums; }
+.pp-meter { height: 10px; border-radius: 999px; background: rgba(76, 152, 216, .22); overflow: hidden; }
+.pp-meter span { display: block; height: 100%; border-radius: 999px; background: var(--viz-right); }
+@media (max-width: 560px) {
+  .pp-topic { grid-template-columns: minmax(0, 1fr) auto; }
+  .pp-topic-name { grid-column: 1 / -1; }
+}
+.pp-mistakes { display: grid; gap: 12px; }
+.pp-mistake { display: grid; gap: 8px; padding: 12px 14px; border: 2px solid rgba(243, 239, 228, .35); border-radius: var(--wobble); background: rgba(0, 0, 0, .1); min-width: 0; }
+.pp-prompt { font-size: 16px; }
+.pp-visual { justify-content: flex-start; transform-origin: left top; }
+.pp-visual .clock, .pp-visual .gridsvg, .pp-visual .shape { max-width: 220px; }
+.pp-answers { display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: 15px; }
+.pp-answers b { color: var(--yellow); }
+.pp-explain { font-size: 15px; line-height: 1.5; padding-top: 8px; border-top: 2px dashed rgba(243, 239, 228, .2); }
+
 .sr-only { position: absolute !important; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
 </style>
 </head>
@@ -1887,6 +1969,8 @@ button { font: inherit; color: inherit; }
     `M${cx} ${cy - s} Q${cx + s * 0.15} ${cy - s * 0.15} ${cx + s} ${cy} Q${cx + s * 0.15} ${cy + s * 0.15} ${cx} ${cy + s} ` +
     `Q${cx - s * 0.15} ${cy + s * 0.15} ${cx - s} ${cy} Q${cx - s * 0.15} ${cy - s * 0.15} ${cx} ${cy - s} Z`;
   Art.starPts = starPts;
+  Art.sparkle = sparkle;
+  Art.INK = INK;
 
   // Hidden sprite sheet: chalk filter + reusable icons
   Art.defs = function () {
@@ -1921,6 +2005,12 @@ button { font: inherit; color: inherit; }
 <symbol id="i-leaf" viewBox="0 0 40 40"><path style="fill:var(--mint);${S}" d="M8 33 Q5 11 32 5 Q36 29 12 35 Z"/><path style="fill:none;stroke:var(--chalk);stroke-width:1.8;stroke-linecap:round" d="M6 37 Q17 24 29 9 M15 25 L13 17 M20 19 L25 21"/></symbol>
 <symbol id="i-hourglass" viewBox="0 0 40 40"><path style="fill:var(--wood-light);${S}" d="M8 3 H32 V8 H8 Z M8 32 H32 V37 H8 Z"/><path style="fill:rgba(243,239,228,.22);${S}" d="M11 8 H29 Q29 16 22 20 Q29 24 29 32 H11 Q11 24 18 20 Q11 16 11 8 Z"/><path style="fill:var(--yellow)" d="M14 11 H26 Q24.5 15.5 20 18 Q15.5 15.5 14 11 Z M13 31 Q13.8 25.5 20 23.5 Q26.2 25.5 27 31 Z"/></symbol>
 <symbol id="i-crown" viewBox="0 0 40 40"><path style="fill:var(--yellow);${S}" d="M5 29 L7 11 L14 19 L20 7 L26 19 L33 11 L35 29 Z"/><rect x="5" y="29" width="30" height="5.5" rx="1.5" style="fill:var(--yellow);${S}"/><circle cx="20" cy="22" r="2.8" style="fill:var(--pink)"/><circle cx="12" cy="24.5" r="2" style="fill:var(--blue)"/><circle cx="28" cy="24.5" r="2" style="fill:var(--mint)"/></symbol>
+<symbol id="i-snow" viewBox="0 0 40 40"><g style="fill:none;stroke:var(--blue);stroke-width:3;stroke-linecap:round"><path d="M20 4 V36 M6.1 12 L33.9 28 M6.1 28 L33.9 12"/><path style="stroke-width:2.4" d="M15 7 L20 11 L25 7 M15 33 L20 29 L25 33"/></g><circle cx="20" cy="20" r="3.2" style="fill:var(--chalk)"/></symbol>
+<symbol id="i-bolt" viewBox="0 0 40 40"><path style="fill:var(--yellow);${S}" d="M23 3 L8 22 H18 L14 37 L32 15 H21 Z"/></symbol>
+<symbol id="i-drop" viewBox="0 0 40 40"><path style="fill:var(--blue);${S}" d="M20 4 Q31 18 31 25 Q31 36 20 36 Q9 36 9 25 Q9 18 20 4 Z"/><path style="fill:none;stroke:var(--chalk);stroke-width:2;stroke-linecap:round;opacity:.8" d="M14 25 Q14 31 19 32"/></symbol>
+<symbol id="i-rock" viewBox="0 0 40 40"><path style="fill:var(--sand);${S}" d="M6 30 L10 16 L20 9 L31 13 L35 27 L28 34 H12 Z"/><path style="fill:none;stroke:var(--ink);stroke-width:1.6;opacity:.4" d="M10 16 L19 21 L31 13 M19 21 L18 33"/></symbol>
+<symbol id="i-swirl" viewBox="0 0 40 40"><g style="fill:none;stroke:var(--mint);stroke-width:3.2;stroke-linecap:round"><path d="M4 14 H25 Q31 14 31 9 Q31 5 27 5 Q24 5 23 8"/><path d="M4 22 H31 Q36 22 36 27 Q36 32 31 32 Q27 32 26 29"/><path d="M8 30 H17"/></g></symbol>
+<symbol id="i-infinity" viewBox="0 0 40 40"><path style="fill:none;stroke:var(--lilac);stroke-width:4.2;stroke-linecap:round" d="M20 20 C14 9 3 10 3 20 C3 30 14 31 20 20 C26 9 37 10 37 20 C37 30 26 31 20 20 Z"/></symbol>
 <symbol id="i-bulb" viewBox="0 0 40 40"><path style="fill:var(--yellow);${S}" d="M20 4 Q31 4 31 15 Q31 21 25 25 L25 29 L15 29 L15 25 Q9 21 9 15 Q9 4 20 4 Z"/><rect x="15" y="31" width="10" height="5" rx="2" style="fill:var(--chalk)"/></symbol>
 </defs></svg>`;
   };
@@ -1993,146 +2083,220 @@ button { font: inherit; color: inherit; }
   };
   const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 
-  /* ---------- Monsters (all face left, towards the mage) ---------- */
-  const eye = (x, y, r, px) => `<circle class="ch" cx="${x}" cy="${y}" r="${r}" style="fill:var(--chalk)"/><circle cx="${x - px}" cy="${y + 1}" r="${r * 0.45}" style="fill:${INK}"/>`;
-  const MONSTERS = {
-    mossling: () =>
-      `<path class="ch" style="fill:var(--mint)" d="M28 160 Q16 98 58 76 Q78 42 112 52 Q148 46 162 84 Q192 112 176 160 Q100 184 28 160 Z"/>` +
-      `<path style="fill:none;stroke:var(--chalk);stroke-width:3;stroke-linecap:round" d="M108 52 Q104 34 112 20"/>` +
-      `<path class="ch" style="fill:var(--yellow)" d="M112 20 Q130 10 136 24 Q124 34 112 20 Z"/>` +
-      `<g style="fill:rgba(20,50,30,.28)"><circle cx="148" cy="130" r="7"/><circle cx="160" cy="112" r="4"/><circle cx="46" cy="150" r="5"/><circle cx="132" cy="70" r="4"/></g>` +
-      eye(72, 106, 14, 5) + eye(114, 106, 14, 5) +
-      `<path style="fill:none;stroke:${INK};stroke-width:4.5;stroke-linecap:round" d="M56 86 L86 94 M130 86 L102 94"/>` +
-      `<path style="fill:none;stroke:${INK};stroke-width:4;stroke-linecap:round" d="M74 140 Q94 128 114 140"/>` +
-      `<path style="fill:none;stroke:var(--chalk);stroke-width:2.5;stroke-linecap:round" d="M46 168 q6 -9 12 0 q6 -9 12 0 M120 172 q6 -9 12 0 q6 -9 12 0"/>`,
-    bat: () =>
-      `<path class="ch" style="fill:var(--lilac)" d="M72 100 Q32 66 6 90 Q22 98 18 116 Q34 108 40 126 Q54 112 72 126 Z"/>` +
-      `<path class="ch" style="fill:var(--lilac)" d="M128 100 Q168 66 194 90 Q178 98 182 116 Q166 108 160 126 Q146 112 128 126 Z"/>` +
-      `<path class="ch" style="fill:var(--lilac)" d="M74 82 L68 46 L94 72 Z M126 82 L132 46 L106 72 Z"/>` +
-      `<ellipse class="ch" style="fill:var(--lilac)" cx="100" cy="112" rx="35" ry="42"/>` +
-      `<path class="ch" style="fill:var(--blue)" d="M100 70 L107 81 L100 92 L93 81 Z"/>` +
-      `<circle class="ch" cx="87" cy="104" r="10" style="fill:var(--yellow)"/><circle cx="83" cy="105" r="4.5" style="fill:${INK}"/>` +
-      `<circle class="ch" cx="113" cy="104" r="10" style="fill:var(--yellow)"/><circle cx="109" cy="105" r="4.5" style="fill:${INK}"/>` +
-      `<path style="fill:none;stroke:${INK};stroke-width:3;stroke-linecap:round" d="M84 126 Q100 133 116 126"/>` +
-      `<path style="fill:var(--chalk)" d="M90 127 L94 138 L98 128 Z M102 128 L106 138 L110 127 Z"/>` +
-      `<path style="fill:none;stroke:var(--chalk);stroke-width:3;stroke-linecap:round" d="M90 152 L86 164 M110 152 L114 164"/>`,
-    golem: () =>
-      `<rect class="ch" x="24" y="84" width="26" height="64" rx="12" style="fill:var(--sand)"/><rect class="ch" x="150" y="84" width="26" height="64" rx="12" style="fill:var(--sand)"/>` +
-      `<rect class="ch" x="64" y="164" width="26" height="26" rx="6" style="fill:var(--sand)"/><rect class="ch" x="110" y="164" width="26" height="26" rx="6" style="fill:var(--sand)"/>` +
-      `<rect class="ch" x="52" y="74" width="96" height="96" rx="14" style="fill:var(--sand)"/>` +
-      `<rect class="ch" x="72" y="26" width="56" height="44" rx="9" style="fill:var(--sand)"/>` +
-      `<path style="fill:none;stroke:var(--chalk);stroke-width:3" d="M100 26 V12"/><circle class="ch" cx="100" cy="10" r="6" style="fill:var(--coral)"/>` +
-      `<rect x="80" y="42" width="13" height="9" rx="2" style="fill:var(--coral)"/><rect x="107" y="42" width="13" height="9" rx="2" style="fill:var(--coral)"/>` +
-      `<path style="fill:none;stroke:${INK};stroke-width:3.5;stroke-linecap:round" d="M86 60 H114"/>` +
-      `<circle class="ch" cx="100" cy="122" r="31" style="fill:var(--chalk)"/>` +
-      `<g style="stroke:${INK};stroke-width:2.5;stroke-linecap:round">${[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11].map(i => { const a = i * Math.PI / 6; return `<line x1="${(100 + Math.sin(a) * 25).toFixed(1)}" y1="${(122 - Math.cos(a) * 25).toFixed(1)}" x2="${(100 + Math.sin(a) * 29).toFixed(1)}" y2="${(122 - Math.cos(a) * 29).toFixed(1)}"/>`; }).join('')}</g>` +
-      `<path class="golem-hands" style="fill:none;stroke:${INK};stroke-width:4;stroke-linecap:round" d="M100 122 L100 100 M100 122 L86 114"/>` +
-      `<circle cx="100" cy="122" r="3.5" style="fill:${INK}"/>`,
-    toad: () =>
-      `<path style="fill:none;stroke:var(--chalk);stroke-width:2.5;stroke-linecap:round;opacity:.8" d="M70 40 q-8 -8 0 -16 q8 -8 0 -16 M128 44 q-8 -8 0 -16 q8 -8 0 -16"/>` +
-      `<ellipse class="ch" cx="56" cy="174" rx="20" ry="9" style="fill:var(--coral)"/><ellipse class="ch" cx="144" cy="174" rx="20" ry="9" style="fill:var(--coral)"/>` +
-      `<ellipse class="ch" cx="100" cy="130" rx="74" ry="47" style="fill:var(--coral)"/>` +
-      `<circle class="ch" cx="64" cy="88" r="21" style="fill:var(--coral)"/><circle class="ch" cx="136" cy="88" r="21" style="fill:var(--coral)"/>` +
-      eye(64, 88, 12, 4) + eye(136, 88, 12, 4) +
-      `<path style="fill:none;stroke:${INK};stroke-width:4;stroke-linecap:round" d="M42 126 Q100 152 158 126"/>` +
-      `<g style="fill:var(--yellow)"><circle cx="122" cy="152" r="7"/><circle cx="80" cy="160" r="5"/><circle cx="152" cy="124" r="5"/><circle cx="48" cy="140" r="4"/></g>`,
-    dragon: () =>
-      `<path class="ch" style="fill:var(--blue);opacity:.9" d="M118 98 Q126 38 180 22 Q172 48 192 58 Q168 66 182 88 Q158 86 162 108 Q140 96 120 108 Z"/>` +
-      `<path class="ch" style="fill:var(--lilac)" d="M166 160 Q196 150 192 116 Q200 120 198 104 Q186 112 186 118 Q186 140 166 146 Z"/>` +
-      `<path class="ch" style="fill:var(--lilac)" d="M70 172 Q50 122 80 98 Q100 82 130 92 Q172 106 174 152 Q174 178 152 184 L84 184 Q72 182 70 172 Z"/>` +
-      `<path class="ch" style="fill:var(--yellow);opacity:.85" d="M88 152 Q100 134 126 142 Q122 172 106 182 Q92 178 88 152 Z"/>` +
-      `<path style="fill:none;stroke:${INK};stroke-width:2;opacity:.5" d="M94 150 Q106 146 120 150 M92 162 Q104 158 118 162 M96 173 Q104 170 112 173"/>` +
-      `<path class="ch" style="fill:var(--chalk)" d="M98 88 L106 74 L114 88 L124 74 L132 90 L142 80 L146 96 Z"/>` +
-      `<path class="ch" style="fill:var(--lilac)" d="M90 112 Q86 74 64 60 Q34 46 18 62 Q8 74 20 84 L44 88 Q58 100 72 118 Z"/>` +
-      `<path class="ch" style="fill:var(--chalk)" d="M62 56 Q66 30 84 20 Q76 38 76 56 Z M48 52 Q46 30 58 16 Q56 34 62 50 Z"/>` +
-      `<circle class="ch" cx="50" cy="66" r="8" style="fill:var(--yellow)"/><ellipse cx="49" cy="66" rx="2.4" ry="6" style="fill:${INK}"/>` +
-      `<circle cx="22" cy="68" r="2.4" style="fill:${INK}"/>` +
-      `<path style="fill:none;stroke:${INK};stroke-width:3;stroke-linecap:round" d="M18 80 Q32 86 48 82"/>` +
-      `<path style="fill:var(--chalk)" d="M26 82 L29 89 L32 83 Z M36 84 L39 90 L42 84 Z"/>` +
-      `<path style="fill:none;stroke:var(--chalk);stroke-width:3;stroke-linecap:round" d="M84 186 l-6 6 M92 186 l-2 7 M146 186 l6 6 M138 186 l2 7"/>`,
-    grumpfish: () => {
-      let spikes = '';
-      for (let i = 0; i < 16; i++) {
-        const a = (i / 16) * Math.PI * 2, p = (r, o) => (100 + Math.cos(a + o) * r).toFixed(1) + ',' + (104 + Math.sin(a + o) * r).toFixed(1);
-        spikes += `<polygon points="${p(56, -0.13)} ${p(74, 0)} ${p(56, 0.13)}"/>`;
-      }
-      return `<path class="ch" style="fill:var(--coral)" d="M154 104 L190 78 Q183 104 190 130 Z"/>` +
-        `<g class="ch" style="fill:var(--chalk)">${spikes}</g>` +
-        `<circle class="ch" cx="100" cy="104" r="60" style="fill:var(--yellow)"/>` +
-        `<path style="fill:var(--chalk);opacity:.5" d="M52 124 Q100 170 148 124 Q100 148 52 124 Z"/>` +
-        `<g style="fill:var(--coral);opacity:.7"><circle cx="124" cy="80" r="6"/><circle cx="142" cy="100" r="4"/><circle cx="120" cy="130" r="5"/></g>` +
-        `<path class="ch" style="fill:var(--coral)" d="M110 110 Q132 96 140 118 Q124 124 110 110 Z"/>` +
-        eye(72, 92, 15, 6) +
-        `<path style="fill:none;stroke:${INK};stroke-width:4.5;stroke-linecap:round" d="M54 72 L86 82"/>` +
-        `<ellipse class="ch" cx="47" cy="120" rx="8" ry="7" style="fill:var(--coral)"/>` +
-        `<g style="fill:none;stroke:var(--blue);stroke-width:2.5"><circle cx="24" cy="94" r="6"/><circle cx="14" cy="72" r="4"/><circle cx="26" cy="54" r="3"/></g>`;
-    },
-    magpie: () =>
-      `<path class="ch" style="fill:#2f3644" d="M126 118 L192 148 L185 162 L118 136 Z"/>` +
-      `<path style="fill:var(--blue);opacity:.6" d="M140 128 L186 150 L183 156 L138 135 Z"/>` +
-      `<path class="ch" style="fill:var(--sand)" d="M150 162 Q140 188 163 191 Q187 190 178 162 Q170 156 164 158 Q156 156 150 162 Z"/>` +
-      `<path style="fill:none;stroke:var(--coral);stroke-width:3;stroke-linecap:round" d="M152 164 Q164 170 176 164"/>` +
-      `<polygon style="fill:var(--yellow)" points="${starPts(164, 176, 7, 3)}"/>` +
-      `<ellipse class="ch" cx="104" cy="112" rx="50" ry="38" style="fill:#2f3644"/>` +
-      `<path class="ch" style="fill:var(--chalk)" d="M64 116 Q70 152 112 148 Q90 136 92 112 Q80 102 64 116 Z"/>` +
-      `<path class="ch" style="fill:#2f3644" d="M100 96 Q142 84 162 112 Q134 128 104 120 Z"/>` +
-      `<path style="fill:var(--chalk)" d="M112 102 Q130 97 141 108 Q126 113 112 102 Z"/>` +
-      `<path style="fill:none;stroke:var(--blue);stroke-width:3;stroke-linecap:round;opacity:.85" d="M118 117 Q138 119 153 112"/>` +
-      `<path style="fill:none;stroke:var(--yellow);stroke-width:3.5;stroke-linecap:round" d="M96 148 L92 178 M112 148 L114 178 M84 178 H100 M106 178 H122"/>` +
-      `<circle class="ch" cx="62" cy="80" r="26" style="fill:#2f3644"/>` +
-      `<path class="ch" style="fill:var(--yellow)" d="M39 74 L13 83 L39 90 Z"/>` +
-      `<polygon class="ch" style="fill:var(--yellow)" points="${starPts(14, 96, 10, 4.2)}"/>` +
-      eye(57, 76, 8, 3) +
-      `<path style="fill:none;stroke:var(--chalk);stroke-width:3;stroke-linecap:round" d="M45 63 L67 69"/>`,
-    komodo: () =>
-      `<path class="ch" style="fill:var(--sand)" d="M140 128 Q182 128 197 102 Q192 142 150 152 Z"/>` +
-      `<path class="ch" style="fill:var(--sand)" d="M126 138 L122 176 L146 176 L148 138 Z"/>` +
-      `<ellipse class="ch" cx="104" cy="126" rx="58" ry="30" style="fill:var(--sand)"/>` +
-      `<path class="ch" style="fill:var(--sand)" d="M64 136 L56 176 L78 176 L84 138 Z"/>` +
-      `<path style="fill:none;stroke:var(--chalk);stroke-width:2.5;stroke-linecap:round" d="M56 176 l-5 5 M64 177 l-2 6 M72 177 l1 6 M122 176 l-5 5 M130 177 l-2 6 M138 177 l1 6"/>` +
-      `<g style="fill:rgba(60,40,20,.25)"><circle cx="112" cy="116" r="5"/><circle cx="130" cy="124" r="4"/><circle cx="98" cy="134" r="4"/><circle cx="144" cy="114" r="3"/></g>` +
-      `<path class="ch" style="fill:var(--chalk-dim)" d="M70 106 Q106 82 150 104 L144 114 Q106 96 76 116 Z"/>` +
-      `<path class="ch" style="fill:var(--sand)" d="M82 132 Q64 104 34 108 Q14 112 16 124 Q20 136 42 136 Q62 136 82 132 Z"/>` +
-      `<path class="ch" style="fill:var(--chalk-dim)" d="M42 108 Q46 82 72 84 Q90 88 86 112 Q64 104 42 108 Z"/>` +
-      `<path class="ch" style="fill:var(--coral)" d="M70 86 Q78 62 96 56 Q88 72 86 90 Z"/>` +
-      `<path style="fill:none;stroke:${INK};stroke-width:2.5;opacity:.6" d="M52 98 H80"/>` +
-      eye(50, 116, 6, 2) +
-      `<path style="fill:none;stroke:${INK};stroke-width:2.5;stroke-linecap:round" d="M18 128 Q34 132 50 130"/>` +
-      `<path style="fill:none;stroke:var(--coral);stroke-width:3;stroke-linecap:round" d="M16 126 L5 124 M5 124 L0 119 M5 124 L0 129"/>`,
-    cloud: () =>
-      `<path style="fill:none;stroke:var(--blue);stroke-width:3;stroke-linecap:round" d="M58 150 l-6 14 M82 156 l-6 14 M128 156 l-6 14 M152 150 l-6 14"/>` +
-      `<path class="ch" style="fill:var(--yellow)" d="M104 138 L90 170 L104 168 L95 196 L125 156 L109 158 L119 138 Z"/>` +
-      `<g class="ch" style="fill:#cdd7e3"><circle cx="64" cy="108" r="30"/><circle cx="100" cy="84" r="40"/><circle cx="140" cy="104" r="32"/><rect x="48" y="104" width="108" height="42" rx="21"/></g>` +
-      `<g style="fill:#cdd7e3"><circle cx="64" cy="108" r="28.4"/><circle cx="100" cy="84" r="38.4"/><circle cx="140" cy="104" r="30.4"/><rect x="49.6" y="105.6" width="104.8" height="38.8" rx="19.4"/></g>` +
-      eye(84, 100, 10, 4) + eye(118, 100, 10, 4) +
-      `<path style="fill:none;stroke:${INK};stroke-width:4;stroke-linecap:round" d="M70 82 L94 90 M132 82 L108 90"/>` +
-      `<path style="fill:none;stroke:${INK};stroke-width:4;stroke-linecap:round" d="M86 129 Q101 119 116 129"/>` +
-      `<path style="fill:none;stroke:var(--chalk);stroke-width:3;stroke-linecap:round" d="M32 94 Q14 95 14 85 Q14 77 22 79 M26 118 Q8 120 5 110"/>`,
-    muddle: () =>
-      `<g style="font:700 24px Andika,'Trebuchet MS',sans-serif;fill:var(--yellow)"><text x="20" y="62" transform="rotate(-14 20 62)">7</text><text x="168" y="72" transform="rotate(12 168 72)">3</text><text x="174" y="134" transform="rotate(-8 174 134)">?</text><text x="10" y="146" transform="rotate(10 10 146)">0</text></g>` +
-      `<path class="ch" style="fill:var(--pink)" d="M60 100 Q40 150 46 186 L154 186 Q160 150 140 100 Z"/>` +
-      `<path style="fill:var(--lilac);opacity:.85" d="M80 108 Q72 150 76 186 L124 186 Q128 150 120 108 Z"/>` +
-      `<g style="fill:var(--yellow)"><circle cx="100" cy="128" r="3"/><circle cx="100" cy="146" r="3"/><circle cx="100" cy="164" r="3"/></g>` +
-      `<path style="fill:none;stroke:var(--wood-light);stroke-width:5;stroke-linecap:round" d="M58 152 L34 96"/>` +
-      `<circle class="ch" cx="31" cy="88" r="11" style="fill:var(--yellow)"/>` +
-      `<text x="31" y="93.5" text-anchor="middle" style="font:700 15px Andika,'Trebuchet MS',sans-serif;fill:${INK}">?</text>` +
-      `<circle class="ch" cx="58" cy="152" r="8" style="fill:var(--blue)"/>` +
-      `<circle class="ch" cx="100" cy="82" r="30" style="fill:var(--blue)"/>` +
-      `<path class="ch" style="fill:var(--coral)" d="M74 66 Q60 28 26 30 Q50 44 62 72 Z"/>` +
-      `<path class="ch" style="fill:var(--mint)" d="M126 66 Q140 28 174 30 Q150 44 138 72 Z"/>` +
-      `<circle class="ch" cx="26" cy="30" r="6" style="fill:var(--yellow)"/><circle class="ch" cx="174" cy="30" r="6" style="fill:var(--yellow)"/>` +
-      `<path class="ch" style="fill:var(--yellow)" d="M68 70 Q100 54 132 70 L130 78 Q100 64 70 78 Z"/>` +
-      eye(88, 86, 7, 3) + eye(112, 86, 7, 3) +
-      `<circle cx="88" cy="86" r="10.5" style="fill:none;stroke:var(--yellow);stroke-width:2.5"/>` +
-      `<path style="fill:none;stroke:var(--yellow);stroke-width:1.5" d="M78 90 Q72 104 76 116"/>` +
-      `<path style="fill:var(--chalk);stroke:${INK};stroke-width:2.5;stroke-linejoin:round" d="M86 100 Q100 114 114 100 Z"/>` +
-      `<path style="fill:none;stroke:${INK};stroke-width:3.5;stroke-linecap:round" d="M100 98 Q90 91 82 97 Q78 101 83 103 M100 98 Q110 91 118 97 Q122 101 117 103"/>`
+})(window);
+
+;
+/* Math Is Magic: monster drawings, part 1 (Chapter 1). Original designs, all facing left. */
+(function (root) {
+  'use strict';
+  const Art = root.Art, INK = Art.INK, starPts = Art.starPts;
+  const M = Art.MONSTER_ART = Art.MONSTER_ART || {};
+  const eye = (x, y, r, px) => `<circle class="ch" cx="${x}" cy="${y}" r="${r}" style="fill:var(--chalk)"/><circle cx="${x - px}" cy="${y + 1}" r="${(r * 0.45).toFixed(1)}" style="fill:${INK}"/>`;
+  const ink = (d, w) => `<path style="fill:none;stroke:${INK};stroke-width:${w || 4};stroke-linecap:round;stroke-linejoin:round" d="${d}"/>`;
+  const chalkLine = (d, w, extra) => `<path style="fill:none;stroke:var(--chalk);stroke-width:${w || 3};stroke-linecap:round;${extra || ''}" d="${d}"/>`;
+
+  // Lumutok, the Mossback Brute: a shell-backed boar beast with a garden growing on it
+  M.lumutok = () =>
+    `<path class="ch" style="fill:var(--sand)" d="M140 140 L138 180 L160 180 L163 140 Z"/>` +
+    `<path class="ch" style="fill:var(--mint)" d="M180 128 Q198 118 196 98 Q184 110 177 124 Z"/>` +
+    `<path class="ch" style="fill:var(--mint)" d="M38 150 Q30 96 80 76 Q124 60 162 88 Q190 108 182 152 Q110 166 38 150 Z"/>` +
+    `<path style="fill:none;stroke:rgba(20,60,35,.45);stroke-width:3;stroke-linecap:round" d="M50 146 q8 8 16 0 q8 8 16 0 q8 8 16 0 q8 8 16 0 q8 8 16 0 q8 8 16 0 q8 8 16 0"/>` +
+    `<g style="fill:rgba(20,60,35,.3)"><circle cx="122" cy="102" r="7"/><circle cx="152" cy="120" r="5"/><circle cx="98" cy="122" r="5"/><circle cx="162" cy="98" r="4"/></g>` +
+    `<path class="ch" style="fill:var(--chalk)" d="M113 70 L112 83 L120 83 L119 70 Z"/><path class="ch" style="fill:var(--coral)" d="M103 73 Q116 54 129 73 Z"/>` +
+    `<path class="ch" style="fill:var(--chalk)" d="M147 82 L146 92 L152 92 L151 82 Z"/><path class="ch" style="fill:var(--coral)" d="M140 84 Q149 70 158 84 Z"/>` +
+    `<g style="fill:var(--chalk)"><circle cx="111" cy="66" r="2.2"/><circle cx="121" cy="64" r="2"/><circle cx="149" cy="78" r="1.8"/></g>` +
+    chalkLine('M88 76 Q86 58 92 46') +
+    `<path class="ch" style="fill:var(--yellow)" d="M92 46 Q106 38 110 50 Q100 58 92 46 Z"/><path class="ch" style="fill:var(--mint)" d="M90 58 Q76 50 72 60 Q82 66 90 58 Z"/>` +
+    `<path class="ch" style="fill:var(--sand)" d="M58 146 L54 182 L78 182 L81 146 Z"/><path class="ch" style="fill:var(--sand)" d="M101 150 L99 182 L121 182 L123 150 Z"/>` +
+    chalkLine('M54 182 l-4 4 M62 183 l-1 5 M70 183 l2 5 M99 182 l-4 4 M107 183 l-1 5 M115 183 l2 5', 2.4) +
+    `<path class="ch" style="fill:var(--sand)" d="M80 108 Q62 92 38 100 Q12 108 14 130 Q16 150 40 152 Q66 154 84 138 Z"/>` +
+    `<path class="ch" style="fill:var(--mint)" d="M42 102 Q48 84 66 88 Q74 78 86 92 Q82 106 70 106 Q58 98 42 102 Z"/>` +
+    `<ellipse class="ch" cx="21" cy="133" rx="12" ry="9.5" style="fill:var(--pink)"/><circle cx="17" cy="132" r="2" style="fill:${INK}"/><circle cx="25" cy="132" r="2" style="fill:${INK}"/>` +
+    `<path class="ch" style="fill:var(--chalk)" d="M31 144 Q24 152 28 160 Q33 152 37 146 Z"/><path class="ch" style="fill:var(--chalk)" d="M45 146 Q41 156 47 161 Q49 153 51 147 Z"/>` +
+    eye(50, 117, 7.5, 3) + ink('M38 105 L60 111', 4.5);
+
+  // Kristawar, the Crystal Glider: a great cave flyer with crystals growing from its wings
+  M.kristawar = () =>
+    `<path class="ch" style="fill:var(--lilac)" d="M80 96 Q40 56 8 70 Q20 84 14 100 Q30 94 34 112 Q48 102 58 118 Q66 106 80 116 Z"/>` +
+    `<path class="ch" style="fill:var(--lilac)" d="M120 96 Q160 56 192 70 Q180 84 186 100 Q170 94 166 112 Q152 102 142 118 Q134 106 120 116 Z"/>` +
+    `<g class="ch" style="fill:var(--blue)"><polygon points="20,74 27,50 34,76"/><polygon points="40,66 49,38 56,68"/><polygon points="180,74 173,50 166,76"/><polygon points="160,66 151,38 144,68"/></g>` +
+    `<path class="ch" style="fill:var(--lilac)" d="M80 84 L70 42 L97 72 Z M120 84 L130 42 L103 72 Z"/>` +
+    `<ellipse class="ch" cx="100" cy="114" rx="33" ry="41" style="fill:var(--lilac)"/>` +
+    `<ellipse cx="100" cy="128" rx="18" ry="22" style="fill:var(--chalk);opacity:.3"/>` +
+    `<g class="ch" style="fill:var(--blue)"><polygon points="91,76 95,54 100,76"/><polygon points="97,74 103,44 109,74"/><polygon points="105,76 110,56 114,77"/></g>` +
+    `<circle class="ch" cx="87" cy="104" r="10.5" style="fill:var(--yellow)"/><circle cx="83" cy="105" r="4.5" style="fill:${INK}"/>` +
+    `<circle class="ch" cx="113" cy="104" r="10.5" style="fill:var(--yellow)"/><circle cx="109" cy="105" r="4.5" style="fill:${INK}"/>` +
+    ink('M75 90 L95 96 M125 90 L105 96', 3.5) +
+    ink('M84 128 Q100 136 116 128', 3) +
+    `<path style="fill:var(--chalk)" d="M90 129 L94 141 L98 131 Z M102 131 L106 141 L110 129 Z"/>` +
+    chalkLine('M88 154 L84 168 l-5 4 M88 168 l3 5 M112 154 L116 168 l5 4 M112 168 l-3 5', 3);
+
+  // Detikron, the Clockwork Colossus: an armoured giant built around a clock
+  M.detikron = () => {
+    let teeth = '';
+    for (let i = 0; i < 10; i++) {
+      const a = i * Math.PI / 5, x = 150 + Math.cos(a) * 30, y = 58 + Math.sin(a) * 30;
+      teeth += `<rect x="${(x - 6).toFixed(1)}" y="${(y - 6).toFixed(1)}" width="12" height="12" rx="2" transform="rotate(${(a * 180 / Math.PI).toFixed(0)} ${x.toFixed(1)} ${y.toFixed(1)})"/>`;
+    }
+    let ticks = '';
+    for (let i = 0; i < 12; i++) {
+      const a = i * Math.PI / 6;
+      ticks += `<line x1="${(100 + Math.sin(a) * 24).toFixed(1)}" y1="${(124 - Math.cos(a) * 24).toFixed(1)}" x2="${(100 + Math.sin(a) * 28).toFixed(1)}" y2="${(124 - Math.cos(a) * 28).toFixed(1)}"/>`;
+    }
+    return `<g class="ch" style="fill:var(--chalk-dim)">${teeth}</g><circle class="ch" cx="150" cy="58" r="28" style="fill:var(--chalk-dim)"/><circle cx="150" cy="58" r="9" style="fill:var(--slate)"/>` +
+      `<path class="ch" style="fill:var(--sand)" d="M62 160 L56 190 L86 190 L88 160 Z"/><path class="ch" style="fill:var(--sand)" d="M112 160 L114 190 L144 190 L138 160 Z"/>` +
+      `<path class="ch" style="fill:var(--sand)" d="M50 88 Q26 94 24 128 L46 132 Q48 110 60 102 Z"/><rect class="ch" x="10" y="126" width="40" height="32" rx="10" style="fill:var(--sand)"/>` +
+      `<path class="ch" style="fill:var(--sand)" d="M150 88 Q174 94 176 128 L154 132 Q152 110 140 102 Z"/><rect class="ch" x="150" y="126" width="40" height="32" rx="10" style="fill:var(--sand)"/>` +
+      `<path class="ch" style="fill:var(--sand)" d="M50 80 Q100 64 150 80 L144 166 Q100 176 56 166 Z"/>` +
+      `<g style="fill:var(--chalk-dim)"><circle cx="62" cy="90" r="3"/><circle cx="138" cy="90" r="3"/><circle cx="64" cy="156" r="3"/><circle cx="136" cy="156" r="3"/></g>` +
+      `<circle class="ch" cx="100" cy="124" r="31" style="fill:var(--chalk)"/>` +
+      `<g style="stroke:${INK};stroke-width:2.5;stroke-linecap:round">${ticks}</g>` +
+      ink('M100 124 L100 102 M100 124 L114 132', 4) + `<circle cx="100" cy="124" r="3.5" style="fill:${INK}"/>` +
+      `<path class="ch" style="fill:var(--chalk-dim)" d="M42 78 Q60 64 80 74 L76 90 Q58 84 44 92 Z"/><path class="ch" style="fill:var(--chalk-dim)" d="M158 78 Q140 64 120 74 L124 90 Q142 84 156 92 Z"/>` +
+      `<path class="ch" style="fill:var(--chalk-dim)" d="M78 36 L68 12 L90 30 Z M122 36 L132 12 L110 30 Z"/>` +
+      `<rect class="ch" x="73" y="28" width="54" height="42" rx="9" style="fill:var(--sand)"/>` +
+      `<rect x="79" y="40" width="42" height="13" rx="4" style="fill:${INK}"/><rect x="83" y="43.5" width="13" height="6" rx="2" style="fill:var(--coral)"/><rect x="104" y="43.5" width="13" height="6" rx="2" style="fill:var(--coral)"/>` +
+      ink('M88 60 H112 M90 64.5 H110', 2.5);
   };
 
+  // Katagma, the Magma Croaker: a volcano toad with lava running through its cracks
+  M.katagma = () =>
+    chalkLine('M64 40 q-8 -8 0 -16 q8 -8 0 -16 M136 44 q-8 -8 0 -16 q8 -8 0 -16', 2.5, 'opacity:.8') +
+    `<ellipse class="ch" cx="54" cy="176" rx="22" ry="9" style="fill:var(--coral)"/><ellipse class="ch" cx="146" cy="176" rx="22" ry="9" style="fill:var(--coral)"/>` +
+    `<ellipse class="ch" cx="100" cy="132" rx="76" ry="48" style="fill:var(--coral)"/>` +
+    `<path style="fill:none;stroke:var(--yellow);stroke-width:3.5;stroke-linecap:round;stroke-linejoin:round" d="M50 122 L62 134 L56 148 M138 112 L150 126 L144 142 M96 158 L106 166 L118 160 M160 140 L168 150"/>` +
+    `<g class="ch" style="fill:var(--chalk-dim)"><circle cx="78" cy="152" r="5"/><circle cx="128" cy="150" r="6"/><circle cx="40" cy="140" r="4"/><circle cx="164" cy="124" r="4"/></g>` +
+    `<circle class="ch" cx="62" cy="88" r="22" style="fill:var(--coral)"/><circle class="ch" cx="138" cy="88" r="22" style="fill:var(--coral)"/>` +
+    `<g class="ch" style="fill:var(--chalk-dim)"><path d="M82 86 L89 64 L96 86 Z"/><path d="M95 84 L102 56 L109 84 Z"/><path d="M108 86 L115 66 L120 87 Z"/></g>` +
+    eye(62, 88, 13, 4) + eye(138, 88, 13, 4) +
+    ink('M46 72 L74 80 M154 72 L126 80', 4) +
+    ink('M40 128 Q100 156 160 128', 4.5) +
+    `<ellipse cx="100" cy="148" rx="24" ry="9" style="fill:var(--yellow);opacity:.75"/>`;
+
+  // Nolnaga, the Zero Devourer: an ancient crowned naga coiled around a stolen zero
+  M.nolnaga = () => {
+    const body = 'M80 66 C130 42, 178 76, 152 110 S68 126, 98 160 S168 184, 190 150';
+    return `<ellipse cx="118" cy="104" rx="66" ry="80" style="fill:none;stroke:var(--chalk);stroke-width:3;stroke-dasharray:6 7;opacity:.5"/>` +
+      `<path d="${body}" style="fill:none;stroke:var(--chalk);stroke-width:37;stroke-linecap:round"/>` +
+      `<path d="${body}" style="fill:none;stroke:var(--lilac);stroke-width:31;stroke-linecap:round"/>` +
+      `<path d="${body}" style="fill:none;stroke:var(--yellow);stroke-width:9;stroke-linecap:round;stroke-dasharray:10 7;opacity:.8"/>` +
+      `<path class="ch" style="fill:var(--yellow)" d="M184 146 L200 126 L194 152 L200 164 Z"/>` +
+      `<path class="ch" style="fill:var(--blue)" d="M128 54 L140 36 L144 58 Z M160 82 L178 76 L168 96 Z M84 128 L66 120 L78 140 Z"/>` +
+      `<path class="ch" style="fill:var(--lilac)" d="M90 62 Q82 36 56 36 Q30 36 18 50 Q10 62 22 70 L44 72 Q62 84 88 78 Z"/>` +
+      `<path class="ch" style="fill:var(--yellow)" d="M48 40 L50 18 L59 32 L67 13 L74 32 L83 19 L84 44 Q66 35 48 40 Z"/>` +
+      `<g style="fill:var(--pink)"><circle cx="59" cy="31" r="2.4"/><circle cx="74" cy="31" r="2.4"/></g>` +
+      chalkLine('M26 66 Q10 76 6 94 M34 70 Q24 88 27 104', 2.4) +
+      `<circle class="ch" cx="58" cy="50" r="7.5" style="fill:var(--yellow)"/><ellipse cx="57" cy="50" rx="2.3" ry="5.6" style="fill:${INK}"/>` +
+      `<circle cx="22" cy="54" r="2.4" style="fill:${INK}"/>` + ink('M20 64 Q34 69 49 66', 3) +
+      `<path style="fill:var(--chalk)" d="M28 66 L31 73 L34 67 Z M38 67 L41 74 L44 67 Z"/>` +
+      `<g style="font:700 24px Kalam,'Comic Sans MS',cursive;fill:var(--chalk)"><text x="2" y="38">0</text><text x="10" y="126">0</text><text x="172" y="36">0</text></g>`;
+  };
+})(window);
+
+;
+/* Math Is Magic: monster drawings, part 2 (Chapter 2) and the drawing function. Original designs, all facing left. */
+(function (root) {
+  'use strict';
+  const Art = root.Art, INK = Art.INK, starPts = Art.starPts;
+  const M = Art.MONSTER_ART = Art.MONSTER_ART || {};
+  const eye = (x, y, r, px) => `<circle class="ch" cx="${x}" cy="${y}" r="${r}" style="fill:var(--chalk)"/><circle cx="${x - px}" cy="${y + 1}" r="${(r * 0.45).toFixed(1)}" style="fill:${INK}"/>`;
+  const ink = (d, w) => `<path style="fill:none;stroke:${INK};stroke-width:${w || 4};stroke-linecap:round;stroke-linejoin:round" d="${d}"/>`;
+  const line = (d, color, w, extra) => `<path style="fill:none;stroke:${color};stroke-width:${w || 3};stroke-linecap:round;stroke-linejoin:round;${extra || ''}" d="${d}"/>`;
+  const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+
+  // Durinautus, the Thornball of the Reef: a spiked puffer with a coral crown
+  M.durinautus = () => {
+    let spikes = '';
+    for (let i = 0; i < 18; i++) {
+      const a = (i / 18) * Math.PI * 2, p = (r, o) => (100 + Math.cos(a + o) * r).toFixed(1) + ',' + (108 + Math.sin(a + o) * r).toFixed(1);
+      if (a > 4.3 && a < 5.1) continue; // leave room for the coral crown
+      spikes += `<polygon points="${p(56, -0.12)} ${p(76, 0)} ${p(56, 0.12)}"/>`;
+    }
+    return `<path class="ch" style="fill:var(--coral)" d="M154 108 L192 82 Q184 108 192 134 Z"/>` +
+      `<g class="ch" style="fill:var(--chalk)">${spikes}</g>` +
+      line('M100 50 L96 22 M97 32 L84 22 M99 38 L112 18 M106 28 L120 28 M96 22 L90 10 M112 18 L118 8', 'var(--pink)', 7) +
+      `<g style="fill:var(--chalk)"><circle cx="90" cy="10" r="2.6"/><circle cx="118" cy="8" r="2.6"/><circle cx="84" cy="22" r="2.2"/><circle cx="120" cy="28" r="2.2"/></g>` +
+      `<circle class="ch" cx="100" cy="108" r="60" style="fill:var(--yellow)"/>` +
+      `<path style="fill:var(--chalk);opacity:.5" d="M52 128 Q100 174 148 128 Q100 152 52 128 Z"/>` +
+      `<g style="fill:var(--coral);opacity:.7"><circle cx="126" cy="84" r="6"/><circle cx="144" cy="104" r="4"/><circle cx="122" cy="134" r="5"/><circle cx="96" cy="76" r="3.5"/></g>` +
+      `<path class="ch" style="fill:var(--coral)" d="M112 114 Q134 100 142 122 Q126 128 112 114 Z"/>` +
+      eye(72, 96, 15, 6) + ink('M52 76 L88 86', 4.5) + line('M78 74 L90 104', 'var(--chalk)', 2.2, 'opacity:.8') +
+      `<ellipse class="ch" cx="46" cy="124" rx="8" ry="7" style="fill:var(--coral)"/>` +
+      line('M24 98 m-6 0 a6 6 0 1 0 12 0 a6 6 0 1 0 -12 0 M14 76 m-4 0 a4 4 0 1 0 8 0 a4 4 0 1 0 -8 0', 'var(--blue)', 2.5);
+  };
+
+  // Gagaklepto, the Shiny Snatcher: a masked thief crow with a sack of loot
+  M.gagaklepto = () =>
+    `<path class="ch" style="fill:#2f3644" d="M126 116 L194 142 L188 158 L118 136 Z"/>` +
+    `<path style="fill:var(--blue);opacity:.6" d="M140 126 L188 146 L185 152 L138 133 Z"/>` +
+    `<path class="ch" style="fill:var(--sand)" d="M148 158 Q136 190 162 193 Q190 192 180 158 Q172 151 164 154 Q156 151 148 158 Z"/>` +
+    line('M150 160 Q164 168 178 160', 'var(--coral)', 3) +
+    `<g class="ch" style="fill:var(--yellow)"><circle cx="152" cy="190" r="5"/><circle cx="174" cy="192" r="4.5"/></g>` +
+    `<polygon style="fill:var(--yellow)" points="${starPts(164, 174, 7, 3)}"/>` +
+    `<ellipse class="ch" cx="104" cy="112" rx="51" ry="39" style="fill:#2f3644"/>` +
+    `<path class="ch" style="fill:#3d4656" d="M100 94 Q144 82 164 112 Q134 128 104 120 Z"/>` +
+    line('M114 106 Q134 104 150 112 M116 115 Q136 117 154 112', 'var(--blue)', 2.6, 'opacity:.8') +
+    `<path style="fill:none;stroke:var(--yellow);stroke-width:2;stroke-dasharray:1 7;stroke-linecap:round" d="M70 120 Q86 142 112 140"/>` +
+    `<g class="ch" style="fill:var(--yellow)"><circle cx="78" cy="132" r="4"/><circle cx="94" cy="140" r="4"/><circle cx="110" cy="141" r="3.5"/></g>` +
+    line('M96 148 L92 178 M112 148 L114 178 M84 178 H100 M106 178 H122', 'var(--yellow)', 3.5) +
+    `<path class="ch" style="fill:#2f3644" d="M58 58 L52 38 L64 52 L68 32 L74 54 L82 42 L80 60 Z"/>` +
+    `<circle class="ch" cx="64" cy="80" r="27" style="fill:#2f3644"/>` +
+    `<path style="fill:${INK}" d="M38 70 Q64 62 90 70 L88 86 Q64 80 40 86 Z"/>` +
+    `<path class="ch" style="fill:var(--yellow)" d="M40 78 L12 86 L40 93 Z"/>` +
+    `<circle class="ch" cx="12" cy="98" r="8" style="fill:var(--yellow)"/>` + `<polygon style="fill:var(--chalk)" points="${starPts(12, 98, 4.5, 2)}"/>` +
+    eye(58, 77, 7.5, 3) + eye(80, 77, 6, 2);
+
+  // Komodrax, the Island Knight: an armoured giant lizard with a round shield
+  M.komodrax = () =>
+    `<path class="ch" style="fill:var(--sand)" d="M140 128 Q184 128 197 100 Q194 140 152 152 Z"/>` +
+    `<path class="ch" style="fill:var(--chalk-dim)" d="M188 108 L199 92 L196 114 Z"/>` +
+    `<path class="ch" style="fill:var(--sand)" d="M126 138 L122 178 L146 178 L148 138 Z"/>` +
+    `<ellipse class="ch" cx="104" cy="126" rx="60" ry="31" style="fill:var(--sand)"/>` +
+    `<g style="fill:rgba(60,40,20,.25)"><circle cx="112" cy="132" r="5"/><circle cx="132" cy="138" r="4"/><circle cx="94" cy="140" r="4"/></g>` +
+    `<g class="ch" style="fill:var(--chalk-dim)"><path d="M66 106 Q78 90 94 96 L92 110 Q80 106 70 114 Z"/><path d="M94 96 Q110 86 126 94 L122 108 Q108 102 92 110 Z"/><path d="M126 94 Q142 92 154 104 L146 114 Q136 106 122 108 Z"/></g>` +
+    `<path class="ch" style="fill:var(--sand)" d="M64 136 L56 178 L78 178 L84 138 Z"/>` +
+    line('M56 178 l-5 5 M64 179 l-2 6 M72 179 l1 6 M122 178 l-5 5 M130 179 l-2 6 M138 179 l1 6', 'var(--chalk)', 2.5) +
+    `<circle class="ch" cx="110" cy="140" r="20" style="fill:var(--blue)"/><polygon style="fill:var(--chalk)" points="${starPts(110, 141, 10, 4.2)}"/>` +
+    `<path class="ch" style="fill:var(--sand)" d="M82 132 Q64 104 34 108 Q14 112 16 124 Q20 136 42 136 Q62 136 82 132 Z"/>` +
+    `<path class="ch" style="fill:var(--chalk-dim)" d="M40 108 Q44 80 72 82 Q92 86 88 112 Q64 102 40 108 Z"/>` +
+    `<path class="ch" style="fill:var(--coral)" d="M68 84 Q74 58 96 50 Q88 68 86 88 Z"/>` +
+    ink('M50 98 H82', 2.5) + eye(50, 117, 6, 2) +
+    ink('M18 128 Q34 132 52 130', 2.5) +
+    line('M16 126 L5 124 M5 124 L0 119 M5 124 L0 129', 'var(--coral)', 3);
+
+  // Gunturawa, the Storm Grumbler: a thundercloud spirit with lightning horns
+  M.gunturawa = () =>
+    line('M54 152 l-6 14 M80 158 l-6 14 M130 158 l-6 14 M156 152 l-6 14', 'var(--blue)', 3) +
+    `<path class="ch" style="fill:var(--yellow)" d="M150 132 L170 150 L160 154 L178 176 L148 156 L158 152 Z"/>` +
+    `<path class="ch" style="fill:var(--yellow)" d="M66 62 L48 26 L62 32 L56 10 L80 46 L68 42 Z"/>` +
+    `<path class="ch" style="fill:var(--yellow)" d="M134 62 L152 26 L138 32 L144 10 L120 46 L132 42 Z"/>` +
+    `<g class="ch" style="fill:#c9d4e2"><circle cx="62" cy="110" r="31"/><circle cx="100" cy="86" r="42"/><circle cx="142" cy="106" r="33"/><rect x="44" y="106" width="114" height="44" rx="22"/></g>` +
+    `<g style="fill:#c9d4e2"><circle cx="62" cy="110" r="29.4"/><circle cx="100" cy="86" r="40.4"/><circle cx="142" cy="106" r="31.4"/><rect x="45.6" y="107.6" width="110.8" height="40.8" rx="20.4"/></g>` +
+    `<g style="fill:#aebdd0;opacity:.7"><circle cx="120" cy="70" r="10"/><circle cx="70" cy="128" r="8"/><circle cx="146" cy="126" r="7"/></g>` +
+    eye(84, 102, 11, 4) + eye(118, 102, 11, 4) +
+    ink('M68 82 L95 91 M134 82 L107 91', 4.5) +
+    `<path style="fill:${INK}" d="M84 126 Q101 116 118 126 Q101 134 84 126 Z"/>` +
+    line('M30 96 Q12 97 12 87 Q12 79 20 81 M24 120 Q6 122 3 112', 'var(--chalk)', 3);
+
+  // Kakacau, the Star Scrambler: a cosmic manta that swims through the night sky
+  M.kakacau = () =>
+    `<g style="font:700 24px Andika,'Trebuchet MS',sans-serif;fill:var(--yellow)"><text x="10" y="40" transform="rotate(-14 10 40)">7</text><text x="176" y="36" transform="rotate(12 176 36)">3</text><text x="182" y="168" transform="rotate(-8 182 168)">?</text><text x="6" y="176" transform="rotate(10 6 176)">5</text></g>` +
+    line('M100 140 Q104 170 128 186', 'var(--lilac)', 6) + `<polygon class="ch" style="fill:var(--yellow)" points="${starPts(130, 186, 9, 4)}"/>` +
+    `<path class="ch" style="fill:var(--lilac)" d="M100 62 Q150 40 198 94 Q162 102 148 130 Q122 122 100 142 Q78 122 52 130 Q38 102 2 94 Q50 40 100 62 Z"/>` +
+    `<path style="fill:var(--blue);opacity:.45" d="M100 74 Q138 60 176 94 Q150 102 140 120 Q120 114 100 128 Q80 114 60 120 Q50 102 24 94 Q62 60 100 74 Z"/>` +
+    `<g style="fill:none;stroke:var(--chalk);stroke-width:1.4;opacity:.75"><path d="M30 92 L48 80 L64 96 L58 110"/><path d="M170 92 L152 80 L136 96 L142 110"/></g>` +
+    `<g style="fill:var(--chalk)"><circle cx="30" cy="92" r="2.4"/><circle cx="48" cy="80" r="2.4"/><circle cx="64" cy="96" r="2.4"/><circle cx="58" cy="110" r="2.4"/><circle cx="170" cy="92" r="2.4"/><circle cx="152" cy="80" r="2.4"/><circle cx="136" cy="96" r="2.4"/><circle cx="142" cy="110" r="2.4"/></g>` +
+    `<path class="ch" style="fill:var(--lilac)" d="M80 66 Q70 46 76 30 Q88 46 90 64 Z M120 66 Q130 46 124 30 Q112 46 110 64 Z"/>` +
+    `<g class="ch" style="fill:var(--yellow)"><polygon points="${starPts(88, 48, 7, 3)}"/><polygon points="${starPts(100, 40, 9, 3.8)}"/><polygon points="${starPts(112, 48, 7, 3)}"/></g>` +
+    `<circle class="ch" cx="86" cy="86" r="9" style="fill:var(--yellow)"/><circle cx="83" cy="87" r="4" style="fill:${INK}"/>` +
+    `<circle class="ch" cx="114" cy="86" r="9" style="fill:var(--yellow)"/><circle cx="111" cy="87" r="4" style="fill:${INK}"/>` +
+    ink('M88 106 Q100 114 114 104', 3);
+
   Art.monster = function (id, cls, label) {
+    const draw = M[id] || M.lumutok;
     return `<svg class="monster m-${id} ${cls || ''}" viewBox="0 0 200 200" role="img" aria-label="${esc(label || id)}">` +
-      `<ellipse cx="100" cy="190" rx="70" ry="8" style="fill:rgba(0,0,0,.28)"/>` +
-      `<g filter="url(#chalk)">${MONSTERS[id]()}</g></svg>`;
+      `<ellipse cx="100" cy="192" rx="70" ry="7" style="fill:rgba(0,0,0,.28)"/>` +
+      `<g filter="url(#chalk)">${draw()}</g></svg>`;
   };
 })(window);
 
@@ -2193,6 +2357,19 @@ button { font: inherit; color: inherit; }
   };
   const ORDER = ['flame', 'shield', 'wisdom', 'nature', 'time', 'star'];
 
+  // Three spells per job, weakest to strongest: [name, icon, colour token]
+  const SPELLBOOK = {
+    none: [['Fire', 'flare', 'coral'], ['Blizzard', 'snow', 'blue'], ['Thunder', 'bolt', 'yellow']],
+    flame: [['Fire', 'flare', 'coral'], ['Firestorm', 'flare', 'coral'], ['Inferno', 'flare', 'yellow']],
+    shield: [['Light', 'spark', 'chalk'], ['Holy', 'spark', 'yellow'], ['Radiance', 'spark', 'chalk']],
+    wisdom: [['Aero', 'swirl', 'mint'], ['Thunder', 'bolt', 'yellow'], ['Tornado', 'swirl', 'mint']],
+    nature: [['Water', 'drop', 'blue'], ['Quake', 'rock', 'sand'], ['Tsunami', 'drop', 'blue']],
+    time: [['Gravity', 'comet', 'lilac'], ['Comet', 'comet', 'blue'], ['Meteor', 'comet', 'coral']],
+    star: [['Twinkle', 'rate', 'yellow'], ['Stardust', 'rate', 'chalk'], ['Supernova', 'rate', 'pink']],
+    grand: [['Holy', 'spark', 'yellow'], ['Meteor', 'comet', 'coral'], ['Infinity', 'infinity', 'lilac']]
+  };
+  const spells = job => (SPELLBOOK[job] || SPELLBOOK.none).map(([name, icon, color]) => ({ name, icon, color: `var(--${color})` }));
+
   function title(job, cleared) {
     if (!job || !JOBS[job]) return 'Trainee Mage';
     return JOBS[job].titles[tierFor(cleared) - 1];
@@ -2215,7 +2392,7 @@ button { font: inherit; color: inherit; }
     return k;
   }
 
-  root.Jobs = { JOBS, ORDER, tierFor, baseHearts, title, skills };
+  root.Jobs = { JOBS, ORDER, SPELLBOOK, spells, tierFor, baseHearts, title, skills };
 })(typeof window !== 'undefined' ? window : globalThis);
 
 ;
@@ -2225,26 +2402,27 @@ button { font: inherit; color: inherit; }
   const Pz = window.Puzzles, Art = window.Art, Jobs = window.Jobs, esc = Pz.esc;
 
   const REALMS = [
-    { name: 'Whispering Woods', monster: 'mossling', foe: 'Mossling', hp: 6, tiers: [1, 2, 3], pool: ['pattern', 'potion', 'odd', 'picture', 'sums', 'counting'], blurb: 'A grumpy blob of moss that messes up every pattern it finds.' },
-    { name: 'Crystal Caves', monster: 'bat', foe: 'Glimmer Bat', hp: 8, tiers: [1, 2, 3], pool: ['magic', 'pattern', 'backwards', 'counting', 'picture', 'sums'], blurb: 'It hangs upside down, so all of its sums come out backwards.' },
-    { name: 'Clocktower', monster: 'golem', foe: 'Tick-Tock Golem', hp: 10, tiers: [2, 3, 4], pool: ['calendar', 'backwards', 'legs', 'potion', 'pattern', 'magic'], blurb: 'A clockwork giant that is always exactly one hour late.' },
-    { name: 'Ember Marsh', monster: 'toad', foe: 'Lava Toad', hp: 12, tiers: [3, 4, 5], pool: ['legs', 'counting', 'magic', 'sums', 'odd', 'potion', 'calendar'], blurb: 'It only croaks in prime numbers. Very loudly.' },
-    { name: 'Moonspire', monster: 'dragon', foe: 'Shadow Dragon', hp: 15, tiers: [3, 4, 5], pool: Pz.CLASSIC_TYPES.slice(), blurb: 'The dragon who stole every zero in the kingdom.' },
-    { name: 'Coral Reef', monster: 'grumpfish', foe: 'Grumpfish', hp: 14, tiers: [3, 4, 5], pool: ['mystery', 'area', 'pattern', 'potion', 'legs', 'sums', 'odd'], blurb: 'Its spikes are so tough that small spells bounce right off.', traits: ['armored'] },
-    { name: 'Rice Terraces', monster: 'magpie', foe: 'Snatch the Magpie', hp: 15, tiers: [3, 4, 5], pool: ['area', 'counting', 'ages', 'magic', 'calendar', 'picture'], blurb: 'A cheeky bird that steals anything shiny, especially power-ups.', traits: ['thief'] },
-    { name: 'Komodo Isle', monster: 'komodo', foe: 'Komodo Knight', hp: 16, tiers: [3, 4, 5], pool: ['ages', 'mystery', 'backwards', 'legs', 'potion', 'magic'], blurb: 'A knight lizard who grows back stronger every time you slip up.', traits: ['regrow'] },
-    { name: 'Thunder Peaks', monster: 'cloud', foe: 'Grumble Cloud', hp: 17, tiers: [3, 4, 5], pool: ['mystery', 'area', 'ages', 'counting', 'sums', 'calendar', 'pattern'], blurb: 'A stormy cloud that huffs and puffs every hint away.', traits: ['gusty'] },
-    { name: 'Starfall Observatory', monster: 'muddle', foe: 'Count Muddle', hp: 20, tiers: [3, 4, 5], pool: Pz.TYPES.slice(), blurb: 'The sorcerer who scrambles the numbers in the sky. He thinks nobody can count better than him.', traits: ['armored', 'regrow'] }
+    { name: 'Whispering Woods', monster: 'lumutok', foe: 'Lumutok', title: 'the Mossback Brute', kind: 'Leaf Beast', weak: 'pattern', origin: 'from "lumut", Indonesian for moss', hp: 6, tiers: [1, 2, 3], pool: ['pattern', 'potion', 'odd', 'picture', 'sums', 'counting'], blurb: 'A grumpy shell-backed beast with a whole garden growing on its back. It tramples every neat pattern it finds.' },
+    { name: 'Crystal Caves', monster: 'kristawar', foe: 'Kristawar', title: 'the Crystal Glider', kind: 'Cave Flyer', weak: 'magic', origin: 'from "kristal" and "kelelawar", Indonesian for crystal and bat', hp: 8, tiers: [1, 2, 3], pool: ['magic', 'pattern', 'backwards', 'counting', 'picture', 'sums'], blurb: 'It glides through the dark on crystal wings, humming magic squares to itself.' },
+    { name: 'Clocktower', monster: 'detikron', foe: 'Detikron', title: 'the Clockwork Colossus', kind: 'Gear Golem', weak: 'calendar', origin: 'from "detik", Indonesian for a second of time', hp: 10, tiers: [2, 3, 4], pool: ['calendar', 'backwards', 'legs', 'potion', 'pattern', 'magic'], blurb: 'A clockwork giant that is always exactly one hour late, and very cross about it.' },
+    { name: 'Ember Marsh', monster: 'katagma', foe: 'Katagma', title: 'the Magma Croaker', kind: 'Lava Toad', weak: 'odd', origin: 'from "katak", Indonesian for frog, and magma', hp: 12, tiers: [3, 4, 5], pool: ['legs', 'counting', 'magic', 'sums', 'odd', 'potion', 'calendar'], blurb: 'A volcano toad that only croaks in prime numbers. Very loudly.' },
+    { name: 'Moonspire', monster: 'nolnaga', foe: 'Nolnaga', title: 'the Zero Devourer', kind: 'Ancient Dragon', weak: 'sums', origin: 'from "nol" and "naga", Indonesian for zero and dragon', hp: 15, tiers: [3, 4, 5], pool: Pz.CLASSIC_TYPES.slice(), blurb: 'An ancient crowned naga that swallowed every zero in the kingdom.' },
+    { name: 'Coral Reef', monster: 'durinautus', foe: 'Durinautus', title: 'the Thornball of the Reef', kind: 'Reef Puffer', weak: 'mystery', origin: 'from "duri", Indonesian for thorn', hp: 14, tiers: [3, 4, 5], pool: ['mystery', 'area', 'pattern', 'potion', 'legs', 'sums', 'odd'], blurb: 'Its coral spikes are so tough that small spells bounce right off.', traits: ['armored'] },
+    { name: 'Rice Terraces', monster: 'gagaklepto', foe: 'Gagaklepto', title: 'the Shiny Snatcher', kind: 'Thief Bird', weak: 'counting', origin: 'from "gagak", Indonesian for crow, and "klepto" for a thief', hp: 15, tiers: [3, 4, 5], pool: ['area', 'counting', 'ages', 'magic', 'calendar', 'picture'], blurb: 'A masked crow that steals anything shiny, especially power-ups.', traits: ['thief'] },
+    { name: 'Komodo Isle', monster: 'komodrax', foe: 'Komodrax', title: 'the Island Knight', kind: 'Armoured Lizard', weak: 'ages', origin: 'from the Komodo dragons of Indonesia', hp: 16, tiers: [3, 4, 5], pool: ['ages', 'mystery', 'backwards', 'legs', 'potion', 'magic'], blurb: 'A giant knight lizard that grows back stronger every time you slip up.', traits: ['regrow'] },
+    { name: 'Thunder Peaks', monster: 'gunturawa', foe: 'Gunturawa', title: 'the Storm Grumbler', kind: 'Storm Spirit', weak: 'area', origin: 'from "guntur" and "awan", Indonesian for thunder and cloud', hp: 17, tiers: [3, 4, 5], pool: ['mystery', 'area', 'ages', 'counting', 'sums', 'calendar', 'pattern'], blurb: 'A thundercloud spirit that huffs and puffs every hint away.', traits: ['gusty'] },
+    { name: 'Starfall Observatory', monster: 'kakacau', foe: 'Kakacau', title: 'the Star Scrambler', kind: 'Cosmic Ancient', weak: 'potion', origin: 'from "kacau", Indonesian for muddled', hp: 20, tiers: [3, 4, 5], pool: Pz.TYPES.slice(), blurb: 'A cosmic manta that swims through the night sky, scrambling every number it passes.', traits: ['armored', 'regrow'] }
   ];
+  const TOPICS = { pattern: 'Number patterns', magic: 'Magic squares', potion: 'Potion algebra', legs: 'Heads and legs', calendar: 'Calendar and clock', backwards: 'Working backwards', sums: 'Clever sums', counting: 'Counting', odd: 'Odd one out', picture: 'Picture patterns', mystery: 'Mystery numbers', area: 'Shapes', ages: 'Age puzzles' };
   const TRAITS = {
-    armored: { name: 'Armoured', icon: 'shield', text: 'Spark spells bounce off. Use Flare or Comet.' },
+    armored: { name: 'Armoured', icon: 'shield', text: 'Your weakest spell bounces off its armour. Use your two stronger spells.' },
     thief: { name: 'Thief', icon: 'rate', text: 'Each wrong answer lets it snatch one of your power-ups. Win the fight to get them all back.' },
     regrow: { name: 'Regrows', icon: 'heart', text: 'Each wrong answer heals it by 1 hit point.' },
     gusty: { name: 'Gusty', icon: 'bulb', text: 'Its wind blows hints away, so there are no hints in this fight.' }
   };
   const CHAPTERS = [
-    { title: 'The Stolen Zeros', first: 0, last: 4, key: 'champion', rank: 'Champion of Numbers', deed: 'defeated the Shadow Dragon and brought every zero back to the Kingdom of Numbers.' },
-    { title: 'The Muddled Sky', first: 5, last: 9, key: 'champion2', rank: 'Grand Mage', deed: 'outsmarted Count Muddle and put every number in the sky back where it belongs.' }
+    { title: 'The Stolen Zeros', first: 0, last: 4, key: 'champion', rank: 'Champion of Numbers', deed: 'defeated Nolnaga, the Zero Devourer, and brought every zero back to the Kingdom of Numbers.' },
+    { title: 'The Muddled Sky', first: 5, last: 9, key: 'champion2', rank: 'Grand Mage', deed: 'outsmarted Kakacau, the Star Scrambler, and put every number in the sky back where it belongs.' }
   ];
   const SPELLS = [
     { name: 'Spark', power: 1, icon: 'spark', color: 'var(--yellow)' },
@@ -2258,7 +2436,7 @@ button { font: inherit; color: inherit; }
   /* ---------- Saving ---------- */
   const SAVE_KEY = 'math-is-magic-v1';
   const STARTER_KIT = () => ({ shield: 1, jamu: 1, double: 1, eraser: 1 });
-  const freshSave = () => ({ hero: Object.assign({}, Art.DEFAULT_HERO), stars: REALMS.map(() => 0), unlocked: 1, sound: true, champion: false, champion2: false, made: false, items: STARTER_KIT(), job: null, jobPending: false });
+  const freshSave = () => ({ hero: Object.assign({}, Art.DEFAULT_HERO), stars: REALMS.map(() => 0), unlocked: 1, sound: true, champion: false, champion2: false, made: false, items: STARTER_KIT(), job: null, jobPending: false, beaten: REALMS.map(() => 0) });
   function loadSave() {
     try {
       const raw = localStorage.getItem(SAVE_KEY);
@@ -2267,7 +2445,8 @@ button { font: inherit; color: inherit; }
         const save = Object.assign(freshSave(), s, {
           hero: Object.assign({}, Art.DEFAULT_HERO, s.hero || {}),
           items: Object.assign({ shield: 0, jamu: 0, double: 0, eraser: 0 }, s.items || STARTER_KIT()),
-          stars: REALMS.map((_, i) => (s.stars && s.stars[i]) || 0)
+          stars: REALMS.map((_, i) => (s.stars && s.stars[i]) || 0),
+          beaten: REALMS.map((_, i) => (s.beaten && s.beaten[i]) || ((s.stars && s.stars[i]) ? 1 : 0))
         });
         // Players who beat the dragon before Chapter 2 existed get it unlocked
         if (save.champion && save.unlocked < CHAPTERS[1].first + 1) save.unlocked = CHAPTERS[1].first + 1;
@@ -2371,7 +2550,7 @@ button { font: inherit; color: inherit; }
       <p class="eyebrow">A chalkboard adventure</p>
       <h1 id="t-title" class="display title-word">Math Is <em>Magic</em></h1>
       <p class="hand">Every spell is a puzzle. Solve it to cast it.</p>
-      <div class="title-art">${Art.mage(s.hero, 'idle')}${Art.monster('dragon', '', 'The Shadow Dragon')}</div>
+      <div class="title-art">${Art.mage(s.hero, 'idle')}${Art.monster('nolnaga', '', 'Nolnaga')}</div>
       <div class="title-actions">${actions}</div>
     </div></section>`;
   };
@@ -2434,13 +2613,13 @@ button { font: inherit; color: inherit; }
       const open = c.first < s.unlocked;
       return `<section class="chapter${open ? '' : ' chapter-locked'}" aria-labelledby="ch-${ci}">
         <div class="chapter-head"><span class="eyebrow">Chapter ${ci + 1}</span><h3 id="ch-${ci}" class="h3">${c.title}</h3>
-        ${open ? '' : `<p class="locked-note">${Art.icon('lock')} Beat the Shadow Dragon to open this chapter</p>`}</div>
+        ${open ? '' : `<p class="locked-note">${Art.icon('lock')} Beat Nolnaga to open this chapter</p>`}</div>
         <ol class="stops">${REALMS.slice(c.first, c.last + 1).map((r, j) => stop(r, c.first + j)).join('')}</ol></section>`;
     }).join('');
     const story = !s.champion
-      ? 'The Shadow Dragon stole every zero in the kingdom! Beat its four helpers, then face the dragon at Moonspire.'
+      ? 'Nolnaga, the Zero Devourer, has swallowed every zero in the kingdom! Beat the four monsters on the way, then face Nolnaga at Moonspire.'
       : !s.champion2
-        ? 'The zeros are back! But Count Muddle is scrambling the numbers in the sky. Beat his four helpers, then stop him at Starfall Observatory.'
+        ? 'The zeros are back! But Kakacau, the Star Scrambler, is mixing up the numbers in the sky. Beat the four monsters on the way, then face Kakacau at Starfall Observatory.'
         : `${esc(heroName())} is a Grand Mage! Play any realm again to collect every star.`;
     const c = cleared(), t = Jobs.tierFor(c), J = s.job ? Jobs.JOBS[s.job] : null, k = Jobs.skills(s.job, c);
     const me = `<div class="me-strip${s.jobPending ? ' is-pending' : ''}">${Art.icon(myIcon())}
@@ -2456,7 +2635,7 @@ button { font: inherit; color: inherit; }
       ${me}
       <div class="inv" role="group" aria-label="Your power-ups"><span class="eyebrow">Power-ups</span>${Object.keys(window.MIM.ITEMS).map(id => `<span title="${window.MIM.ITEMS[id].name}">${Art.icon(window.MIM.ITEMS[id].icon)}<span class="sr-only">${window.MIM.ITEMS[id].name}</span>×${s.items[id] || 0}</span>`).join('')}</div>
       ${chapters}
-      <div class="map-foot row"><button class="btn btn-small" data-act="toWardrobe">Change outfit</button>${soundBtn()}</div>
+      <div class="map-foot row"><button class="btn btn-small" data-act="openNotebook">${Art.icon('book')} Monster notebook</button><button class="btn btn-small" data-act="openParents">Parent page</button><button class="btn btn-small" data-act="toWardrobe">Change outfit</button>${soundBtn()}</div>
     </div></section>`;
   };
 
@@ -2466,7 +2645,9 @@ button { font: inherit; color: inherit; }
       <div class="topbar"><button class="icon-btn" data-act="toMap" aria-label="Back to the map">${Art.icon('back')}</button><span class="eyebrow grow">Realm ${state.realm + 1} · ${r.name}</span></div>
       <div class="intro enter">${Art.monster(r.monster, 'idle', r.foe)}
         <h2 id="i-title" class="h2">${r.foe}</h2>
+        <p class="beast-title">${r.title} · ${r.kind}</p>
         <p class="hand">${r.blurb}</p>
+        <p class="weak-chip">${Art.icon('rate')}Weak spot: ${TOPICS[r.weak]} puzzles hit for +1</p>
         ${r.traits ? `<div class="traits"><p class="eyebrow">Special tricks</p>${r.traits.map(t => `<p class="trait">${Art.icon(TRAITS[t].icon)}<span><b>${TRAITS[t].name}.</b> ${TRAITS[t].text}</span></p>`).join('')}</div>` : ''}
         <ul class="rules">
           ${J ? `<li>${Art.icon(J.icon)}<span>You are ${an(esc(myTitle()))}. <b>${J.skill}:</b> ${J.desc(t)}</span></li>` : ''}
@@ -2542,6 +2723,37 @@ button { font: inherit; color: inherit; }
     if (!bits.length) bits.push('You can pick a new job for the next stage, or keep your current one.');
     return bits.join(' ');
   }
+
+  /* ---------- Monster notebook ---------- */
+  screens.notebook = () => {
+    const s = state.save;
+    const cards = REALMS.map((r, i) => {
+      if (i >= s.unlocked) {
+        return `<article class="beast is-unknown">${Art.monster(r.monster, 'silhouette', 'Unknown monster')}
+          <div class="beast-info"><p class="eyebrow">Stage ${i + 1}</p><h3 class="h3">???</h3><p class="dim">Reach stage ${i + 1} to learn about this monster.</p></div></article>`;
+      }
+      const n = s.beaten[i] || 0;
+      const tricks = (r.traits || []).map(t => `<li><b>${TRAITS[t].name}.</b> ${TRAITS[t].text}</li>`).join('');
+      return `<article class="beast">${Art.monster(r.monster, '', r.foe)}
+        <div class="beast-info">
+          <p class="eyebrow">${r.kind} · Stage ${i + 1}</p>
+          <h3 class="h3">${r.foe}</h3><p class="beast-title">${r.title}</p>
+          <dl class="beast-facts">
+            <div><dt>Habitat</dt><dd>${r.name}</dd></div>
+            <div><dt>Hit points</dt><dd>${r.hp}</dd></div>
+            <div><dt>Weak spot</dt><dd>${TOPICS[r.weak]} puzzles (+1 damage)</dd></div>
+            <div><dt>Beaten</dt><dd>${n ? `${n} time${n === 1 ? '' : 's'}` : 'Not yet'}${n ? ' ' + rateHTML(s.stars[i]) : ''}</dd></div>
+          </dl>
+          ${tricks ? `<ul class="beast-tricks">${tricks}</ul>` : ''}
+          <p class="beast-origin">Name ${r.origin}.</p>
+        </div></article>`;
+    }).join('');
+    return `<section class="screen" aria-labelledby="n-title"><div class="wrap wrap-narrow">
+      <div class="topbar"><button class="icon-btn" data-act="toMap" aria-label="Back to the map">${Art.icon('back')}</button><h2 id="n-title" class="h2 grow">Monster notebook</h2></div>
+      <p class="dim">Every monster has a weak spot. Solve a puzzle of that kind and your spell hits for 1 extra damage.</p>
+      <div class="beasts">${cards}</div>
+    </div></section>`;
+  };
 
   /* ---------- Job Hall ---------- */
   screens.jobs = () => {
@@ -2624,6 +2836,8 @@ button { font: inherit; color: inherit; }
       state.confirmReset = false; persist(); go('map');
     },
     openJobs: () => go('jobs'),
+    openNotebook: () => go('notebook'),
+    openParents: () => go('parents'),
     pickJob: arg => {
       if (!Jobs.JOBS[arg] || cleared() < Jobs.JOBS[arg].unlock) return;
       state.save.job = arg; state.save.jobPending = false; persist();
@@ -2659,7 +2873,7 @@ button { font: inherit; color: inherit; }
     }
   });
 
-  window.MIM = { state, REALMS, SPELLS, MAX_HEARTS, TRAITS, CHAPTERS, cleared, nextStage, an, myTitle, myIcon, sfx, screens, actions, render, go, persist, soundBtn, rateHTML, heroName, say, esc };
+  window.MIM = { state, REALMS, TOPICS, SPELLS, MAX_HEARTS, TRAITS, CHAPTERS, totalStars, cleared, nextStage, an, myTitle, myIcon, sfx, screens, actions, render, go, persist, soundBtn, rateHTML, heroName, say, esc };
 
   /* ---------- Boot (keeps progress when the page is updated while open) ---------- */
   function start(data) {
@@ -2685,6 +2899,219 @@ button { font: inherit; color: inherit; }
     if (hot && typeof hot.ready === 'function') hot.ready(start);
     else start((hot && hot.data) || {});
   };
+})();
+
+;
+/* Math Is Magic: answer tracking and the parent page */
+(function () {
+  'use strict';
+  const M = window.MIM, Pz = window.Puzzles, Art = window.Art, Jobs = window.Jobs;
+  const { state, esc } = M;
+  const MAX_RECENT = 300, MAX_MISTAKES = 30, KEEP_DAYS = 60;
+
+  const SKILLS = {
+    pattern: 'Spotting the rule in a sequence: gaps, doubling, squares.',
+    magic: 'Adding up and step-by-step logic in 3 × 3 grids.',
+    potion: 'Solving equations where pictures stand for numbers.',
+    legs: 'Two facts and two unknowns, an early form of simultaneous equations.',
+    calendar: 'Remainders and cycles of 7 days and 12 hours.',
+    backwards: 'Undoing steps with the opposite operation.',
+    sums: 'Mental maths shortcuts: pairing, Gauss sums, 99 = 100 − 1.',
+    counting: 'Combinations, handshakes, squares in a grid, paths.',
+    odd: 'Number properties: primes, squares, multiples.',
+    picture: 'Visual patterns with turning and repeating cycles.',
+    mystery: 'Divisibility and remainders.',
+    area: 'Area and perimeter, including L and U shapes.',
+    ages: 'Word problems that build towards algebra.'
+  };
+
+  const pad = n => String(n).padStart(2, '0');
+  const dayKey = t => { const d = new Date(t); return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`; };
+  const freshStats = () => ({ byType: {}, days: {}, recent: [], mistakes: [] });
+  const stats = () => state.save.stats || (state.save.stats = freshStats());
+
+  function givenText(p, given) {
+    if (p.input === 'number') return String(given);
+    const c = p.choices.find(x => x.id === given);
+    if (!c) return '';
+    return p.choiceStyle === 'tiles' ? 'the ' + c.aria : c.aria;
+  }
+
+  // Called by the battle for every answer
+  M.track = function (p, ok, given, hint) {
+    const st = stats(), now = Date.now();
+    const T = st.byType[p.type] || (st.byType[p.type] = { n: 0, ok: 0, hints: 0, lvl: [0, 0, 0, 0, 0], okLvl: [0, 0, 0, 0, 0] });
+    T.n++; T.lvl[p.tier - 1]++;
+    if (ok) { T.ok++; T.okLvl[p.tier - 1]++; }
+    if (hint) T.hints++;
+    const k = dayKey(now), D = st.days[k] || (st.days[k] = { n: 0, ok: 0 });
+    D.n++; if (ok) D.ok++;
+    const cutoff = dayKey(now - KEEP_DAYS * 864e5);
+    Object.keys(st.days).forEach(d => { if (d < cutoff) delete st.days[d]; });
+    st.recent.push({ t: now, type: p.type, tier: p.tier, ok: ok ? 1 : 0 });
+    if (st.recent.length > MAX_RECENT) st.recent.splice(0, st.recent.length - MAX_RECENT);
+    if (!ok) {
+      st.mistakes.unshift({ t: now, type: p.type, tier: p.tier, prompt: p.prompt, html: p.html, given: givenText(p, given), answer: Pz.answerText(p), explain: p.explain });
+      if (st.mistakes.length > MAX_MISTAKES) st.mistakes.length = MAX_MISTAKES;
+    }
+    M.persist();
+  };
+
+  function lastDays(n) {
+    const st = stats(), out = [], today = new Date();
+    today.setHours(12, 0, 0, 0);
+    for (let i = n - 1; i >= 0; i--) {
+      const d = new Date(today.getTime() - i * 864e5), k = dayKey(d), v = st.days[k] || { n: 0, ok: 0 };
+      out.push({
+        k, n: v.n, ok: v.ok,
+        short: i === 0 ? 'Today' : d.toLocaleDateString('en-GB', { weekday: 'narrow' }),
+        long: d.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' })
+      });
+    }
+    return out;
+  }
+
+  function when(t) {
+    const d = new Date(t), today = dayKey(Date.now()), yest = dayKey(Date.now() - 864e5), k = dayKey(t);
+    const time = `${pad(d.getHours())}:${pad(d.getMinutes())}`;
+    return k === today ? `Today, ${time}` : k === yest ? `Yesterday, ${time}` : d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }) + `, ${time}`;
+  }
+
+  // Stacked columns: right answers (bottom) and not-yet answers (top), 2px surface gap between
+  function activityChart(days) {
+    const W = 336, H = 150, padL = 26, padB = 22, padT = 10, slot = (W - padL) / days.length, bw = Math.min(16, slot - 6);
+    const max = Math.max(4, ...days.map(d => d.n)), top = Math.ceil(max / 4) * 4, y = v => H - padB - (v / top) * (H - padB - padT);
+    const gap = 2, r = 4;
+    let bars = '', labels = '';
+    days.forEach((d, i) => {
+      const x = padL + i * slot + (slot - bw) / 2, cx = x + bw / 2;
+      const wrong = d.n - d.ok;
+      let g = '';
+      if (d.ok) {
+        const y1 = y(d.ok), h = H - padB - y1;
+        g += wrong ? `<rect x="${x.toFixed(1)}" y="${y1.toFixed(1)}" width="${bw}" height="${h.toFixed(1)}" class="viz-right"/>`
+          : `<path d="${roundTop(x, y1, bw, h, r)}" class="viz-right"/>`;
+      }
+      if (wrong) {
+        const yTop = y(d.n), yBot = d.ok ? y(d.ok) - gap : H - padB, h = yBot - yTop;
+        if (h > 0.5) g += `<path d="${roundTop(x, yTop, bw, h, Math.min(r, h))}" class="viz-wrong"/>`;
+      }
+      const label = `${d.long}: ${d.n} answered, ${d.ok} right`;
+      bars += `<g class="act-bar" tabindex="0" role="img" aria-label="${label}" data-tip="${esc(label)}" data-x="${cx.toFixed(1)}" data-y="${y(d.n).toFixed(1)}">` +
+        `<rect x="${(padL + i * slot).toFixed(1)}" y="${padT}" width="${slot.toFixed(1)}" height="${H - padB - padT}" class="hit"/>${g}</g>`;
+      labels += `<text x="${cx.toFixed(1)}" y="${H - 6}" class="viz-tick" text-anchor="middle">${d.short === 'Today' ? 'T' : d.short}</text>`;
+    });
+    const grid = [0, top / 2, top].map(v => `<line x1="${padL}" x2="${W}" y1="${y(v).toFixed(1)}" y2="${y(v).toFixed(1)}" class="viz-grid"/><text x="${padL - 6}" y="${(y(v) + 4).toFixed(1)}" class="viz-tick" text-anchor="end">${v}</text>`).join('');
+    return `<svg class="act-chart" viewBox="0 0 ${W} ${H}" role="group" aria-label="Puzzles answered each day for the last two weeks">${grid}${bars}${labels}</svg>`;
+  }
+  function roundTop(x, y, w, h, r) {
+    r = Math.max(0, Math.min(r, w / 2, h));
+    return `M${x.toFixed(1)} ${(y + h).toFixed(1)} V${(y + r).toFixed(1)} Q${x.toFixed(1)} ${y.toFixed(1)} ${(x + r).toFixed(1)} ${y.toFixed(1)} H${(x + w - r).toFixed(1)} Q${(x + w).toFixed(1)} ${y.toFixed(1)} ${(x + w).toFixed(1)} ${(y + r).toFixed(1)} V${(y + h).toFixed(1)} Z`;
+  }
+
+  M.screens.parents = () => {
+    const s = state.save, st = stats(), name = esc(M.heroName()), she = s.hero.gender === 'boy' ? 'he' : 'she', her = s.hero.gender === 'boy' ? 'his' : 'her';
+    const types = Object.keys(M.TOPICS);
+    let n = 0, ok = 0, hints = 0;
+    types.forEach(k => { const T = st.byType[k]; if (T) { n += T.n; ok += T.ok; hints += T.hints; } });
+    const days = lastDays(14), active = days.filter(d => d.n).length;
+    const rows = types.filter(k => st.byType[k] && st.byType[k].n).map(k => {
+      const T = st.byType[k], acc = Math.round(100 * T.ok / T.n);
+      let best = 0; T.okLvl.forEach((v, i) => { if (v) best = i + 1; });
+      return { k, label: M.TOPICS[k], n: T.n, ok: T.ok, acc, hints: T.hints, best };
+    }).sort((a, b) => (a.n >= 3) === (b.n >= 3) ? a.acc - b.acc : (a.n >= 3 ? -1 : 1));
+    const enough = rows.filter(r => r.n >= 3);
+    const practise = enough.filter(r => r.acc < 70).slice(0, 2);
+    const strong = enough.filter(r => r.acc >= 80).sort((a, b) => b.acc - a.acc || b.n - a.n).slice(0, 2);
+    const unplayed = types.filter(k => !st.byType[k]).map(k => M.TOPICS[k]);
+
+    const tiles = `<div class="pp-tiles">
+      <div class="pp-tile"><span class="pp-label">Puzzles answered</span><b class="pp-value">${n}</b></div>
+      <div class="pp-tile"><span class="pp-label">Answered correctly</span><b class="pp-value">${n ? Math.round(100 * ok / n) + '%' : '–'}</b></div>
+      <div class="pp-tile"><span class="pp-label">Stages cleared</span><b class="pp-value">${M.cleared()} of ${M.REALMS.length}</b></div>
+      <div class="pp-tile"><span class="pp-label">Days played, last 2 weeks</span><b class="pp-value">${active}</b></div>
+    </div>`;
+
+    const focus = n < 5
+      ? `<p class="dim">Once ${name} has answered a few more puzzles, this shows what ${she} is strong at and what is worth practising.</p>`
+      : `<div class="pp-focus">
+          <div class="pp-card"><h4 class="pp-h">${Art.icon('rate')}Strong at</h4>${strong.length ? `<ul>${strong.map(r => `<li><p><b>${r.label}</b> · ${r.acc}% right</p><span>${SKILLS[r.k]}</span></li>`).join('')}</ul>` : '<p class="dim">No topic above 80% yet.</p>'}</div>
+          <div class="pp-card"><h4 class="pp-h">${Art.icon('bulb')}Worth practising</h4>${practise.length ? `<ul>${practise.map(r => `<li><p><b>${r.label}</b> · ${r.acc}% right</p><span>${SKILLS[r.k]}</span></li>`).join('')}</ul>` : '<p class="dim">Nothing below 70%. Nice!</p>'}</div>
+        </div>`;
+
+    const table = `<details class="pp-table"><summary>Show as a table</summary><div class="pp-scroll"><table><thead><tr><th scope="col">Day</th><th scope="col">Answered</th><th scope="col">Right</th></tr></thead><tbody>${days.map(d => `<tr><td>${d.long}</td><td>${d.n}</td><td>${d.ok}</td></tr>`).join('')}</tbody></table></div></details>`;
+
+    const topicRows = rows.length ? `<ul class="pp-topics">${rows.map(r => `<li class="pp-topic">
+        <div class="pp-topic-name"><b>${r.label}</b><span>${SKILLS[r.k]}</span></div>
+        <div class="pp-meter" role="img" aria-label="${r.acc}% right"><span style="width:${Math.max(2, r.acc)}%"></span></div>
+        <div class="pp-topic-nums"><b>${r.acc}%</b><span>${r.ok} of ${r.n} right · up to level ${r.best || '–'}${r.hints ? ` · ${r.hints} hint${r.hints === 1 ? '' : 's'}` : ''}</span></div>
+      </li>`).join('')}</ul>` : `<p class="dim">No puzzles answered yet.</p>`;
+
+    const shown = state.ppAllMistakes ? st.mistakes : st.mistakes.slice(0, 6);
+    const mistakes = st.mistakes.length ? `<div class="pp-mistakes">${shown.map(m => `<article class="pp-mistake">
+        <p class="eyebrow">${M.TOPICS[m.type] || m.type} · Level ${m.tier} · ${when(m.t)}</p>
+        <p class="pp-prompt">${esc(m.prompt)}</p>
+        ${m.html ? `<div class="visual pp-visual">${m.html}</div>` : ''}
+        <p class="pp-answers"><span>${name} answered <b>${esc(m.given)}</b></span><span>Correct answer <b>${esc(m.answer)}</b></span></p>
+        <p class="pp-explain">${esc(m.explain)}</p>
+      </article>`).join('')}</div>
+      ${st.mistakes.length > 6 ? `<button class="btn btn-small" data-act="ppMore">${state.ppAllMistakes ? 'Show fewer' : `Show all ${st.mistakes.length}`}</button>` : ''}`
+      : `<p class="dim">No mistakes to review yet.</p>`;
+
+    const reset = state.ppConfirm
+      ? `<div class="confirm"><p>Clear all answer history on this device? Stars and progress stay.</p><div class="row"><button class="btn btn-small" data-act="ppReset">Yes, clear it</button><button class="btn btn-small btn-ghost" data-act="ppCancel">Keep it</button></div></div>`
+      : `<button class="btn btn-ghost btn-small" data-act="ppAsk">Clear answer history</button>`;
+
+    return `<section class="screen pp" aria-labelledby="pp-title"><div class="wrap">
+      <div class="topbar"><button class="icon-btn" data-act="toMap" aria-label="Back to the map">${Art.icon('back')}</button>
+        <div class="grow"><p class="eyebrow">For grown-ups</p><h2 id="pp-title" class="h2">Parent page</h2></div></div>
+      <p class="dim">How ${name} is getting on, ${esc(Jobs.title(s.job, M.cleared()))} with ${M.totalStars()} of ${M.REALMS.length * 3} stars. Everything here is saved only on this device.</p>
+      ${tiles}
+      <section class="pp-section" aria-labelledby="pp-focus"><h3 id="pp-focus" class="h3">Strengths and practice</h3>${focus}
+        ${unplayed.length && n ? `<p class="dim">Not tried yet: ${unplayed.join(', ')}. Later stages bring these in.</p>` : ''}</section>
+      <section class="pp-section" aria-labelledby="pp-act"><h3 id="pp-act" class="h3">Puzzles each day</h3>
+        <div class="pp-legend"><span><i class="sw sw-right"></i>Right</span><span><i class="sw sw-wrong"></i>Not yet</span></div>
+        <div class="pp-chart" id="pp-chart">${activityChart(days)}<div class="pp-tip" id="pp-tip" hidden></div></div>
+        ${table}</section>
+      <section class="pp-section" aria-labelledby="pp-topics"><h3 id="pp-topics" class="h3">By topic</h3>
+        <p class="dim">Weakest first. Every topic is a classic maths olympiad skill.</p>${topicRows}</section>
+      <section class="pp-section" aria-labelledby="pp-mis"><h3 id="pp-mis" class="h3">Recent mistakes to talk through</h3>
+        <p class="dim">A good habit: ask ${name} to explain the trick in ${her} own words. Explaining a method is the fastest way to remember it.</p>${mistakes}</section>
+      <div class="row">${reset}</div>
+    </div></section>`;
+  };
+
+  Object.assign(M.actions, {
+    ppMore: () => { state.ppAllMistakes = !state.ppAllMistakes; M.render(); },
+    ppAsk: () => { state.ppConfirm = true; M.render(); },
+    ppCancel: () => { state.ppConfirm = false; M.render(); },
+    ppReset: () => { state.save.stats = freshStats(); state.ppConfirm = false; M.persist(); M.render(); }
+  });
+
+  // Tooltip for the activity chart (hover and keyboard focus)
+  function showTip(bar) {
+    const chart = document.getElementById('pp-chart'), tip = document.getElementById('pp-tip');
+    if (!chart || !tip || !bar) return;
+    const svg = chart.querySelector('svg'), box = svg.getBoundingClientRect(), cb = chart.getBoundingClientRect();
+    const vb = svg.viewBox.baseVal, sx = box.width / vb.width, sy = box.height / vb.height;
+    tip.textContent = bar.getAttribute('data-tip');
+    tip.hidden = false;
+    const x = (box.left - cb.left) + Number(bar.getAttribute('data-x')) * sx, y = (box.top - cb.top) + Number(bar.getAttribute('data-y')) * sy;
+    const w = tip.offsetWidth;
+    tip.style.left = Math.max(0, Math.min(cb.width - w, x - w / 2)) + 'px';
+    tip.style.top = Math.max(0, y - tip.offsetHeight - 8) + 'px';
+    document.querySelectorAll('.act-bar.is-hot').forEach(b => b.classList.remove('is-hot'));
+    bar.classList.add('is-hot');
+  }
+  function hideTip() {
+    const tip = document.getElementById('pp-tip');
+    if (tip) tip.hidden = true;
+    document.querySelectorAll('.act-bar.is-hot').forEach(b => b.classList.remove('is-hot'));
+  }
+  document.addEventListener('pointerover', e => { const b = e.target.closest && e.target.closest('.act-bar'); if (b) showTip(b); });
+  document.addEventListener('pointerout', e => { const b = e.target.closest && e.target.closest('.act-bar'); if (b && !b.contains(e.relatedTarget)) hideTip(); });
+  document.addEventListener('focusin', e => { const b = e.target.closest && e.target.closest('.act-bar'); if (b) showTip(b); });
+  document.addEventListener('focusout', e => { if (e.target.closest && e.target.closest('.act-bar')) hideTip(); });
 })();
 
 ;
@@ -2756,7 +3183,10 @@ button { font: inherit; color: inherit; }
     const b = state.battle;
     return Math.max(1, SPELLS[spell].power + (b.streak >= 2 ? 1 : 0) - (hint && !b.k.freeHints ? 1 : 0)) + b.k.dmg;
   };
-  const power = () => basePower(state.battle.spell, state.battle.hintUsed) * (state.battle.double ? 2 : 1);
+  // Spell names, icons and colours come from the job's spellbook; power comes from the slot
+  const SP = i => Object.assign({}, SPELLS[i], window.Jobs.spells(state.save.job)[i]);
+  const weakBonus = () => (state.battle.puzzle && state.battle.puzzle.type === REALMS[state.battle.realm].weak ? 1 : 0);
+  const power = () => basePower(state.battle.spell, state.battle.hintUsed) * (state.battle.double ? 2 : 1) + weakBonus();
 
   /* ---------- Pieces ---------- */
   function heartsHTML() {
@@ -2811,10 +3241,10 @@ button { font: inherit; color: inherit; }
     const notes = [];
     if (b.double) notes.push('Double Chalk is ready, so your next correct spell hits twice as hard.');
     if (b.streak >= 2) notes.push('Combo! Every spell gets +1 power.');
-    if (has('armored')) notes.push(`${r.foe} is armoured, so Spark spells bounce off.`);
+    if (has('armored')) notes.push(`${r.foe} is armoured, so ${SP(0).name} bounces off.`);
     return `<div class="enter"><h3 class="h3">Choose a spell</h3><p class="dim">Stronger spells hit harder, but their puzzles are tougher.</p>${notes.map(n => `<p class="hand">${n}</p>`).join('')}</div>
-      <div class="spells enter">${SPELLS.map((s, i) => {
-        const bounce = i === 0 && has('armored');
+      <div class="spells enter">${SPELLS.map((_, i) => {
+        const s = SP(i), bounce = i === 0 && has('armored');
         return `<button class="spell" data-act="chooseSpell" data-arg="${i}"${bounce ? ' disabled' : ''}>${Art.icon(s.icon)}<span class="spell-name">${s.name}</span><span class="spell-power">${bounce ? 'Bounces off' : (basePower(i, false) * (b.double ? 2 : 1)) + ' power'}</span><span class="spell-level">Level ${r.tiers[i]}</span></button>`;
       }).join('')}</div>`;
   }
@@ -2836,13 +3266,13 @@ button { font: inherit; color: inherit; }
   }
 
   function puzzleHTML() {
-    const b = state.battle, p = b.puzzle, s = SPELLS[b.spell];
+    const b = state.battle, p = b.puzzle, s = SP(b.spell);
     const pw = power();
-    const loss = pw - basePower(b.spell, true) * (b.double ? 2 : 1);
+    const loss = pw - (basePower(b.spell, true) * (b.double ? 2 : 1) + weakBonus());
     const hintBtn = b.hintUsed ? '' : has('gusty') ? `<p class="hand">The wind blows hints away in this fight.</p>` :
       `<button class="btn btn-ghost btn-small" data-act="hint">${Art.icon('bulb')} Show a hint${loss > 0 ? ` (−${loss} power)` : ''}</button>`;
     return `<div class="puzzle enter">
-      <div class="pz-head"><span class="tag">${Art.icon(s.icon)} ${s.name} · ${pw} power${b.streak >= 2 ? ' · combo' : ''}${b.double ? ' · ×2' : ''}</span><span class="tag">${esc(p.label)} · Level ${p.tier}</span></div>
+      <div class="pz-head"><span class="tag">${Art.icon(s.icon)} ${s.name} · ${pw} power${b.streak >= 2 ? ' · combo' : ''}${b.double ? ' · ×2' : ''}</span><span class="tag">${esc(p.label)} · Level ${p.tier}</span>${weakBonus() ? '<span class="tag tag-weak">Weak spot! +1</span>' : ''}</div>
       <p class="prompt">${esc(p.prompt)}</p>
       <div class="visual">${p.html}</div>
       ${b.hintUsed ? `<div class="hint-note">${Art.icon('bulb')}<p class="hand">${esc(p.hint)}</p></div>` : ''}
@@ -2852,7 +3282,7 @@ button { font: inherit; color: inherit; }
   }
 
   function feedbackHTML() {
-    const b = state.battle, p = b.puzzle, r = REALMS[b.realm], L = b.last, s = SPELLS[b.spell];
+    const b = state.battle, p = b.puzzle, r = REALMS[b.realm], L = b.last, s = SP(b.spell);
     if (L.rewound) {
       return `<div class="feedback rewind enter">
         <h3 class="fb-title">${L.title}</h3>
@@ -2863,6 +3293,7 @@ button { font: inherit; color: inherit; }
     let line;
     if (L.ok) {
       const helpers = [];
+      if (L.weak) helpers.push('its weak spot');
       if (L.doubled) helpers.push('Double Chalk');
       if (L.bonus) helpers.push('your combo');
       line = `${s.name} hits ${r.foe} for ${L.dmg}${helpers.length ? `, thanks to ${helpers.join(' and ')}` : ''}.` + (b.hp === 0 ? ` ${r.foe} is beaten!` : '') +
@@ -2905,7 +3336,7 @@ button { font: inherit; color: inherit; }
         <div class="side">
           <div class="arena" id="arena">
             <div class="${mageClass()}" id="f-mage">${Art.mage(H, 'idle')}<span class="fighter-name">${esc(M.heroName())}</span><span class="job-title">${Art.icon(M.myIcon())}${esc(M.myTitle())}</span><div class="hearts${b.maxHearts > 4 ? ' many' : ''}" id="hearts" role="img" aria-label="${b.hearts} of ${b.maxHearts} hearts">${heartsHTML()}</div><div class="status" id="status">${statusHTML()}</div></div>
-            <div class="fighter" id="f-foe">${Art.monster(r.monster, foeCls, r.foe)}<span class="fighter-name">${r.foe}</span>${tallyHTML()}${r.traits ? `<div class="trait-tags">${r.traits.map(t => `<span class="trait-tag">${M.TRAITS[t].name}</span>`).join('')}</div>` : ''}</div>
+            <div class="fighter" id="f-foe">${Art.monster(r.monster, foeCls, r.foe)}<span class="fighter-name">${r.foe}</span>${tallyHTML()}<div class="trait-tags">${(r.traits || []).map(t => `<span class="trait-tag">${M.TRAITS[t].name}</span>`).join('')}<span class="trait-tag weak-tag">Weak: ${M.TOPICS[r.weak]}</span></div></div>
             <div class="combo" id="combo">${comboText()}</div>
           </div>
           <div class="kit" id="kit">${kitHTML()}</div>
@@ -3002,7 +3433,7 @@ button { font: inherit; color: inherit; }
     const b = state.battle, mage = document.querySelector('#f-mage .mage'), foe = document.querySelector('#f-foe .monster');
     restart(mage, 'is-cast');
     sfx.cast(SPELLS[b.spell].power);
-    bolt(doubled ? 'var(--chalk)' : SPELLS[b.spell].color, 4 + Math.min(dmg, 8) * 2, () => {
+    bolt(doubled ? 'var(--chalk)' : SP(b.spell).color, 4 + Math.min(dmg, 8) * 2, () => {
       sfx.hit();
       if (b.hp === 0 && foe) { foe.classList.remove('idle'); foe.classList.add('is-beaten'); }
       else restart(foe, 'is-hit');
@@ -3053,9 +3484,10 @@ button { font: inherit; color: inherit; }
     const val = p.input === 'number' ? b.input : b.choice;
     if (val === '' || val === null) return;
     const ok = Pz.check(p, p.input === 'number' ? Number(val) : val);
+    if (M.track) M.track(p, ok, val, b.hintUsed);
     b.cast++; b.info = null;
     if (ok) {
-      const doubled = b.double, dmg = power(), bonus = b.streak >= 2;
+      const doubled = b.double, dmg = power(), bonus = b.streak >= 2, weak = weakBonus() > 0;
       b.double = false;
       b.streak++;
       b.hp = Math.max(0, b.hp - dmg);
@@ -3063,11 +3495,11 @@ button { font: inherit; color: inherit; }
       let healed = false, shieldUp = false;
       if (b.k.healEvery && b.streak % b.k.healEvery === 0 && b.hearts < b.maxHearts && b.hp > 0) { b.hearts++; healed = true; }
       if (b.k.shieldOnStreak && b.streak % 3 === 0 && b.shield < 3 && b.hp > 0) { b.shield++; shieldUp = true; }
-      b.last = { ok: true, dmg, bonus, doubled, drop, healed, shieldUp, streak: b.streak, given: val, title: Pz.rnd.pick(PRAISE) };
+      b.last = { ok: true, dmg, bonus, doubled, weak, drop, healed, shieldUp, streak: b.streak, given: val, title: Pz.rnd.pick(PRAISE) };
       sfx.correct();
       if (drop) sfx.loot();
       playHit(dmg, doubled);
-      M.say(`Correct! ${SPELLS[b.spell].name} hits for ${dmg}.` + (drop ? ` You found ${ITEMS[drop].a} ${ITEMS[drop].name}.` : ''));
+      M.say(`Correct! ${SP(b.spell).name} hits for ${dmg}.` + (drop ? ` You found ${ITEMS[drop].a} ${ITEMS[drop].name}.` : ''));
     } else if (b.rewinds > 0) {
       b.rewinds--;
       if (!b.k.rewindKeepsCombo) b.streak = 0;
@@ -3141,6 +3573,7 @@ button { font: inherit; color: inherit; }
     const drops = [], before = M.cleared(), stars = Math.max(1, 3 - (b.maxHearts - b.hearts));
     if (won) {
       s.stars[i] = Math.max(s.stars[i], stars);
+      s.beaten[i] = (s.beaten[i] || 0) + 1;
       if (i + 1 < REALMS.length && s.unlocked < i + 2) { s.unlocked = i + 2; unlockedNow = true; }
       const ci = M.CHAPTERS.findIndex(c => c.last === i);
       if (ci >= 0 && !s[M.CHAPTERS[ci].key]) {

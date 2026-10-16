@@ -4,26 +4,27 @@
   const Pz = window.Puzzles, Art = window.Art, Jobs = window.Jobs, esc = Pz.esc;
 
   const REALMS = [
-    { name: 'Whispering Woods', monster: 'mossling', foe: 'Mossling', hp: 6, tiers: [1, 2, 3], pool: ['pattern', 'potion', 'odd', 'picture', 'sums', 'counting'], blurb: 'A grumpy blob of moss that messes up every pattern it finds.' },
-    { name: 'Crystal Caves', monster: 'bat', foe: 'Glimmer Bat', hp: 8, tiers: [1, 2, 3], pool: ['magic', 'pattern', 'backwards', 'counting', 'picture', 'sums'], blurb: 'It hangs upside down, so all of its sums come out backwards.' },
-    { name: 'Clocktower', monster: 'golem', foe: 'Tick-Tock Golem', hp: 10, tiers: [2, 3, 4], pool: ['calendar', 'backwards', 'legs', 'potion', 'pattern', 'magic'], blurb: 'A clockwork giant that is always exactly one hour late.' },
-    { name: 'Ember Marsh', monster: 'toad', foe: 'Lava Toad', hp: 12, tiers: [3, 4, 5], pool: ['legs', 'counting', 'magic', 'sums', 'odd', 'potion', 'calendar'], blurb: 'It only croaks in prime numbers. Very loudly.' },
-    { name: 'Moonspire', monster: 'dragon', foe: 'Shadow Dragon', hp: 15, tiers: [3, 4, 5], pool: Pz.CLASSIC_TYPES.slice(), blurb: 'The dragon who stole every zero in the kingdom.' },
-    { name: 'Coral Reef', monster: 'grumpfish', foe: 'Grumpfish', hp: 14, tiers: [3, 4, 5], pool: ['mystery', 'area', 'pattern', 'potion', 'legs', 'sums', 'odd'], blurb: 'Its spikes are so tough that small spells bounce right off.', traits: ['armored'] },
-    { name: 'Rice Terraces', monster: 'magpie', foe: 'Snatch the Magpie', hp: 15, tiers: [3, 4, 5], pool: ['area', 'counting', 'ages', 'magic', 'calendar', 'picture'], blurb: 'A cheeky bird that steals anything shiny, especially power-ups.', traits: ['thief'] },
-    { name: 'Komodo Isle', monster: 'komodo', foe: 'Komodo Knight', hp: 16, tiers: [3, 4, 5], pool: ['ages', 'mystery', 'backwards', 'legs', 'potion', 'magic'], blurb: 'A knight lizard who grows back stronger every time you slip up.', traits: ['regrow'] },
-    { name: 'Thunder Peaks', monster: 'cloud', foe: 'Grumble Cloud', hp: 17, tiers: [3, 4, 5], pool: ['mystery', 'area', 'ages', 'counting', 'sums', 'calendar', 'pattern'], blurb: 'A stormy cloud that huffs and puffs every hint away.', traits: ['gusty'] },
-    { name: 'Starfall Observatory', monster: 'muddle', foe: 'Count Muddle', hp: 20, tiers: [3, 4, 5], pool: Pz.TYPES.slice(), blurb: 'The sorcerer who scrambles the numbers in the sky. He thinks nobody can count better than him.', traits: ['armored', 'regrow'] }
+    { name: 'Whispering Woods', monster: 'lumutok', foe: 'Lumutok', title: 'the Mossback Brute', kind: 'Leaf Beast', weak: 'pattern', origin: 'from "lumut", Indonesian for moss', hp: 6, tiers: [1, 2, 3], pool: ['pattern', 'potion', 'odd', 'picture', 'sums', 'counting'], blurb: 'A grumpy shell-backed beast with a whole garden growing on its back. It tramples every neat pattern it finds.' },
+    { name: 'Crystal Caves', monster: 'kristawar', foe: 'Kristawar', title: 'the Crystal Glider', kind: 'Cave Flyer', weak: 'magic', origin: 'from "kristal" and "kelelawar", Indonesian for crystal and bat', hp: 8, tiers: [1, 2, 3], pool: ['magic', 'pattern', 'backwards', 'counting', 'picture', 'sums'], blurb: 'It glides through the dark on crystal wings, humming magic squares to itself.' },
+    { name: 'Clocktower', monster: 'detikron', foe: 'Detikron', title: 'the Clockwork Colossus', kind: 'Gear Golem', weak: 'calendar', origin: 'from "detik", Indonesian for a second of time', hp: 10, tiers: [2, 3, 4], pool: ['calendar', 'backwards', 'legs', 'potion', 'pattern', 'magic'], blurb: 'A clockwork giant that is always exactly one hour late, and very cross about it.' },
+    { name: 'Ember Marsh', monster: 'katagma', foe: 'Katagma', title: 'the Magma Croaker', kind: 'Lava Toad', weak: 'odd', origin: 'from "katak", Indonesian for frog, and magma', hp: 12, tiers: [3, 4, 5], pool: ['legs', 'counting', 'magic', 'sums', 'odd', 'potion', 'calendar'], blurb: 'A volcano toad that only croaks in prime numbers. Very loudly.' },
+    { name: 'Moonspire', monster: 'nolnaga', foe: 'Nolnaga', title: 'the Zero Devourer', kind: 'Ancient Dragon', weak: 'sums', origin: 'from "nol" and "naga", Indonesian for zero and dragon', hp: 15, tiers: [3, 4, 5], pool: Pz.CLASSIC_TYPES.slice(), blurb: 'An ancient crowned naga that swallowed every zero in the kingdom.' },
+    { name: 'Coral Reef', monster: 'durinautus', foe: 'Durinautus', title: 'the Thornball of the Reef', kind: 'Reef Puffer', weak: 'mystery', origin: 'from "duri", Indonesian for thorn', hp: 14, tiers: [3, 4, 5], pool: ['mystery', 'area', 'pattern', 'potion', 'legs', 'sums', 'odd'], blurb: 'Its coral spikes are so tough that small spells bounce right off.', traits: ['armored'] },
+    { name: 'Rice Terraces', monster: 'gagaklepto', foe: 'Gagaklepto', title: 'the Shiny Snatcher', kind: 'Thief Bird', weak: 'counting', origin: 'from "gagak", Indonesian for crow, and "klepto" for a thief', hp: 15, tiers: [3, 4, 5], pool: ['area', 'counting', 'ages', 'magic', 'calendar', 'picture'], blurb: 'A masked crow that steals anything shiny, especially power-ups.', traits: ['thief'] },
+    { name: 'Komodo Isle', monster: 'komodrax', foe: 'Komodrax', title: 'the Island Knight', kind: 'Armoured Lizard', weak: 'ages', origin: 'from the Komodo dragons of Indonesia', hp: 16, tiers: [3, 4, 5], pool: ['ages', 'mystery', 'backwards', 'legs', 'potion', 'magic'], blurb: 'A giant knight lizard that grows back stronger every time you slip up.', traits: ['regrow'] },
+    { name: 'Thunder Peaks', monster: 'gunturawa', foe: 'Gunturawa', title: 'the Storm Grumbler', kind: 'Storm Spirit', weak: 'area', origin: 'from "guntur" and "awan", Indonesian for thunder and cloud', hp: 17, tiers: [3, 4, 5], pool: ['mystery', 'area', 'ages', 'counting', 'sums', 'calendar', 'pattern'], blurb: 'A thundercloud spirit that huffs and puffs every hint away.', traits: ['gusty'] },
+    { name: 'Starfall Observatory', monster: 'kakacau', foe: 'Kakacau', title: 'the Star Scrambler', kind: 'Cosmic Ancient', weak: 'potion', origin: 'from "kacau", Indonesian for muddled', hp: 20, tiers: [3, 4, 5], pool: Pz.TYPES.slice(), blurb: 'A cosmic manta that swims through the night sky, scrambling every number it passes.', traits: ['armored', 'regrow'] }
   ];
+  const TOPICS = { pattern: 'Number patterns', magic: 'Magic squares', potion: 'Potion algebra', legs: 'Heads and legs', calendar: 'Calendar and clock', backwards: 'Working backwards', sums: 'Clever sums', counting: 'Counting', odd: 'Odd one out', picture: 'Picture patterns', mystery: 'Mystery numbers', area: 'Shapes', ages: 'Age puzzles' };
   const TRAITS = {
-    armored: { name: 'Armoured', icon: 'shield', text: 'Spark spells bounce off. Use Flare or Comet.' },
+    armored: { name: 'Armoured', icon: 'shield', text: 'Your weakest spell bounces off its armour. Use your two stronger spells.' },
     thief: { name: 'Thief', icon: 'rate', text: 'Each wrong answer lets it snatch one of your power-ups. Win the fight to get them all back.' },
     regrow: { name: 'Regrows', icon: 'heart', text: 'Each wrong answer heals it by 1 hit point.' },
     gusty: { name: 'Gusty', icon: 'bulb', text: 'Its wind blows hints away, so there are no hints in this fight.' }
   };
   const CHAPTERS = [
-    { title: 'The Stolen Zeros', first: 0, last: 4, key: 'champion', rank: 'Champion of Numbers', deed: 'defeated the Shadow Dragon and brought every zero back to the Kingdom of Numbers.' },
-    { title: 'The Muddled Sky', first: 5, last: 9, key: 'champion2', rank: 'Grand Mage', deed: 'outsmarted Count Muddle and put every number in the sky back where it belongs.' }
+    { title: 'The Stolen Zeros', first: 0, last: 4, key: 'champion', rank: 'Champion of Numbers', deed: 'defeated Nolnaga, the Zero Devourer, and brought every zero back to the Kingdom of Numbers.' },
+    { title: 'The Muddled Sky', first: 5, last: 9, key: 'champion2', rank: 'Grand Mage', deed: 'outsmarted Kakacau, the Star Scrambler, and put every number in the sky back where it belongs.' }
   ];
   const SPELLS = [
     { name: 'Spark', power: 1, icon: 'spark', color: 'var(--yellow)' },
@@ -37,7 +38,7 @@
   /* ---------- Saving ---------- */
   const SAVE_KEY = 'math-is-magic-v1';
   const STARTER_KIT = () => ({ shield: 1, jamu: 1, double: 1, eraser: 1 });
-  const freshSave = () => ({ hero: Object.assign({}, Art.DEFAULT_HERO), stars: REALMS.map(() => 0), unlocked: 1, sound: true, champion: false, champion2: false, made: false, items: STARTER_KIT(), job: null, jobPending: false });
+  const freshSave = () => ({ hero: Object.assign({}, Art.DEFAULT_HERO), stars: REALMS.map(() => 0), unlocked: 1, sound: true, champion: false, champion2: false, made: false, items: STARTER_KIT(), job: null, jobPending: false, beaten: REALMS.map(() => 0) });
   function loadSave() {
     try {
       const raw = localStorage.getItem(SAVE_KEY);
@@ -46,7 +47,8 @@
         const save = Object.assign(freshSave(), s, {
           hero: Object.assign({}, Art.DEFAULT_HERO, s.hero || {}),
           items: Object.assign({ shield: 0, jamu: 0, double: 0, eraser: 0 }, s.items || STARTER_KIT()),
-          stars: REALMS.map((_, i) => (s.stars && s.stars[i]) || 0)
+          stars: REALMS.map((_, i) => (s.stars && s.stars[i]) || 0),
+          beaten: REALMS.map((_, i) => (s.beaten && s.beaten[i]) || ((s.stars && s.stars[i]) ? 1 : 0))
         });
         // Players who beat the dragon before Chapter 2 existed get it unlocked
         if (save.champion && save.unlocked < CHAPTERS[1].first + 1) save.unlocked = CHAPTERS[1].first + 1;
@@ -150,7 +152,7 @@
       <p class="eyebrow">A chalkboard adventure</p>
       <h1 id="t-title" class="display title-word">Math Is <em>Magic</em></h1>
       <p class="hand">Every spell is a puzzle. Solve it to cast it.</p>
-      <div class="title-art">${Art.mage(s.hero, 'idle')}${Art.monster('dragon', '', 'The Shadow Dragon')}</div>
+      <div class="title-art">${Art.mage(s.hero, 'idle')}${Art.monster('nolnaga', '', 'Nolnaga')}</div>
       <div class="title-actions">${actions}</div>
     </div></section>`;
   };
@@ -213,13 +215,13 @@
       const open = c.first < s.unlocked;
       return `<section class="chapter${open ? '' : ' chapter-locked'}" aria-labelledby="ch-${ci}">
         <div class="chapter-head"><span class="eyebrow">Chapter ${ci + 1}</span><h3 id="ch-${ci}" class="h3">${c.title}</h3>
-        ${open ? '' : `<p class="locked-note">${Art.icon('lock')} Beat the Shadow Dragon to open this chapter</p>`}</div>
+        ${open ? '' : `<p class="locked-note">${Art.icon('lock')} Beat Nolnaga to open this chapter</p>`}</div>
         <ol class="stops">${REALMS.slice(c.first, c.last + 1).map((r, j) => stop(r, c.first + j)).join('')}</ol></section>`;
     }).join('');
     const story = !s.champion
-      ? 'The Shadow Dragon stole every zero in the kingdom! Beat its four helpers, then face the dragon at Moonspire.'
+      ? 'Nolnaga, the Zero Devourer, has swallowed every zero in the kingdom! Beat the four monsters on the way, then face Nolnaga at Moonspire.'
       : !s.champion2
-        ? 'The zeros are back! But Count Muddle is scrambling the numbers in the sky. Beat his four helpers, then stop him at Starfall Observatory.'
+        ? 'The zeros are back! But Kakacau, the Star Scrambler, is mixing up the numbers in the sky. Beat the four monsters on the way, then face Kakacau at Starfall Observatory.'
         : `${esc(heroName())} is a Grand Mage! Play any realm again to collect every star.`;
     const c = cleared(), t = Jobs.tierFor(c), J = s.job ? Jobs.JOBS[s.job] : null, k = Jobs.skills(s.job, c);
     const me = `<div class="me-strip${s.jobPending ? ' is-pending' : ''}">${Art.icon(myIcon())}
@@ -235,7 +237,7 @@
       ${me}
       <div class="inv" role="group" aria-label="Your power-ups"><span class="eyebrow">Power-ups</span>${Object.keys(window.MIM.ITEMS).map(id => `<span title="${window.MIM.ITEMS[id].name}">${Art.icon(window.MIM.ITEMS[id].icon)}<span class="sr-only">${window.MIM.ITEMS[id].name}</span>×${s.items[id] || 0}</span>`).join('')}</div>
       ${chapters}
-      <div class="map-foot row"><button class="btn btn-small" data-act="toWardrobe">Change outfit</button>${soundBtn()}</div>
+      <div class="map-foot row"><button class="btn btn-small" data-act="openNotebook">${Art.icon('book')} Monster notebook</button><button class="btn btn-small" data-act="openParents">Parent page</button><button class="btn btn-small" data-act="toWardrobe">Change outfit</button>${soundBtn()}</div>
     </div></section>`;
   };
 
@@ -245,7 +247,9 @@
       <div class="topbar"><button class="icon-btn" data-act="toMap" aria-label="Back to the map">${Art.icon('back')}</button><span class="eyebrow grow">Realm ${state.realm + 1} · ${r.name}</span></div>
       <div class="intro enter">${Art.monster(r.monster, 'idle', r.foe)}
         <h2 id="i-title" class="h2">${r.foe}</h2>
+        <p class="beast-title">${r.title} · ${r.kind}</p>
         <p class="hand">${r.blurb}</p>
+        <p class="weak-chip">${Art.icon('rate')}Weak spot: ${TOPICS[r.weak]} puzzles hit for +1</p>
         ${r.traits ? `<div class="traits"><p class="eyebrow">Special tricks</p>${r.traits.map(t => `<p class="trait">${Art.icon(TRAITS[t].icon)}<span><b>${TRAITS[t].name}.</b> ${TRAITS[t].text}</span></p>`).join('')}</div>` : ''}
         <ul class="rules">
           ${J ? `<li>${Art.icon(J.icon)}<span>You are ${an(esc(myTitle()))}. <b>${J.skill}:</b> ${J.desc(t)}</span></li>` : ''}
@@ -321,6 +325,37 @@
     if (!bits.length) bits.push('You can pick a new job for the next stage, or keep your current one.');
     return bits.join(' ');
   }
+
+  /* ---------- Monster notebook ---------- */
+  screens.notebook = () => {
+    const s = state.save;
+    const cards = REALMS.map((r, i) => {
+      if (i >= s.unlocked) {
+        return `<article class="beast is-unknown">${Art.monster(r.monster, 'silhouette', 'Unknown monster')}
+          <div class="beast-info"><p class="eyebrow">Stage ${i + 1}</p><h3 class="h3">???</h3><p class="dim">Reach stage ${i + 1} to learn about this monster.</p></div></article>`;
+      }
+      const n = s.beaten[i] || 0;
+      const tricks = (r.traits || []).map(t => `<li><b>${TRAITS[t].name}.</b> ${TRAITS[t].text}</li>`).join('');
+      return `<article class="beast">${Art.monster(r.monster, '', r.foe)}
+        <div class="beast-info">
+          <p class="eyebrow">${r.kind} · Stage ${i + 1}</p>
+          <h3 class="h3">${r.foe}</h3><p class="beast-title">${r.title}</p>
+          <dl class="beast-facts">
+            <div><dt>Habitat</dt><dd>${r.name}</dd></div>
+            <div><dt>Hit points</dt><dd>${r.hp}</dd></div>
+            <div><dt>Weak spot</dt><dd>${TOPICS[r.weak]} puzzles (+1 damage)</dd></div>
+            <div><dt>Beaten</dt><dd>${n ? `${n} time${n === 1 ? '' : 's'}` : 'Not yet'}${n ? ' ' + rateHTML(s.stars[i]) : ''}</dd></div>
+          </dl>
+          ${tricks ? `<ul class="beast-tricks">${tricks}</ul>` : ''}
+          <p class="beast-origin">Name ${r.origin}.</p>
+        </div></article>`;
+    }).join('');
+    return `<section class="screen" aria-labelledby="n-title"><div class="wrap wrap-narrow">
+      <div class="topbar"><button class="icon-btn" data-act="toMap" aria-label="Back to the map">${Art.icon('back')}</button><h2 id="n-title" class="h2 grow">Monster notebook</h2></div>
+      <p class="dim">Every monster has a weak spot. Solve a puzzle of that kind and your spell hits for 1 extra damage.</p>
+      <div class="beasts">${cards}</div>
+    </div></section>`;
+  };
 
   /* ---------- Job Hall ---------- */
   screens.jobs = () => {
@@ -403,6 +438,8 @@
       state.confirmReset = false; persist(); go('map');
     },
     openJobs: () => go('jobs'),
+    openNotebook: () => go('notebook'),
+    openParents: () => go('parents'),
     pickJob: arg => {
       if (!Jobs.JOBS[arg] || cleared() < Jobs.JOBS[arg].unlock) return;
       state.save.job = arg; state.save.jobPending = false; persist();
@@ -438,7 +475,7 @@
     }
   });
 
-  window.MIM = { state, REALMS, SPELLS, MAX_HEARTS, TRAITS, CHAPTERS, cleared, nextStage, an, myTitle, myIcon, sfx, screens, actions, render, go, persist, soundBtn, rateHTML, heroName, say, esc };
+  window.MIM = { state, REALMS, TOPICS, SPELLS, MAX_HEARTS, TRAITS, CHAPTERS, totalStars, cleared, nextStage, an, myTitle, myIcon, sfx, screens, actions, render, go, persist, soundBtn, rateHTML, heroName, say, esc };
 
   /* ---------- Boot (keeps progress when the page is updated while open) ---------- */
   function start(data) {

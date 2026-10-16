@@ -66,7 +66,10 @@
     const b = state.battle;
     return Math.max(1, SPELLS[spell].power + (b.streak >= 2 ? 1 : 0) - (hint && !b.k.freeHints ? 1 : 0)) + b.k.dmg;
   };
-  const power = () => basePower(state.battle.spell, state.battle.hintUsed) * (state.battle.double ? 2 : 1);
+  // Spell names, icons and colours come from the job's spellbook; power comes from the slot
+  const SP = i => Object.assign({}, SPELLS[i], window.Jobs.spells(state.save.job)[i]);
+  const weakBonus = () => (state.battle.puzzle && state.battle.puzzle.type === REALMS[state.battle.realm].weak ? 1 : 0);
+  const power = () => basePower(state.battle.spell, state.battle.hintUsed) * (state.battle.double ? 2 : 1) + weakBonus();
 
   /* ---------- Pieces ---------- */
   function heartsHTML() {
@@ -121,10 +124,10 @@
     const notes = [];
     if (b.double) notes.push('Double Chalk is ready, so your next correct spell hits twice as hard.');
     if (b.streak >= 2) notes.push('Combo! Every spell gets +1 power.');
-    if (has('armored')) notes.push(`${r.foe} is armoured, so Spark spells bounce off.`);
+    if (has('armored')) notes.push(`${r.foe} is armoured, so ${SP(0).name} bounces off.`);
     return `<div class="enter"><h3 class="h3">Choose a spell</h3><p class="dim">Stronger spells hit harder, but their puzzles are tougher.</p>${notes.map(n => `<p class="hand">${n}</p>`).join('')}</div>
-      <div class="spells enter">${SPELLS.map((s, i) => {
-        const bounce = i === 0 && has('armored');
+      <div class="spells enter">${SPELLS.map((_, i) => {
+        const s = SP(i), bounce = i === 0 && has('armored');
         return `<button class="spell" data-act="chooseSpell" data-arg="${i}"${bounce ? ' disabled' : ''}>${Art.icon(s.icon)}<span class="spell-name">${s.name}</span><span class="spell-power">${bounce ? 'Bounces off' : (basePower(i, false) * (b.double ? 2 : 1)) + ' power'}</span><span class="spell-level">Level ${r.tiers[i]}</span></button>`;
       }).join('')}</div>`;
   }
@@ -146,13 +149,13 @@
   }
 
   function puzzleHTML() {
-    const b = state.battle, p = b.puzzle, s = SPELLS[b.spell];
+    const b = state.battle, p = b.puzzle, s = SP(b.spell);
     const pw = power();
-    const loss = pw - basePower(b.spell, true) * (b.double ? 2 : 1);
+    const loss = pw - (basePower(b.spell, true) * (b.double ? 2 : 1) + weakBonus());
     const hintBtn = b.hintUsed ? '' : has('gusty') ? `<p class="hand">The wind blows hints away in this fight.</p>` :
       `<button class="btn btn-ghost btn-small" data-act="hint">${Art.icon('bulb')} Show a hint${loss > 0 ? ` (−${loss} power)` : ''}</button>`;
     return `<div class="puzzle enter">
-      <div class="pz-head"><span class="tag">${Art.icon(s.icon)} ${s.name} · ${pw} power${b.streak >= 2 ? ' · combo' : ''}${b.double ? ' · ×2' : ''}</span><span class="tag">${esc(p.label)} · Level ${p.tier}</span></div>
+      <div class="pz-head"><span class="tag">${Art.icon(s.icon)} ${s.name} · ${pw} power${b.streak >= 2 ? ' · combo' : ''}${b.double ? ' · ×2' : ''}</span><span class="tag">${esc(p.label)} · Level ${p.tier}</span>${weakBonus() ? '<span class="tag tag-weak">Weak spot! +1</span>' : ''}</div>
       <p class="prompt">${esc(p.prompt)}</p>
       <div class="visual">${p.html}</div>
       ${b.hintUsed ? `<div class="hint-note">${Art.icon('bulb')}<p class="hand">${esc(p.hint)}</p></div>` : ''}
@@ -162,7 +165,7 @@
   }
 
   function feedbackHTML() {
-    const b = state.battle, p = b.puzzle, r = REALMS[b.realm], L = b.last, s = SPELLS[b.spell];
+    const b = state.battle, p = b.puzzle, r = REALMS[b.realm], L = b.last, s = SP(b.spell);
     if (L.rewound) {
       return `<div class="feedback rewind enter">
         <h3 class="fb-title">${L.title}</h3>
@@ -173,6 +176,7 @@
     let line;
     if (L.ok) {
       const helpers = [];
+      if (L.weak) helpers.push('its weak spot');
       if (L.doubled) helpers.push('Double Chalk');
       if (L.bonus) helpers.push('your combo');
       line = `${s.name} hits ${r.foe} for ${L.dmg}${helpers.length ? `, thanks to ${helpers.join(' and ')}` : ''}.` + (b.hp === 0 ? ` ${r.foe} is beaten!` : '') +
@@ -215,7 +219,7 @@
         <div class="side">
           <div class="arena" id="arena">
             <div class="${mageClass()}" id="f-mage">${Art.mage(H, 'idle')}<span class="fighter-name">${esc(M.heroName())}</span><span class="job-title">${Art.icon(M.myIcon())}${esc(M.myTitle())}</span><div class="hearts${b.maxHearts > 4 ? ' many' : ''}" id="hearts" role="img" aria-label="${b.hearts} of ${b.maxHearts} hearts">${heartsHTML()}</div><div class="status" id="status">${statusHTML()}</div></div>
-            <div class="fighter" id="f-foe">${Art.monster(r.monster, foeCls, r.foe)}<span class="fighter-name">${r.foe}</span>${tallyHTML()}${r.traits ? `<div class="trait-tags">${r.traits.map(t => `<span class="trait-tag">${M.TRAITS[t].name}</span>`).join('')}</div>` : ''}</div>
+            <div class="fighter" id="f-foe">${Art.monster(r.monster, foeCls, r.foe)}<span class="fighter-name">${r.foe}</span>${tallyHTML()}<div class="trait-tags">${(r.traits || []).map(t => `<span class="trait-tag">${M.TRAITS[t].name}</span>`).join('')}<span class="trait-tag weak-tag">Weak: ${M.TOPICS[r.weak]}</span></div></div>
             <div class="combo" id="combo">${comboText()}</div>
           </div>
           <div class="kit" id="kit">${kitHTML()}</div>
@@ -312,7 +316,7 @@
     const b = state.battle, mage = document.querySelector('#f-mage .mage'), foe = document.querySelector('#f-foe .monster');
     restart(mage, 'is-cast');
     sfx.cast(SPELLS[b.spell].power);
-    bolt(doubled ? 'var(--chalk)' : SPELLS[b.spell].color, 4 + Math.min(dmg, 8) * 2, () => {
+    bolt(doubled ? 'var(--chalk)' : SP(b.spell).color, 4 + Math.min(dmg, 8) * 2, () => {
       sfx.hit();
       if (b.hp === 0 && foe) { foe.classList.remove('idle'); foe.classList.add('is-beaten'); }
       else restart(foe, 'is-hit');
@@ -363,9 +367,10 @@
     const val = p.input === 'number' ? b.input : b.choice;
     if (val === '' || val === null) return;
     const ok = Pz.check(p, p.input === 'number' ? Number(val) : val);
+    if (M.track) M.track(p, ok, val, b.hintUsed);
     b.cast++; b.info = null;
     if (ok) {
-      const doubled = b.double, dmg = power(), bonus = b.streak >= 2;
+      const doubled = b.double, dmg = power(), bonus = b.streak >= 2, weak = weakBonus() > 0;
       b.double = false;
       b.streak++;
       b.hp = Math.max(0, b.hp - dmg);
@@ -373,11 +378,11 @@
       let healed = false, shieldUp = false;
       if (b.k.healEvery && b.streak % b.k.healEvery === 0 && b.hearts < b.maxHearts && b.hp > 0) { b.hearts++; healed = true; }
       if (b.k.shieldOnStreak && b.streak % 3 === 0 && b.shield < 3 && b.hp > 0) { b.shield++; shieldUp = true; }
-      b.last = { ok: true, dmg, bonus, doubled, drop, healed, shieldUp, streak: b.streak, given: val, title: Pz.rnd.pick(PRAISE) };
+      b.last = { ok: true, dmg, bonus, doubled, weak, drop, healed, shieldUp, streak: b.streak, given: val, title: Pz.rnd.pick(PRAISE) };
       sfx.correct();
       if (drop) sfx.loot();
       playHit(dmg, doubled);
-      M.say(`Correct! ${SPELLS[b.spell].name} hits for ${dmg}.` + (drop ? ` You found ${ITEMS[drop].a} ${ITEMS[drop].name}.` : ''));
+      M.say(`Correct! ${SP(b.spell).name} hits for ${dmg}.` + (drop ? ` You found ${ITEMS[drop].a} ${ITEMS[drop].name}.` : ''));
     } else if (b.rewinds > 0) {
       b.rewinds--;
       if (!b.k.rewindKeepsCombo) b.streak = 0;
@@ -451,6 +456,7 @@
     const drops = [], before = M.cleared(), stars = Math.max(1, 3 - (b.maxHearts - b.hearts));
     if (won) {
       s.stars[i] = Math.max(s.stars[i], stars);
+      s.beaten[i] = (s.beaten[i] || 0) + 1;
       if (i + 1 < REALMS.length && s.unlocked < i + 2) { s.unlocked = i + 2; unlockedNow = true; }
       const ci = M.CHAPTERS.findIndex(c => c.last === i);
       if (ci >= 0 && !s[M.CHAPTERS[ci].key]) {

@@ -1,8 +1,8 @@
 const fs = require('fs'), path = require('path');
 const src = f => fs.readFileSync(path.join(__dirname, 'src', f), 'utf8');
-const css = ['style-base.css', 'style-battle.css'].map(src).join('\n');
+const css = ['style-base.css', 'style-battle.css', 'style-pages.css'].map(src).join('\n');
 const local = (() => { try { return JSON.parse(fs.readFileSync(path.join(__dirname, 'local.json'), 'utf8')); } catch (e) { return {}; } })();
-const baseJs = ['puzzles-core.js', 'puzzles-more.js', 'puzzles-extra.js', 'puzzles-new.js', 'art.js', 'jobs.js', 'app.js', 'battle.js'].map(src).join('\n;\n');
+const baseJs = ['puzzles-core.js', 'puzzles-more.js', 'puzzles-extra.js', 'puzzles-new.js', 'art.js', 'monsters-1.js', 'monsters-2.js', 'jobs.js', 'app.js', 'pages.js', 'battle.js'].map(src).join('\n;\n');
 // The claude.ai copy can start with a personal default name kept in local.json (not committed)
 const js = local.defaultName ? baseJs.replace("name: '', gender:", () => `name: ${JSON.stringify(String(local.defaultName))}, gender:`) : baseJs;
 if (/<\/script/i.test(js)) throw new Error('closing script tag inside JS');

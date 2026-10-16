@@ -47,7 +47,7 @@ fs.mkdirSync(OUT, { recursive: true });
   check((await hero(page)).name === 'Aras', 'name saved');
 
   // A battle as a boy runs cleanly
-  await page.click('.stop >> button:has-text("Fight")'); await page.click('button:has-text("Fight Mossling!")'); await page.waitForTimeout(200);
+  await page.click('.stop >> button:has-text("Fight")'); await page.click('.intro >> button.btn-primary'); await page.waitForTimeout(200);
   for (let i = 0; i < 4; i++) {
     if (await page.evaluate(() => window.__mim.state.screen) !== 'battle') break;
     await page.click('.spell[data-arg="1"]'); await page.waitForTimeout(150);

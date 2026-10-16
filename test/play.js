@@ -58,7 +58,7 @@ fs.mkdirSync(OUT, { recursive: true });
   await shot(page, '04-map'); await overflow(page, 'map');
   await page.click('.stop >> button:has-text("Fight")'); await page.waitForTimeout(200);
   await shot(page, '05-intro'); await overflow(page, 'intro');
-  await page.click('button:has-text("Fight Mossling!")'); await page.waitForTimeout(300);
+  await page.click('.intro >> button.btn-primary'); await page.waitForTimeout(300);
   await shot(page, '06-battle-spells'); await overflow(page, 'battle');
 
   await page.click('.spell[data-arg="2"]'); await page.waitForTimeout(400);
@@ -116,7 +116,7 @@ fs.mkdirSync(OUT, { recursive: true });
   await d.click('text=Start the adventure'); await d.waitForTimeout(150);
   await shot(d, '20-desk-wardrobe');
   await d.click('text=Ready!'); await d.waitForTimeout(150);
-  await d.click('.stop >> button:has-text("Fight")'); await d.click('button:has-text("Fight Mossling!")'); await d.waitForTimeout(200);
+  await d.click('.stop >> button:has-text("Fight")'); await d.click('.intro >> button.btn-primary'); await d.waitForTimeout(200);
   await d.click('.spell[data-arg="2"]'); await d.waitForTimeout(400);
   await shot(d, '21-desk-puzzle'); await overflow(d, 'desk puzzle');
   // keyboard: type the answer
