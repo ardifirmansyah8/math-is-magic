@@ -35,6 +35,8 @@ fs.mkdirSync(OUT, { recursive: true });
   }
 
   const page = await open(390, 844, true);
+  // Realm 1's weak spot adds a random +1; move it to a topic that never appears there so the damage maths below is fixed
+  await page.evaluate(() => { window.MIM.REALMS[0].weak = 'ages'; });
   await page.click('text=Start the adventure'); await page.click('text=Ready!'); await page.waitForTimeout(150);
   const mapInv = await page.textContent('.inv');
   check(/×1.*×1.*×1.*×1/.test(mapInv.replace(/\s+/g, '')), 'map shows starter kit: ' + mapInv.replace(/\s+/g, ' ').trim());

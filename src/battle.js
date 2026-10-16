@@ -7,6 +7,16 @@
   const $ = id => document.getElementById(id);
   const PRAISE = ['Correct!', 'Brilliant!', 'Spot on!', 'Yes!', 'Nailed it!'];
 
+  // One-hit cheat: ?cheat=onehit (or ?onehit) on a normal site, #onehit where only the hash gets through
+  function cheatOn() {
+    try {
+      const q = new URLSearchParams(window.location.search);
+      const c = (q.get('cheat') || '').toLowerCase();
+      const h = (window.location.hash || '').replace(/^#/, '').toLowerCase();
+      return q.has('onehit') || c === 'onehit' || h === 'onehit';
+    } catch (e) { return false; }
+  }
+
   /* ---------- Power-ups ---------- */
   const MAX_ITEM = 3;
   const ITEMS = {
@@ -176,9 +186,10 @@
     let line;
     if (L.ok) {
       const helpers = [];
-      if (L.weak) helpers.push('its weak spot');
-      if (L.doubled) helpers.push('Double Chalk');
-      if (L.bonus) helpers.push('your combo');
+      if (L.cheat) helpers.push('the one-hit cheat');
+      if (L.weak && !L.cheat) helpers.push('its weak spot');
+      if (L.doubled && !L.cheat) helpers.push('Double Chalk');
+      if (L.bonus && !L.cheat) helpers.push('your combo');
       line = `${s.name} hits ${r.foe} for ${L.dmg}${helpers.length ? `, thanks to ${helpers.join(' and ')}` : ''}.` + (b.hp === 0 ? ` ${r.foe} is beaten!` : '') +
         (L.healed ? ' Your Mend skill heals 1 heart.' : '') + (L.shieldUp ? ' Your Ward skill raises a new shield.' : '');
     } else {
@@ -213,6 +224,7 @@
       <div class="topbar">
         <button class="icon-btn" data-act="quitBattle" aria-label="Leave the battle">${Art.icon('back')}</button>
         <div class="grow"><p class="eyebrow">Realm ${b.realm + 1}</p><h2 id="b-title" class="realm-name">${r.name}</h2></div>
+        ${cheatOn() ? '<span class="cheat-chip" title="Every correct answer defeats the monster">One-hit cheat</span>' : ''}
         ${M.soundBtn()}
       </div>
       <div class="battle-body">
@@ -367,10 +379,10 @@
     const val = p.input === 'number' ? b.input : b.choice;
     if (val === '' || val === null) return;
     const ok = Pz.check(p, p.input === 'number' ? Number(val) : val);
-    if (M.track) M.track(p, ok, val, b.hintUsed);
+    if (M.track && !cheatOn()) M.track(p, ok, val, b.hintUsed); // cheat answers stay off the parent page
     b.cast++; b.info = null;
     if (ok) {
-      const doubled = b.double, dmg = power(), bonus = b.streak >= 2, weak = weakBonus() > 0;
+      const cheat = cheatOn(), doubled = b.double, dmg = cheat ? b.hp : power(), bonus = b.streak >= 2, weak = weakBonus() > 0;
       b.double = false;
       b.streak++;
       b.hp = Math.max(0, b.hp - dmg);
@@ -378,7 +390,7 @@
       let healed = false, shieldUp = false;
       if (b.k.healEvery && b.streak % b.k.healEvery === 0 && b.hearts < b.maxHearts && b.hp > 0) { b.hearts++; healed = true; }
       if (b.k.shieldOnStreak && b.streak % 3 === 0 && b.shield < 3 && b.hp > 0) { b.shield++; shieldUp = true; }
-      b.last = { ok: true, dmg, bonus, doubled, weak, drop, healed, shieldUp, streak: b.streak, given: val, title: Pz.rnd.pick(PRAISE) };
+      b.last = { ok: true, dmg, bonus, doubled, weak, cheat, drop, healed, shieldUp, streak: b.streak, given: val, title: Pz.rnd.pick(PRAISE) };
       sfx.correct();
       if (drop) sfx.loot();
       playHit(dmg, doubled);

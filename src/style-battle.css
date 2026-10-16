@@ -324,6 +324,8 @@
 .feedback.rewind .fb-title { color: var(--yellow); }
 .pz-actions .btn[disabled] { opacity: .4; }
 
+.cheat-chip { padding: 3px 10px; border: 2px dashed var(--coral); border-radius: 999px; color: var(--coral); font-size: 12.5px; font-weight: 700; white-space: nowrap; }
+
 /* ---------- Motion ---------- */
 @keyframes bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
 @keyframes hit { 0% { transform: translateX(0); filter: brightness(1); } 15% { transform: translateX(12px) rotate(5deg); filter: brightness(1.8); } 40% { transform: translateX(-9px) rotate(-3deg); } 65% { transform: translateX(5px); } 100% { transform: translateX(0); filter: brightness(1); } }

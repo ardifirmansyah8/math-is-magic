@@ -7,9 +7,11 @@ A chalkboard adventure where every spell is a math puzzle. Dress your mage, pick
 ## What's in the game
 
 - 13 olympiad-style puzzle types, each with 5 levels: number patterns, magic squares, potion algebra, heads and legs, calendar and clock, working backwards, clever sums, counting, odd one out, picture patterns, mystery numbers, shapes, and age puzzles. Puzzles are generated fresh every time.
-- Three spells (Spark, Flare, Comet). Harder puzzles hit harder.
+- Three spells from your job's spellbook (Fire, Holy, Meteor and more). Harder puzzles hit harder, and every monster has a weak spot.
+- Ranks from Trainee Mage to Grand Mage, with a job to pick after each stage (Flame, Shield, Wisdom, Nature, Time or Star), each with its own skill.
 - Power-ups: Shield Charm, Jamu Potion, Double Chalk and Board Eraser.
 - Chapter 2 monsters with tricks: armoured, thief, regrows and gusty.
+- A monster notebook, and a parent page with practice history and recent mistakes.
 - Girl or boy mage with hairstyles, hijab and peci options.
 - Progress saves in the player's browser.
 
@@ -31,13 +33,22 @@ node test/play.js test-output/play   # plays all ten stages and saves screenshot
 
 An optional `local.json` (not committed) sets a default player name for the claude.ai build: `{ "defaultName": "..." }`.
 
+## Cheat
+
+Add `?cheat=onehit` to the address and every correct answer defeats the monster in one hit: https://ardifirmansyah8.github.io/math-is-magic/?cheat=onehit
+
+`#onehit` on the end of the address does the same, and is the form to use on a claude.ai link. Wrong answers still cost hearts, progress saves as usual, and answers given with the cheat on are left out of the parent page.
+
 ## Layout
 
 ```
 src/puzzles-*.js   puzzle generators (pure functions that also run in Node)
 src/art.js         chalk-style SVG drawings
+src/monsters-*.js  monster drawings
+src/jobs.js        ranks, jobs, skills and spellbooks
 src/app.js         screens, saving and sound
-src/battle.js      battles, power-ups and monster tricks
+src/pages.js       parent page and answer tracking
+src/battle.js      battles, power-ups, monster tricks and the cheat
 src/style-*.css    styles
 src/template.html  page shell
 docs/index.html    the built site that GitHub Pages serves
