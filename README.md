@@ -30,6 +30,7 @@ Browser tests use Playwright:
 ```sh
 npm install
 node test/play.js test-output/play   # plays all ten stages and saves screenshots
+node tools/og-image.js               # redraws docs/og-image.jpg, the link-preview picture (run after a build)
 ```
 
 An optional `local.json` (not committed) sets a default player name for the claude.ai build: `{ "defaultName": "..." }`.
@@ -53,4 +54,6 @@ src/battle.js      battles, power-ups, monster tricks and the cheat
 src/style-*.css    styles
 src/template.html  page shell
 docs/index.html    the built site that GitHub Pages serves
+docs/og-image.jpg  the picture social sites show when the link is shared
+tools/og-image.js  renders that picture from the game's own art
 ```

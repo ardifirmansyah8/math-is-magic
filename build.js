@@ -18,20 +18,44 @@ console.log('built', (page.length / 1024).toFixed(1) + ' KB');
 // Standalone site for static hosting (Netlify, Vercel, GitHub Pages, Cloudflare Pages)
 const publicJs = baseJs;
 const favicon = "data:image/svg+xml," + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="12" fill="#1e3a30"/><path d="M32 8l6.5 15.6 16.9 1.4-12.9 11 4 16.5L32 43.6 17.5 52.5l4-16.5-12.9-11 16.9-1.4z" fill="#f5d561" stroke="#f3efe4" stroke-width="2" stroke-linejoin="round"/></svg>');
+// Link previews (WhatsApp, Facebook, X, LinkedIn, Telegram) need an absolute image URL.
+// tools/og-image.js renders docs/og-image.jpg; the ?v= hash makes sites fetch it again when it changes.
+const SITE = 'https://ardifirmansyah8.github.io/math-is-magic/';
+const DESC = 'A chalkboard adventure where every spell is a math puzzle. Dress your mage, collect power-ups and beat ten monsters.';
+const ogFile = path.join(__dirname, 'docs', 'og-image.jpg');
+const ogImage = fs.existsSync(ogFile) ? `${SITE}og-image.jpg?v=${require('crypto').createHash('sha1').update(fs.readFileSync(ogFile)).digest('hex').slice(0, 8)}` : '';
+const ogAlt = 'Math Is Magic written in chalk on a blackboard, with a young mage in a purple robe and a crowned purple serpent.';
+const ogImageTags = ogImage ? `
+<meta property="og:image" content="${ogImage}">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="${ogAlt}">
+<meta name="twitter:image" content="${ogImage}">
+<meta name="twitter:image:alt" content="${ogAlt}">` : '';
 const head = `<!doctype html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="description" content="A chalkboard adventure where every spell is a math puzzle. Dress your mage, collect power-ups and beat ten monsters.">
+<title>Math Is Magic</title>
+<meta name="description" content="${DESC}">
 <meta name="theme-color" content="#4a2c17">
+<link rel="canonical" href="${SITE}">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Math Is Magic">
+<meta property="og:url" content="${SITE}">
 <meta property="og:title" content="Math Is Magic">
-<meta property="og:description" content="A chalkboard adventure where every spell is a math puzzle.">
+<meta property="og:description" content="${DESC}">
+<meta name="twitter:card" content="${ogImage ? 'summary_large_image' : 'summary'}">
+<meta name="twitter:title" content="Math Is Magic">
+<meta name="twitter:description" content="${DESC}">${ogImageTags}
 <link rel="icon" href="${favicon}">
 <style>:root{padding-top:env(safe-area-inset-top);padding-bottom:env(safe-area-inset-bottom)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
 `;
 const publicPage = src('template.html')
   .replace('<meta name="claude:viewport-fit-sides" content="cover">\n', '')
+  .replace('<title>Math Is Magic</title>\n', '')
   .replace('/*CSS*/', () => css)
   .replace('/*JS*/', () => publicJs);
 const [headPart, bodyPart] = (() => { const i = publicPage.indexOf('<div class="app">'); return [publicPage.slice(0, i), publicPage.slice(i)]; })();
