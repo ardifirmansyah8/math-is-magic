@@ -74,8 +74,10 @@
   }
 
   // Stacked columns: right answers (bottom) and not-yet answers (top), 2px surface gap between
+  // Drawn at the width it is shown (the board minus its padding), so the 12px labels stay 12px on any phone
+  const chartWidth = () => { const board = document.getElementById('board'); return Math.round(Math.max(240, Math.min(560, (board ? board.clientWidth : 360) - 32))); };
   function activityChart(days) {
-    const W = 336, H = 150, padL = 26, padB = 22, padT = 10, slot = (W - padL) / days.length, bw = Math.min(16, slot - 6);
+    const W = chartWidth(), H = 160, padL = 30, padB = 24, padT = 10, slot = (W - padL) / days.length, bw = Math.min(16, slot - 6);
     const max = Math.max(4, ...days.map(d => d.n)), top = Math.ceil(max / 4) * 4, y = v => H - padB - (v / top) * (H - padB - padT);
     const gap = 2, r = 4;
     let bars = '', labels = '';

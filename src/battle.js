@@ -250,17 +250,33 @@
   };
 
   /* ---------- Partial updates ---------- */
+  // On phones the puzzle panel sits below the arena, so new panels glide into view. The glide is our own
+  // animation and stops the moment a finger, mouse or wheel touches the board, so it never fights a swipe.
+  // (A browser smooth scroll could keep running and pull the board back down while the player scrolls up.)
+  let glide = 0;
+  ['touchstart', 'pointerdown', 'wheel'].forEach(ev => window.addEventListener(ev, () => { glide = 0; }, { passive: true, capture: true }));
+  function glideTo(sc, to) {
+    const from = sc.scrollTop, dist = to - from;
+    if (Math.abs(dist) < 2) return;
+    if (reduced()) { sc.scrollTop = to; return; }
+    const id = glide = (glide % 1e6) + 1, t0 = performance.now(), dur = Math.min(420, 160 + Math.abs(dist) * 0.45);
+    const step = now => {
+      if (glide !== id) return;
+      const k = Math.min(1, Math.max(0, (now - t0) / dur));
+      sc.scrollTop = from + dist * (1 - Math.pow(1 - k, 3));
+      if (k < 1) requestAnimationFrame(step); else glide = 0;
+    };
+    requestAnimationFrame(step);
+  }
+  // scroll: 'panel' shows the new panel from its top; true only scrolls back up if the panel's top is hidden above
   function refreshPanel(scroll) {
     const panel = $('panel');
     if (!panel) return;
     panel.innerHTML = panelHTML();
-    if (scroll) {
-      const sc = $('battle-screen');
-      if (sc && window.innerWidth < 860) {
-        const top = panel.getBoundingClientRect().top - sc.getBoundingClientRect().top + sc.scrollTop - 8;
-        if (scroll === 'panel' || sc.scrollTop > top) sc.scrollTo({ top: Math.max(0, top), behavior: reduced() ? 'auto' : 'smooth' });
-      }
-    }
+    const sc = $('battle-screen');
+    if (!scroll || !sc || (window.innerWidth >= 860 && window.innerHeight > 500)) return; // big screens show the panel beside the arena
+    const top = Math.max(0, panel.getBoundingClientRect().top - sc.getBoundingClientRect().top + sc.scrollTop - 8);
+    if (scroll === 'panel' ? Math.abs(sc.scrollTop - top) > 2 : sc.scrollTop > top) glideTo(sc, top);
   }
   function refreshKit() { const kit = $('kit'); if (kit) kit.innerHTML = kitHTML(); }
   function refreshStatus() {
@@ -430,7 +446,7 @@
     b.phase = 'feedback';
     b.busy = true;
     setTimeout(() => { b.busy = false; refreshKit(); }, reduced() ? 0 : 450);
-    refreshPanel('panel'); refreshKit();
+    refreshPanel(true); refreshKit();
   }
   function next() {
     const b = state.battle;

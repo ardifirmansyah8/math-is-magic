@@ -49,7 +49,7 @@
 .viz-right { fill: var(--viz-right); }
 .viz-wrong { fill: var(--viz-wrong); }
 .viz-grid { stroke: var(--viz-grid); stroke-width: 1; }
-.viz-tick { fill: var(--chalk-dim); font: 600 10px var(--font-body); font-variant-numeric: tabular-nums; }
+.viz-tick { fill: var(--chalk-dim); font: 600 12px var(--font-body); font-variant-numeric: tabular-nums; }
 .act-bar .hit { fill: transparent; }
 .act-bar { cursor: default; outline: none; }
 .act-bar.is-hot .viz-right, .act-bar.is-hot .viz-wrong, .act-bar:focus-visible .viz-right, .act-bar:focus-visible .viz-wrong { filter: brightness(1.18); }
@@ -79,3 +79,36 @@
 .pp-answers { display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: 15px; }
 .pp-answers b { color: var(--yellow); }
 .pp-explain { font-size: 15px; line-height: 1.5; padding-top: 8px; border-top: 2px dashed rgba(243, 239, 228, .2); }
+
+/* ---------- Phones held sideways ----------
+   Short landscape screens: the battle arena sits beside the puzzle and stays put while the puzzle scrolls,
+   and big drawings are sized by screen height so buttons are not pushed off the board. */
+@media (orientation: landscape) and (max-height: 500px) {
+  .title-screen .wrap { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); align-content: center; justify-items: center; gap: 8px 20px; }
+  .title-screen .eyebrow { grid-area: 1 / 1; }
+  .title-screen .title-word { grid-area: 2 / 1; font-size: clamp(40px, 8vw, 72px); }
+  .title-screen .hand { grid-area: 3 / 1; }
+  .title-screen .title-actions { grid-area: 4 / 1; }
+  .title-screen .title-art { grid-area: 1 / 2 / span 4 / 3; align-self: center; margin: 0; }
+  .title-art .mage { width: auto; height: min(58vh, 220px); }
+  .title-art .monster { width: auto; height: min(36vh, 140px); }
+  .screen { padding-bottom: 12px; }
+  .ward { grid-template-columns: minmax(0, 2fr) minmax(0, 3fr); align-items: start; }
+  .ward-preview { position: sticky; top: 0; }
+  .ward-preview .mage { width: auto; height: min(62vh, 260px); }
+  .intro .monster { width: auto; height: min(40vh, 170px); }
+  .result .monster, .result .mage { width: auto; height: min(38vh, 170px); }
+  .cert .mage { width: auto; height: min(34vh, 150px); }
+  .arena .mage { width: auto; height: min(25vh, 120px); }
+  .arena .monster { width: auto; height: min(27vh, 130px); }
+}
+/* Side by side only when there is room for both columns; narrower phones keep the portrait layout */
+@media (orientation: landscape) and (max-height: 500px) and (min-width: 620px) {
+  .battle .wrap { gap: 8px; }
+  .battle-body { grid-template-columns: minmax(0, 5fr) minmax(0, 6fr); align-items: start; gap: 10px 18px; }
+  .side { position: sticky; top: 0; }
+}
+@media (orientation: landscape) and (max-height: 380px) {
+  .arena .mage { height: 21vh; }
+  .arena .monster { height: 23vh; }
+}

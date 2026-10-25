@@ -30,6 +30,7 @@ Browser tests use Playwright:
 ```sh
 npm install
 node test/play.js test-output/play   # plays all ten stages and saves screenshots
+node test/mobile.js test-output/mobile  # every screen and puzzle at phone, sideways and tablet sizes
 node tools/og-image.js               # redraws docs/og-image.jpg, the link-preview picture (run after a build)
 ```
 
