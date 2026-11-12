@@ -38,7 +38,14 @@
   /* ---------- Saving ---------- */
   const SAVE_KEY = 'math-is-magic-v1';
   const STARTER_KIT = () => ({ shield: 1, jamu: 1, double: 1, eraser: 1 });
-  const freshSave = () => ({ hero: Object.assign({}, Art.DEFAULT_HERO), stars: REALMS.map(() => 0), unlocked: 1, sound: true, champion: false, champion2: false, made: false, items: STARTER_KIT(), job: null, jobPending: false, beaten: REALMS.map(() => 0), hurt: 0 });
+  // Personal records per realm (see records.js): fastest win in ms, fewest mistakes, longest streak
+  const cleanRecord = r => {
+    if (!r || typeof r !== 'object') return null;
+    const n = (v, min) => (typeof v === 'number' && Number.isFinite(v) && v >= min ? Math.floor(v) : null);
+    const out = { ms: n(r.ms, 1), misses: n(r.misses, 0), streak: n(r.streak, 0) };
+    return out.ms === null && out.misses === null && out.streak === null ? null : out;
+  };
+  const freshSave = () => ({ hero: Object.assign({}, Art.DEFAULT_HERO), stars: REALMS.map(() => 0), unlocked: 1, sound: true, champion: false, champion2: false, made: false, items: STARTER_KIT(), job: null, jobPending: false, beaten: REALMS.map(() => 0), hurt: 0, records: REALMS.map(() => null) });
   function loadSave() {
     try {
       const raw = localStorage.getItem(SAVE_KEY);
@@ -49,7 +56,8 @@
           items: Object.assign({ shield: 0, jamu: 0, double: 0, eraser: 0 }, s.items || STARTER_KIT()),
           stars: REALMS.map((_, i) => (s.stars && s.stars[i]) || 0),
           beaten: REALMS.map((_, i) => (s.beaten && s.beaten[i]) || ((s.stars && s.stars[i]) ? 1 : 0)),
-          hurt: Math.max(0, Math.floor(Number(s.hurt) || 0))
+          hurt: Math.max(0, Math.floor(Number(s.hurt) || 0)),
+          records: REALMS.map((_, i) => cleanRecord(s.records && s.records[i]))
         });
         // Players who beat the dragon before Chapter 2 existed get it unlocked
         if (save.champion && save.unlocked < CHAPTERS[1].first + 1) save.unlocked = CHAPTERS[1].first + 1;
@@ -241,7 +249,7 @@
       ${me}
       <div class="inv" role="group" aria-label="Your power-ups"><span class="eyebrow">Power-ups</span>${Object.keys(window.MIM.ITEMS).map(id => `<span title="${window.MIM.ITEMS[id].name}">${Art.icon(window.MIM.ITEMS[id].icon)}<span class="sr-only">${window.MIM.ITEMS[id].name}</span>×${s.items[id] || 0}</span>`).join('')}</div>
       ${chapters}
-      <div class="map-foot row"><button class="btn btn-small" data-act="openNotebook">${Art.icon('book')} Monster notebook</button><button class="btn btn-small" data-act="openParents">Parent page</button><button class="btn btn-small" data-act="toWardrobe">Change outfit</button>${soundBtn()}</div>
+      <div class="map-foot row"><button class="btn btn-small" data-act="openNotebook">${Art.icon('book')} Monster notebook</button><button class="btn btn-small" data-act="openRecords">${Art.icon('trophy')} My records</button><button class="btn btn-small" data-act="openParents">Parent page</button><button class="btn btn-small" data-act="toWardrobe">Change outfit</button>${soundBtn()}</div>
     </div></section>`;
   };
 
@@ -254,6 +262,7 @@
         <p class="beast-title">${r.title} · ${r.kind}</p>
         <p class="hand">${r.blurb}</p>
         <p class="weak-chip">${Art.icon('rate')}Weak spot: ${TOPICS[r.weak]} puzzles hit for +1</p>
+        ${window.MIM.bestLine ? window.MIM.bestLine(state.realm) : ''}
         ${r.traits ? `<div class="traits"><p class="eyebrow">Special tricks</p>${r.traits.map(t => `<p class="trait">${Art.icon(TRAITS[t].icon)}<span><b>${TRAITS[t].name}.</b> ${TRAITS[t].text}</span></p>`).join('')}</div>` : ''}
         <ul class="rules">
           ${J ? `<li>${Art.icon(J.icon)}<span>You are ${an(esc(myTitle()))}. <b>${J.skill}:</b> ${J.desc(t)}</span></li>` : ''}
@@ -280,7 +289,8 @@
         ${Art.mage(state.save.hero, 'idle')}
         ${rateHTML(res.stars)}
         <p class="fb-line">${line}</p>
-        <p class="dim">${res.cast} spells cast · ${res.misses} ${res.misses === 1 ? 'mistake' : 'mistakes'}${res.hints ? ` · ${res.hints} ${res.hints === 1 ? 'hint' : 'hints'}` : ''}</p>
+        <p class="dim">${res.cast} ${res.cast === 1 ? 'spell' : 'spells'} cast · ${res.misses} ${res.misses === 1 ? 'mistake' : 'mistakes'}${res.hints ? ` · ${res.hints} ${res.hints === 1 ? 'hint' : 'hints'}` : ''}</p>
+        ${window.MIM.recordsHTML ? window.MIM.recordsHTML(res) : ''}
         <p class="carry">${heartRow(h.now, h.max)}<span>${h.now < h.max ? 'Your hearts come with you to the next fight. A Jamu Potion in battle gives one back.' : 'Your hearts are all full for the next fight.'}</span></p>
         ${res.returned && res.returned.length ? `<p class="loot">${Art.icon('rate')}<span>${r.foe} dropped everything it stole: ${res.returned.map(id => window.MIM.ITEMS[id].name).join(', ')}.</span></p>` : ''}
         ${res.drops && res.drops.length ? `<p class="loot">${Art.icon(window.MIM.ITEMS[res.drops[0]].icon)}<span>Victory prize${res.drops.length > 1 ? 's' : ''}: ${res.drops.map(id => window.MIM.ITEMS[id].a + ' ' + window.MIM.ITEMS[id].name).join(' and ')}!</span></p>` : ''}
@@ -296,7 +306,7 @@
       ${Art.monster(r.monster, 'idle', r.foe)}
       <p class="fb-line">Every mistake showed you a new trick. Have another go!</p>
       <p class="carry">${heartRow(h.now, h.max)}<span>You had a rest, so your hearts are full again.</span></p>
-      <p class="dim">${res.cast} spells cast · ${r.foe} had ${res.hpLeft} of ${r.hp} hit points left</p>
+      <p class="dim">${res.cast} ${res.cast === 1 ? 'spell' : 'spells'} cast · ${r.foe} had ${res.hpLeft} of ${r.hp} hit points left</p>
       <div class="row"><button class="btn btn-primary" data-act="fight">Try again</button><button class="btn" data-act="toMap">Map</button></div>
     </div></div></section>`;
   };

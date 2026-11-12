@@ -594,7 +594,7 @@ button { font: inherit; color: inherit; }
 
 /* ---------- Monster notebook ---------- */
 .beast-title { font-family: var(--font-hand); color: var(--yellow); font-size: 18px; }
-.weak-chip { display: inline-flex; align-items: center; gap: 6px; padding: 4px 12px; border: 2px dashed var(--yellow); border-radius: 999px; font-weight: 700; font-size: 15px; }
+.weak-chip { display: inline-flex; align-items: center; gap: 6px; padding: 4px 12px; border: 2px dashed var(--yellow); border-radius: 18px; font-weight: 700; font-size: 15px; text-wrap: balance; }
 .weak-chip .ico { width: 20px; height: 20px; }
 .beasts { display: grid; gap: 14px; }
 .beast { display: grid; grid-template-columns: 120px minmax(0, 1fr); gap: 14px; align-items: start; padding: 14px; border: 2.5px solid rgba(243, 239, 228, .45); border-radius: var(--wobble); background: rgba(0, 0, 0, .12); }
@@ -673,6 +673,37 @@ button { font: inherit; color: inherit; }
 .pp-answers { display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: 15px; }
 .pp-answers b { color: var(--yellow); }
 .pp-explain { font-size: 15px; line-height: 1.5; padding-top: 8px; border-top: 2px dashed rgba(243, 239, 228, .2); }
+
+/* ---------- Records ---------- */
+.best-chip { display: inline-flex; align-items: center; gap: 6px; margin: 0; padding: 4px 12px; border: 2px solid rgba(245, 213, 97, .55); border-radius: 18px; color: var(--yellow); font-weight: 700; font-size: 15px; text-wrap: balance; }
+.best-chip .ico, .records-head .ico, .rec-paused .ico, .empty-note .ico { width: 24px; height: 24px; }
+.records { display: grid; gap: 8px; width: 100%; max-width: 30em; }
+.records-head { display: flex; align-items: center; justify-content: center; gap: 8px; margin: 0; font-weight: 700; font-size: 17px; }
+.records-head.is-new { color: var(--yellow); }
+.rec-tiles { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.rec-tile { display: grid; justify-items: center; align-content: start; gap: 2px; padding: 8px 4px; border: 2px solid rgba(243, 239, 228, .35); border-radius: var(--wobble); background: rgba(0, 0, 0, .12); text-align: center; }
+.rec-tile.is-new { border-color: var(--yellow); box-shadow: 0 0 0 3px rgba(245, 213, 97, .18); }
+.rec-label { font-size: 12.5px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--chalk-dim); }
+.rec-val { font-family: var(--font-display); font-size: 26px; font-weight: 400; line-height: 1.15; }
+.rec-note { font-size: 13px; line-height: 1.3; color: var(--chalk-dim); }
+.rec-tile.is-new .rec-note { color: var(--yellow); font-weight: 700; }
+.rec-was { display: block; color: var(--chalk-dim); font-weight: 400; }
+.rec-tip { margin: 0; text-align: center; }
+.rec-paused, .empty-note { display: flex; align-items: center; gap: 8px; margin: 0; color: var(--chalk-dim); }
+.rec-chapter { margin: 8px 0 0; }
+.rec-list { display: grid; gap: 10px; }
+.rec-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "name play" "stats stats"; align-items: center; gap: 6px 12px; padding: 10px 14px; border: 2px solid rgba(243, 239, 228, .35); border-radius: var(--wobble); background: rgba(0, 0, 0, .12); }
+.rec-row.is-empty { border-style: dashed; }
+.rec-name { grid-area: name; min-width: 0; }
+.rec-name .eyebrow { margin: 0; }
+.rec-realm { margin: 0; font-weight: 700; font-size: 17px; }
+.rec-row > .btn { grid-area: play; }
+.rec-stats, .rec-empty { grid-area: stats; margin: 0; }
+.rec-stats { display: flex; flex-wrap: wrap; gap: 6px 22px; }
+.rec-stats div { display: grid; }
+.rec-stats dt { font-size: 12.5px; color: var(--chalk-dim); }
+.rec-stats dd { display: inline-flex; align-items: center; gap: 4px; margin: 0; font-weight: 700; font-size: 18px; }
+.rec-stats .ico { width: 20px; height: 20px; }
 
 /* ---------- Phones held sideways ----------
    Short landscape screens: the battle arena sits beside the puzzle and stays put while the puzzle scrolls,
@@ -2060,6 +2091,7 @@ button { font: inherit; color: inherit; }
 <symbol id="i-book" viewBox="0 0 40 40"><path style="fill:var(--chalk);${S}" d="M20 10 Q12 5 4 7.5 V32 Q12 29.5 20 34 Z"/><path style="fill:var(--lilac);${S}" d="M20 10 Q28 5 36 7.5 V32 Q28 29.5 20 34 Z"/><path style="fill:none;stroke:var(--ink);stroke-width:1.4;opacity:.45" d="M8 14 Q12 13 16 15 M8 19 Q12 18 16 20 M8 24 Q12 23 16 25"/></symbol>
 <symbol id="i-leaf" viewBox="0 0 40 40"><path style="fill:var(--mint);${S}" d="M8 33 Q5 11 32 5 Q36 29 12 35 Z"/><path style="fill:none;stroke:var(--chalk);stroke-width:1.8;stroke-linecap:round" d="M6 37 Q17 24 29 9 M15 25 L13 17 M20 19 L25 21"/></symbol>
 <symbol id="i-hourglass" viewBox="0 0 40 40"><path style="fill:var(--wood-light);${S}" d="M8 3 H32 V8 H8 Z M8 32 H32 V37 H8 Z"/><path style="fill:rgba(243,239,228,.22);${S}" d="M11 8 H29 Q29 16 22 20 Q29 24 29 32 H11 Q11 24 18 20 Q11 16 11 8 Z"/><path style="fill:var(--yellow)" d="M14 11 H26 Q24.5 15.5 20 18 Q15.5 15.5 14 11 Z M13 31 Q13.8 25.5 20 23.5 Q26.2 25.5 27 31 Z"/></symbol>
+<symbol id="i-trophy" viewBox="0 0 40 40"><path style="fill:none;${S}" d="M12 9 H6.5 Q6.5 18 13.5 19 M28 9 H33.5 Q33.5 18 26.5 19"/><path style="fill:var(--yellow);${S}" d="M11.5 5 H28.5 V14 Q28.5 23.5 20 24.5 Q11.5 23.5 11.5 14 Z"/><path style="fill:var(--yellow);${S}" d="M17.5 24.5 H22.5 V29.5 H17.5 Z"/><rect x="11" y="29.5" width="18" height="6" rx="1.5" style="fill:var(--wood-light);${S}"/><path style="fill:var(--chalk);opacity:.8" d="M15.2 8 H17.4 Q16.8 13.5 18.6 18 L17 18.6 Q14.8 13.8 15.2 8 Z"/></symbol>
 <symbol id="i-crown" viewBox="0 0 40 40"><path style="fill:var(--yellow);${S}" d="M5 29 L7 11 L14 19 L20 7 L26 19 L33 11 L35 29 Z"/><rect x="5" y="29" width="30" height="5.5" rx="1.5" style="fill:var(--yellow);${S}"/><circle cx="20" cy="22" r="2.8" style="fill:var(--pink)"/><circle cx="12" cy="24.5" r="2" style="fill:var(--blue)"/><circle cx="28" cy="24.5" r="2" style="fill:var(--mint)"/></symbol>
 <symbol id="i-snow" viewBox="0 0 40 40"><g style="fill:none;stroke:var(--blue);stroke-width:3;stroke-linecap:round"><path d="M20 4 V36 M6.1 12 L33.9 28 M6.1 28 L33.9 12"/><path style="stroke-width:2.4" d="M15 7 L20 11 L25 7 M15 33 L20 29 L25 33"/></g><circle cx="20" cy="20" r="3.2" style="fill:var(--chalk)"/></symbol>
 <symbol id="i-bolt" viewBox="0 0 40 40"><path style="fill:var(--yellow);${S}" d="M23 3 L8 22 H18 L14 37 L32 15 H21 Z"/></symbol>
@@ -2492,7 +2524,14 @@ button { font: inherit; color: inherit; }
   /* ---------- Saving ---------- */
   const SAVE_KEY = 'math-is-magic-v1';
   const STARTER_KIT = () => ({ shield: 1, jamu: 1, double: 1, eraser: 1 });
-  const freshSave = () => ({ hero: Object.assign({}, Art.DEFAULT_HERO), stars: REALMS.map(() => 0), unlocked: 1, sound: true, champion: false, champion2: false, made: false, items: STARTER_KIT(), job: null, jobPending: false, beaten: REALMS.map(() => 0), hurt: 0 });
+  // Personal records per realm (see records.js): fastest win in ms, fewest mistakes, longest streak
+  const cleanRecord = r => {
+    if (!r || typeof r !== 'object') return null;
+    const n = (v, min) => (typeof v === 'number' && Number.isFinite(v) && v >= min ? Math.floor(v) : null);
+    const out = { ms: n(r.ms, 1), misses: n(r.misses, 0), streak: n(r.streak, 0) };
+    return out.ms === null && out.misses === null && out.streak === null ? null : out;
+  };
+  const freshSave = () => ({ hero: Object.assign({}, Art.DEFAULT_HERO), stars: REALMS.map(() => 0), unlocked: 1, sound: true, champion: false, champion2: false, made: false, items: STARTER_KIT(), job: null, jobPending: false, beaten: REALMS.map(() => 0), hurt: 0, records: REALMS.map(() => null) });
   function loadSave() {
     try {
       const raw = localStorage.getItem(SAVE_KEY);
@@ -2503,7 +2542,8 @@ button { font: inherit; color: inherit; }
           items: Object.assign({ shield: 0, jamu: 0, double: 0, eraser: 0 }, s.items || STARTER_KIT()),
           stars: REALMS.map((_, i) => (s.stars && s.stars[i]) || 0),
           beaten: REALMS.map((_, i) => (s.beaten && s.beaten[i]) || ((s.stars && s.stars[i]) ? 1 : 0)),
-          hurt: Math.max(0, Math.floor(Number(s.hurt) || 0))
+          hurt: Math.max(0, Math.floor(Number(s.hurt) || 0)),
+          records: REALMS.map((_, i) => cleanRecord(s.records && s.records[i]))
         });
         // Players who beat the dragon before Chapter 2 existed get it unlocked
         if (save.champion && save.unlocked < CHAPTERS[1].first + 1) save.unlocked = CHAPTERS[1].first + 1;
@@ -2695,7 +2735,7 @@ button { font: inherit; color: inherit; }
       ${me}
       <div class="inv" role="group" aria-label="Your power-ups"><span class="eyebrow">Power-ups</span>${Object.keys(window.MIM.ITEMS).map(id => `<span title="${window.MIM.ITEMS[id].name}">${Art.icon(window.MIM.ITEMS[id].icon)}<span class="sr-only">${window.MIM.ITEMS[id].name}</span>×${s.items[id] || 0}</span>`).join('')}</div>
       ${chapters}
-      <div class="map-foot row"><button class="btn btn-small" data-act="openNotebook">${Art.icon('book')} Monster notebook</button><button class="btn btn-small" data-act="openParents">Parent page</button><button class="btn btn-small" data-act="toWardrobe">Change outfit</button>${soundBtn()}</div>
+      <div class="map-foot row"><button class="btn btn-small" data-act="openNotebook">${Art.icon('book')} Monster notebook</button><button class="btn btn-small" data-act="openRecords">${Art.icon('trophy')} My records</button><button class="btn btn-small" data-act="openParents">Parent page</button><button class="btn btn-small" data-act="toWardrobe">Change outfit</button>${soundBtn()}</div>
     </div></section>`;
   };
 
@@ -2708,6 +2748,7 @@ button { font: inherit; color: inherit; }
         <p class="beast-title">${r.title} · ${r.kind}</p>
         <p class="hand">${r.blurb}</p>
         <p class="weak-chip">${Art.icon('rate')}Weak spot: ${TOPICS[r.weak]} puzzles hit for +1</p>
+        ${window.MIM.bestLine ? window.MIM.bestLine(state.realm) : ''}
         ${r.traits ? `<div class="traits"><p class="eyebrow">Special tricks</p>${r.traits.map(t => `<p class="trait">${Art.icon(TRAITS[t].icon)}<span><b>${TRAITS[t].name}.</b> ${TRAITS[t].text}</span></p>`).join('')}</div>` : ''}
         <ul class="rules">
           ${J ? `<li>${Art.icon(J.icon)}<span>You are ${an(esc(myTitle()))}. <b>${J.skill}:</b> ${J.desc(t)}</span></li>` : ''}
@@ -2734,7 +2775,8 @@ button { font: inherit; color: inherit; }
         ${Art.mage(state.save.hero, 'idle')}
         ${rateHTML(res.stars)}
         <p class="fb-line">${line}</p>
-        <p class="dim">${res.cast} spells cast · ${res.misses} ${res.misses === 1 ? 'mistake' : 'mistakes'}${res.hints ? ` · ${res.hints} ${res.hints === 1 ? 'hint' : 'hints'}` : ''}</p>
+        <p class="dim">${res.cast} ${res.cast === 1 ? 'spell' : 'spells'} cast · ${res.misses} ${res.misses === 1 ? 'mistake' : 'mistakes'}${res.hints ? ` · ${res.hints} ${res.hints === 1 ? 'hint' : 'hints'}` : ''}</p>
+        ${window.MIM.recordsHTML ? window.MIM.recordsHTML(res) : ''}
         <p class="carry">${heartRow(h.now, h.max)}<span>${h.now < h.max ? 'Your hearts come with you to the next fight. A Jamu Potion in battle gives one back.' : 'Your hearts are all full for the next fight.'}</span></p>
         ${res.returned && res.returned.length ? `<p class="loot">${Art.icon('rate')}<span>${r.foe} dropped everything it stole: ${res.returned.map(id => window.MIM.ITEMS[id].name).join(', ')}.</span></p>` : ''}
         ${res.drops && res.drops.length ? `<p class="loot">${Art.icon(window.MIM.ITEMS[res.drops[0]].icon)}<span>Victory prize${res.drops.length > 1 ? 's' : ''}: ${res.drops.map(id => window.MIM.ITEMS[id].a + ' ' + window.MIM.ITEMS[id].name).join(' and ')}!</span></p>` : ''}
@@ -2750,7 +2792,7 @@ button { font: inherit; color: inherit; }
       ${Art.monster(r.monster, 'idle', r.foe)}
       <p class="fb-line">Every mistake showed you a new trick. Have another go!</p>
       <p class="carry">${heartRow(h.now, h.max)}<span>You had a rest, so your hearts are full again.</span></p>
-      <p class="dim">${res.cast} spells cast · ${r.foe} had ${res.hpLeft} of ${r.hp} hit points left</p>
+      <p class="dim">${res.cast} ${res.cast === 1 ? 'spell' : 'spells'} cast · ${r.foe} had ${res.hpLeft} of ${r.hp} hit points left</p>
       <div class="row"><button class="btn btn-primary" data-act="fight">Try again</button><button class="btn" data-act="toMap">Map</button></div>
     </div></div></section>`;
   };
@@ -3179,6 +3221,99 @@ button { font: inherit; color: inherit; }
 })();
 
 ;
+/* Personal records: fastest win, fewest mistakes and longest streak for every realm.
+   Only wins count, and nothing is recorded while the one-hit cheat is on. */
+(function () {
+  const M = window.MIM, Art = window.Art;
+  const { state, REALMS, CHAPTERS } = M;
+
+  const fmtTime = ms => { const s = Math.max(1, Math.round(ms / 1000)); return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`; };
+  const show = (v, f) => (v === null || v === undefined ? '–' : f(v));
+  const SHOW = { ms: fmtTime, misses: String, streak: String };
+  const LABEL = { ms: 'Time', misses: 'Mistakes', streak: 'Streak' };
+  const recs = () => state.save.records || (state.save.records = REALMS.map(() => null));
+  const mistakes = n => (n === 0 ? 'no mistakes' : `${n} ${n === 1 ? 'mistake' : 'mistakes'}`);
+
+  // Called by the battle when a realm is won. Returns what changed, for the result screen.
+  M.recordWin = (i, run) => {
+    const all = recs(), prev = all[i] ? Object.assign({}, all[i]) : null;
+    const better = {
+      ms: !prev || prev.ms === null || run.ms < prev.ms,
+      misses: !prev || prev.misses === null || run.misses < prev.misses,
+      streak: !prev || prev.streak === null || run.streak > prev.streak
+    };
+    const tie = { ms: false, misses: !!prev && prev.misses === run.misses, streak: !!prev && prev.streak === run.streak };
+    all[i] = { ms: better.ms ? run.ms : prev.ms, misses: better.misses ? run.misses : prev.misses, streak: better.streak ? run.streak : prev.streak };
+    return { first: !prev, prev, run, best: Object.assign({}, all[i]), better, tie };
+  };
+  M.newRecords = rc => (rc && !rc.first ? ['ms', 'misses', 'streak'].filter(k => rc.better[k]).length : 0);
+
+  // Win screen: this fight's numbers, with new records highlighted
+  M.recordsHTML = res => {
+    if (res.cheat) return `<p class="rec-paused">${Art.icon('trophy')}<span>Records are paused while the cheat is on.</span></p>`;
+    const rc = res.records;
+    if (!rc) return '';
+    const fresh = M.newRecords(rc);
+    const head = rc.first ? 'First records for this realm!' : fresh ? (fresh > 1 ? 'New records!' : 'New record!') : 'Your records';
+    const tile = k => {
+      const isNew = !rc.first && rc.better[k];
+      const note = rc.first ? 'First record'
+        : isNew ? `New record!<span class="rec-was">was ${show(rc.prev[k], SHOW[k])}</span>`
+          : rc.tie[k] ? 'Tied your best' : `Best ${show(rc.best[k], SHOW[k])}`;
+      return `<div class="rec-tile${isNew ? ' is-new' : ''}"><span class="rec-label">${LABEL[k]}</span><b class="rec-val">${SHOW[k](rc.run[k])}</b><span class="rec-note">${note}</span></div>`;
+    };
+    return `<div class="records"><p class="records-head${fresh ? ' is-new' : ''}">${Art.icon('trophy')}<span>${head}</span></p>
+      <div class="rec-tiles">${tile('ms')}${tile('misses')}${tile('streak')}</div>
+      ${rc.first ? '<p class="dim rec-tip">Play this realm again to beat them.</p>' : ''}</div>`;
+  };
+
+  // Before a fight: the best to beat
+  M.bestLine = i => {
+    const r = recs()[i];
+    if (!r) return '';
+    const bits = [];
+    if (r.ms !== null) bits.push(fmtTime(r.ms));
+    if (r.misses !== null) bits.push(mistakes(r.misses));
+    if (r.streak !== null) bits.push(`${r.streak} in a row`);
+    return bits.length ? `<p class="best-chip">${Art.icon('trophy')}<span>Your best: ${bits.join(' · ')}</span></p>` : '';
+  };
+
+  M.screens.records = () => {
+    const s = state.save, all = recs();
+    const done = all.map((r, i) => (r ? { r, i } : null)).filter(Boolean);
+    const fastest = done.filter(d => d.r.ms !== null).sort((a, b) => a.r.ms - b.r.ms)[0];
+    const longest = done.filter(d => d.r.streak !== null).sort((a, b) => b.r.streak - a.r.streak)[0];
+    const perfect = done.filter(d => d.r.misses === 0).length;
+    const top = done.length ? `<div class="pp-tiles">
+        <div class="pp-tile"><span class="pp-label">Fastest win</span><b class="pp-value">${fastest ? fmtTime(fastest.r.ms) : '–'}</b>${fastest ? `<span class="dim">${REALMS[fastest.i].name}</span>` : ''}</div>
+        <div class="pp-tile"><span class="pp-label">Longest streak</span><b class="pp-value">${longest ? longest.r.streak : '–'}</b>${longest ? `<span class="dim">in a row, ${REALMS[longest.i].name}</span>` : ''}</div>
+        <div class="pp-tile"><span class="pp-label">Wins with no mistakes</span><b class="pp-value">${perfect} of ${REALMS.length}</b><span class="dim">realms</span></div>
+      </div>` : `<p class="empty-note">${Art.icon('trophy')}<span>No records yet. Win a realm to set your first one!</span></p>`;
+    const row = i => {
+      const r = REALMS[i], rec = all[i], open = i < s.unlocked;
+      const body = rec
+        ? `<dl class="rec-stats"><div><dt>Time</dt><dd>${show(rec.ms, fmtTime)}</dd></div><div><dt>Mistakes</dt><dd>${show(rec.misses, String)}${rec.misses === 0 ? Art.icon('trophy') : ''}</dd></div><div><dt>Streak</dt><dd>${show(rec.streak, String)}</dd></div></dl>`
+        : `<p class="dim rec-empty">${!open ? 'Locked.' : s.stars[i] ? 'Win here again to set a record.' : 'Not beaten yet.'}</p>`;
+      return `<article class="rec-row${rec ? '' : ' is-empty'}">
+        <div class="rec-name"><p class="eyebrow">Realm ${i + 1}</p><p class="rec-realm">${open ? r.name : '???'}</p></div>
+        ${open ? `<button class="btn btn-small" data-act="pickRealm" data-arg="${i}" aria-label="${rec ? 'Beat your record in' : 'Play'} ${r.name}">${rec ? 'Beat it' : 'Play'}</button>` : ''}
+        ${body}</article>`;
+    };
+    const chapters = CHAPTERS.map((ch, ci) => `<h3 class="h3 rec-chapter">Chapter ${ci + 1}: ${ch.title}</h3>
+      <div class="rec-list">${REALMS.map((_, i) => i).filter(i => i >= ch.first && i <= ch.last).map(row).join('')}</div>`).join('');
+    return `<section class="screen" aria-labelledby="rec-title"><div class="wrap wrap-narrow">
+      <div class="topbar"><button class="icon-btn" data-act="toMap" aria-label="Back to the map">${Art.icon('back')}</button><h2 id="rec-title" class="h2 grow">My records</h2></div>
+      <p class="dim">Win a realm to set a record, then play it again to beat your fastest time, fewest mistakes and longest streak.</p>
+      ${top}
+      ${chapters}
+    </div></section>`;
+  };
+
+  M.fmtTime = fmtTime;
+  M.actions.openRecords = () => M.go('records');
+})();
+
+;
 /* Math Is Magic: battles (spell choice, puzzles, answers, power-ups, animations) */
 (function () {
   'use strict';
@@ -3238,9 +3373,18 @@ button { font: inherit; color: inherit; }
       phase: 'spell', spell: 0, puzzle: null, hintUsed: false, input: '', choice: null,
       cast: 0, misses: 0, hints: 0, last: null, busy: false,
       shield: k.shieldStart, double: k.startDouble, info: null, stolen: [],
-      swaps: k.swaps, rewinds: k.rewinds
+      swaps: k.swaps, rewinds: k.rewinds,
+      started: performance.now(), hiddenMs: 0, hiddenAt: document.hidden ? performance.now() : null, endedMs: null, bestStreak: 0
     };
   }
+  // The record clock only runs while the game is on screen, so a locked phone or a switched tab does not count
+  const activeMs = b => Math.max(0, performance.now() - b.started - b.hiddenMs - (b.hiddenAt !== null ? performance.now() - b.hiddenAt : 0));
+  document.addEventListener('visibilitychange', () => {
+    const b = state.battle;
+    if (!b || b.endedMs !== null || b.started === undefined) return;
+    if (document.hidden) { if (b.hiddenAt === null) b.hiddenAt = performance.now(); }
+    else if (b.hiddenAt !== null) { b.hiddenMs += performance.now() - b.hiddenAt; b.hiddenAt = null; }
+  });
 
   // Hearts carry over, so the save follows every change. Running out means a rest: the next fight starts full
   function syncHearts() {
@@ -3590,7 +3734,9 @@ button { font: inherit; color: inherit; }
       const cheat = cheatOn(), doubled = b.double, dmg = cheat ? b.hp : power(), bonus = b.streak >= 2, weak = weakBonus() > 0;
       b.double = false;
       b.streak++;
+      b.bestStreak = Math.max(b.bestStreak || 0, b.streak);
       b.hp = Math.max(0, b.hp - dmg);
+      if (b.hp === 0 && b.endedMs === null) b.endedMs = activeMs(b);
       const drop = b.streak % b.k.dropEvery === 0 ? grantRandom() : null;
       let healed = false, shieldUp = false;
       if (b.k.healEvery && b.streak % b.k.healEvery === 0 && b.hearts < b.maxHearts && b.hp > 0) { b.hearts++; healed = true; }
@@ -3693,8 +3839,12 @@ button { font: inherit; color: inherit; }
       sfx.win();
     } else sfx.lose();
     s.hurt = won ? Math.max(0, b.maxHearts - b.hearts) : 0;
+    const cheat = won && cheatOn();
+    const records = won && !cheat && M.recordWin && b.started !== undefined
+      ? M.recordWin(i, { ms: Math.max(1, Math.round(b.endedMs !== null ? b.endedMs : activeMs(b))), misses: b.misses, streak: b.bestStreak || 0 }) : null;
+    if (records && M.newRecords(records)) setTimeout(() => sfx.loot(), 900);
     M.persist();
-    state.result = { realm: i, won, stars: won ? stars : 0, cast: b.cast, misses: b.misses, hints: b.hints, hpLeft: b.hp, unlockedNow, drops, rankUp, returned: won ? b.stolen.slice() : [] };
+    state.result = { realm: i, won, stars: won ? stars : 0, cast: b.cast, misses: b.misses, hints: b.hints, hpLeft: b.hp, unlockedNow, drops, rankUp, returned: won ? b.stolen.slice() : [], records, cheat };
     state.battle = null;
     M.go(firstWin ? 'final' : 'result');
   }

@@ -57,9 +57,18 @@
       phase: 'spell', spell: 0, puzzle: null, hintUsed: false, input: '', choice: null,
       cast: 0, misses: 0, hints: 0, last: null, busy: false,
       shield: k.shieldStart, double: k.startDouble, info: null, stolen: [],
-      swaps: k.swaps, rewinds: k.rewinds
+      swaps: k.swaps, rewinds: k.rewinds,
+      started: performance.now(), hiddenMs: 0, hiddenAt: document.hidden ? performance.now() : null, endedMs: null, bestStreak: 0
     };
   }
+  // The record clock only runs while the game is on screen, so a locked phone or a switched tab does not count
+  const activeMs = b => Math.max(0, performance.now() - b.started - b.hiddenMs - (b.hiddenAt !== null ? performance.now() - b.hiddenAt : 0));
+  document.addEventListener('visibilitychange', () => {
+    const b = state.battle;
+    if (!b || b.endedMs !== null || b.started === undefined) return;
+    if (document.hidden) { if (b.hiddenAt === null) b.hiddenAt = performance.now(); }
+    else if (b.hiddenAt !== null) { b.hiddenMs += performance.now() - b.hiddenAt; b.hiddenAt = null; }
+  });
 
   // Hearts carry over, so the save follows every change. Running out means a rest: the next fight starts full
   function syncHearts() {
@@ -409,7 +418,9 @@
       const cheat = cheatOn(), doubled = b.double, dmg = cheat ? b.hp : power(), bonus = b.streak >= 2, weak = weakBonus() > 0;
       b.double = false;
       b.streak++;
+      b.bestStreak = Math.max(b.bestStreak || 0, b.streak);
       b.hp = Math.max(0, b.hp - dmg);
+      if (b.hp === 0 && b.endedMs === null) b.endedMs = activeMs(b);
       const drop = b.streak % b.k.dropEvery === 0 ? grantRandom() : null;
       let healed = false, shieldUp = false;
       if (b.k.healEvery && b.streak % b.k.healEvery === 0 && b.hearts < b.maxHearts && b.hp > 0) { b.hearts++; healed = true; }
@@ -512,8 +523,12 @@
       sfx.win();
     } else sfx.lose();
     s.hurt = won ? Math.max(0, b.maxHearts - b.hearts) : 0;
+    const cheat = won && cheatOn();
+    const records = won && !cheat && M.recordWin && b.started !== undefined
+      ? M.recordWin(i, { ms: Math.max(1, Math.round(b.endedMs !== null ? b.endedMs : activeMs(b))), misses: b.misses, streak: b.bestStreak || 0 }) : null;
+    if (records && M.newRecords(records)) setTimeout(() => sfx.loot(), 900);
     M.persist();
-    state.result = { realm: i, won, stars: won ? stars : 0, cast: b.cast, misses: b.misses, hints: b.hints, hpLeft: b.hp, unlockedNow, drops, rankUp, returned: won ? b.stolen.slice() : [] };
+    state.result = { realm: i, won, stars: won ? stars : 0, cast: b.cast, misses: b.misses, hints: b.hints, hpLeft: b.hp, unlockedNow, drops, rankUp, returned: won ? b.stolen.slice() : [], records, cheat };
     state.battle = null;
     M.go(firstWin ? 'final' : 'result');
   }

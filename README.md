@@ -10,6 +10,7 @@ A chalkboard adventure where every spell is a math puzzle. Dress your mage, pick
 - Three spells from your job's spellbook (Fire, Holy, Meteor and more). Harder puzzles hit harder, and every monster has a weak spot.
 - Ranks from Trainee Mage to Grand Mage, with a job to pick after each stage (Flame, Shield, Wisdom, Nature, Time or Star), each with its own skill.
 - Power-ups: Shield Charm, Jamu Potion, Double Chalk and Board Eraser.
+- Personal records for every realm (fastest win, fewest mistakes, longest streak) to beat on a replay.
 - Hearts carry over from one fight to the next. Jamu Potions give hearts back, and losing a fight refills them for the retry.
 - Chapter 2 monsters with tricks: armoured, thief, regrows and gusty.
 - A monster notebook, and a parent page with practice history and recent mistakes.
@@ -31,6 +32,7 @@ Browser tests use Playwright:
 npm install
 node test/play.js test-output/play   # plays all ten stages and saves screenshots
 node test/mobile.js test-output/mobile  # every screen and puzzle at phone, sideways and tablet sizes
+node test/records.js test-output/records  # personal records
 node tools/og-image.js               # redraws docs/og-image.jpg, the link-preview picture (run after a build)
 ```
 
@@ -51,6 +53,7 @@ src/monsters-*.js  monster drawings
 src/jobs.js        ranks, jobs, skills and spellbooks
 src/app.js         screens, saving and sound
 src/pages.js       parent page and answer tracking
+src/records.js     personal records and the My records page
 src/battle.js      battles, power-ups, monster tricks and the cheat
 src/style-*.css    styles
 src/template.html  page shell

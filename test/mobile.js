@@ -12,7 +12,8 @@ const SIZES = [
   [320, 568, 'small phone'], [360, 740, 'Android phone'], [375, 667, 'iPhone SE'], [390, 844, 'iPhone'],
   [430, 932, 'large phone'], [844, 390, 'phone sideways'], [768, 1024, 'tablet']
 ];
-const SAVE = { hero: { name: 'Rina' }, made: true, stars: [3, 2, 3, 0, 0, 0, 0, 0, 0, 0], unlocked: 4, job: 'flame', hurt: 1, items: { shield: 2, jamu: 1, double: 3, eraser: 1 } };
+const SAVE = { hero: { name: 'Rina' }, made: true, stars: [3, 2, 3, 0, 0, 0, 0, 0, 0, 0], unlocked: 4, job: 'flame', hurt: 1, items: { shield: 2, jamu: 1, double: 3, eraser: 1 },
+  records: [{ ms: 72000, misses: 0, streak: 6 }, { ms: 101000, misses: 2, streak: 4 }, { ms: 158000, misses: 1, streak: 5 }, null, null, null, null, null, null, null] };
 
 // Runs in the page. Lists layout problems on the current screen.
 function auditScreen() {
@@ -100,6 +101,7 @@ function auditScreen() {
     await page.evaluate(() => { const b = window.__mim.state.battle; b.busy = false; b.hp = 0; window.__mim.next(); }); await snap('result');
     await page.evaluate(() => window.MIM.go('jobs')); await snap('jobs');
     await page.evaluate(() => window.MIM.go('notebook')); await snap('notebook');
+    await page.evaluate(() => window.MIM.go('records')); await snap('records');
     await page.evaluate(() => window.MIM.go('parents')); await snap('parents');
     await page.evaluate(() => { window.MIM.state.finalChapter = 0; window.MIM.go('final'); }); await snap('certificate');
     check(!found.page.length, `${tag} ${label}: no sideways or double scrolling` + (found.page.length ? '\n    ' + uniq(found.page).join('\n    ') : ''));

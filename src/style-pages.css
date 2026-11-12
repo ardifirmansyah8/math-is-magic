@@ -1,6 +1,6 @@
 /* ---------- Monster notebook ---------- */
 .beast-title { font-family: var(--font-hand); color: var(--yellow); font-size: 18px; }
-.weak-chip { display: inline-flex; align-items: center; gap: 6px; padding: 4px 12px; border: 2px dashed var(--yellow); border-radius: 999px; font-weight: 700; font-size: 15px; }
+.weak-chip { display: inline-flex; align-items: center; gap: 6px; padding: 4px 12px; border: 2px dashed var(--yellow); border-radius: 18px; font-weight: 700; font-size: 15px; text-wrap: balance; }
 .weak-chip .ico { width: 20px; height: 20px; }
 .beasts { display: grid; gap: 14px; }
 .beast { display: grid; grid-template-columns: 120px minmax(0, 1fr); gap: 14px; align-items: start; padding: 14px; border: 2.5px solid rgba(243, 239, 228, .45); border-radius: var(--wobble); background: rgba(0, 0, 0, .12); }
@@ -79,6 +79,37 @@
 .pp-answers { display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: 15px; }
 .pp-answers b { color: var(--yellow); }
 .pp-explain { font-size: 15px; line-height: 1.5; padding-top: 8px; border-top: 2px dashed rgba(243, 239, 228, .2); }
+
+/* ---------- Records ---------- */
+.best-chip { display: inline-flex; align-items: center; gap: 6px; margin: 0; padding: 4px 12px; border: 2px solid rgba(245, 213, 97, .55); border-radius: 18px; color: var(--yellow); font-weight: 700; font-size: 15px; text-wrap: balance; }
+.best-chip .ico, .records-head .ico, .rec-paused .ico, .empty-note .ico { width: 24px; height: 24px; }
+.records { display: grid; gap: 8px; width: 100%; max-width: 30em; }
+.records-head { display: flex; align-items: center; justify-content: center; gap: 8px; margin: 0; font-weight: 700; font-size: 17px; }
+.records-head.is-new { color: var(--yellow); }
+.rec-tiles { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.rec-tile { display: grid; justify-items: center; align-content: start; gap: 2px; padding: 8px 4px; border: 2px solid rgba(243, 239, 228, .35); border-radius: var(--wobble); background: rgba(0, 0, 0, .12); text-align: center; }
+.rec-tile.is-new { border-color: var(--yellow); box-shadow: 0 0 0 3px rgba(245, 213, 97, .18); }
+.rec-label { font-size: 12.5px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--chalk-dim); }
+.rec-val { font-family: var(--font-display); font-size: 26px; font-weight: 400; line-height: 1.15; }
+.rec-note { font-size: 13px; line-height: 1.3; color: var(--chalk-dim); }
+.rec-tile.is-new .rec-note { color: var(--yellow); font-weight: 700; }
+.rec-was { display: block; color: var(--chalk-dim); font-weight: 400; }
+.rec-tip { margin: 0; text-align: center; }
+.rec-paused, .empty-note { display: flex; align-items: center; gap: 8px; margin: 0; color: var(--chalk-dim); }
+.rec-chapter { margin: 8px 0 0; }
+.rec-list { display: grid; gap: 10px; }
+.rec-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "name play" "stats stats"; align-items: center; gap: 6px 12px; padding: 10px 14px; border: 2px solid rgba(243, 239, 228, .35); border-radius: var(--wobble); background: rgba(0, 0, 0, .12); }
+.rec-row.is-empty { border-style: dashed; }
+.rec-name { grid-area: name; min-width: 0; }
+.rec-name .eyebrow { margin: 0; }
+.rec-realm { margin: 0; font-weight: 700; font-size: 17px; }
+.rec-row > .btn { grid-area: play; }
+.rec-stats, .rec-empty { grid-area: stats; margin: 0; }
+.rec-stats { display: flex; flex-wrap: wrap; gap: 6px 22px; }
+.rec-stats div { display: grid; }
+.rec-stats dt { font-size: 12.5px; color: var(--chalk-dim); }
+.rec-stats dd { display: inline-flex; align-items: center; gap: 4px; margin: 0; font-weight: 700; font-size: 18px; }
+.rec-stats .ico { width: 20px; height: 20px; }
 
 /* ---------- Phones held sideways ----------
    Short landscape screens: the battle arena sits beside the puzzle and stays put while the puzzle scrolls,
